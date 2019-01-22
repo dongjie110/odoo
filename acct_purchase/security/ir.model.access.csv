@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_delivery_address,delivery.address,model_delivery_address,purchase.group_purchase_user,1,1,1,1
+access_acc_company_manager,acc.company,model_acc_company,purchase.group_purchase_manager,1,0,0,0
+access_acc_company,acc.company,model_acc_company,purchase.group_purchase_user,1,0,0,0
+access_acc_company_user,acc.company,model_acc_company,base.group_user,1,1,1,0
+access_delivery_address_manager,delivery.address,model_delivery_address,purchase.group_purchase_manager,1,1,1,1
+access_demand_purchase_line,demand.purchase.line,model_demand_purchase_line,purchase.group_purchase_user,1,1,1,1
+access_demand_purchase_line_manager,demand.purchase.line,model_demand_purchase_line,purchase.group_purchase_manager,1,1,1,1
+access_demand_purchase,demand.purchase,model_demand_purchase,purchase.group_purchase_user,1,1,1,1
+access_demand_purchase_manager,demand.purchase,model_demand_purchase,purchase.group_purchase_manager,1,1,1,1

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Form View -->
+        <record model="ir.ui.view" id="acc_company_form">
+            <field name="name">acc company</field>
+            <field name="model">acc.company</field>
+            <field name="arch" type="xml">
+                <form string="acc company" version="12.0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="logo" widget="image" class="oe_avatar"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="acc_company_tree">
+            <field name="name">acc company</field>
+            <field name="model">acc.company</field>
+            <field name="arch" type="xml">
+                <!-- <tree colors="grey:state == 'done'" string="Demand Purchase"> -->
+                <tree string="acc company">
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="action_acc_company">
+            <field name="name">公司配置</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">acc.company</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <!-- <field name="search_view_id" ref="demand_purchase_search"/> -->
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <menuitem id="menu_acc_company" name="公司配置" parent="menu_purchase_other_management" action="action_acc_company" groups="purchase.group_purchase_user" sequence="60"/>
+
+    </data>
+</openerp>

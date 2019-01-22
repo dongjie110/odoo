@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="purchase_order_form_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.form.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_rfq_send'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>   
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>   
+                </xpath>
+                <xpath expr="//button[@name='action_rfq_send'][3]" position="attributes">
+                    <attribute name="invisible">1</attribute>   
+                </xpath>
+                <xpath expr="//button[@name='print_quotation'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>   
+                </xpath>
+                <xpath expr="//button[@name='print_quotation'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>   
+                </xpath>
+                <xpath expr="//button[@name='action_view_invoice'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>   
+                </xpath>
+                <xpath expr="//button[@name='action_view_invoice'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>   
+                </xpath>
+                <xpath expr="//field[@name='partner_ref']" position="after" >
+                    <field name="contact_id" context="{'choose_contact':'choose_contact','partner_id':partner_id}"/>
+                    <field name="title"/>
+                    <field name="charge_person"/>
+                    <field name="traffic_rule"/>
+                    <field name="delivery_time" placeholder="填写格式如(1-2周,1-2weeks,1-2天,1-2days)"/>
+                    <field name="product_state"/>
+                    <field name="payment_state"/>
+                    <field name="delivery_address"/>
+                </xpath>
+                <xpath expr="//field[@name='date_order']" position="after" >
+                    <field name="crm_ponumber"/>
+                    <field name="purchase_way"/>
+                    <field name="purchase_company" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="quality_state"/>
+                    <field name="payment_rule"/>
+                    <field name="end_date"/>
+                    <field name="forcast_date"/>
+                    <field name="demand_purchase"/>
+                    <field name="origin_order"/>
+                    <field name="en_name" invisible='1'/>
+                    <field name="ship_fee"/>
+                    <!-- <field name="discount_amount"/> -->
+                    <field name="discount_type"/>
+                    <!-- <font attrs="{'invisible': ['|', ('discount_type', '!=', 'discount')]}" style="line-height:34px;">折扣比例：</font> -->
+                    <field name="discount_rate" attrs="{'invisible': ['|', ('discount_type', '!=', 'discount')],'required':[('discount_type', '=', 'discount')]}" style="width:18%"/>
+                    <field name="minus_amount" attrs="{'invisible': ['|', ('discount_type', '!=', 'minusprice')],'required':[('discount_type', '=', 'minusprice')]}" style="width:18%;"/>
+                </xpath>
+                <xpath expr="//field[@name='amount_tax']" position="after" >
+                    <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="purchase_order_tree_inherit" model="ir.ui.view">
+            <field name="name">purchase.order.tree.inherit</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="after" >
+                    <field name="title"/>
+                    <field name="product_state"/>
+                    <field name="payment_state"/>   
+                </xpath>
+                <xpath expr="//field[@name='date_planned']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- 采购单增加搜索条件视图 -->
+        <record id="acc_purchase_order_search_view" model="ir.ui.view">
+            <field name="name">acc.purchase.order.search</field>
+            <field name="model">purchase.order</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='activities_my']" position="after">
+                    <separator/>
+                    <field name="title" string="标题" filter_domain="[('title','ilike',self)]"/>
+                    <field name="charge_person" string="负责人"/>
+                    <separator/>
+                    <filter name="product_state" string="未到货" domain="[('product_state','=', 'new')]"/>
+                    <filter name="product_state" string="部分到货" domain="[('product_state','=', 'part')]"/>
+                    <filter name="product_state" string="全部到货" domain="[('product_state','=', 'all')]"/>
+                    <filter name="product_state" string="取消订单" domain="[('product_state','=', 'cancel')]"/>
+                    <filter name="payment_state" string="部分已付" domain="[('payment_state','=', 'part_pay')]"/>
+                    <filter name="payment_state" string="未付" domain="[('payment_state','=', 'nopay')]"/>
+                    <filter name="payment_state" string="全部付清" domain="[('payment_state','=', 'allpay')]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="acc_purchase_rfq" model="ir.actions.act_window">
+            <field name="name">询价单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
+            <field name="search_view_id" ref="acc_purchase_order_search_view"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a request for quotation
+              </p><p>
+                The quotation contains the history of the discussion
+                you had with your vendor.
+              </p>
+            </field>
+        </record>
+
+        <!-- <menuitem action="purchase_rfq" id="menu_purchase_rfq"
+            parent="purchase.menu_procurement_management"
+            sequence="0"/> -->
+
+        <menuitem id="menu_acc_purchase_rfq" name="询价单" parent="purchase.menu_procurement_management" action="acc_purchase_rfq" sequence="1"/>
+
+        <record id="acc_purchase_form_action" model="ir.actions.act_window">
+            <field name="name">采购订单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
+            <field name="domain">[('state','in',('purchase', 'done'))]</field>
+            <field name="search_view_id" ref="acc_purchase_order_search_view"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a quotation
+              </p><p>
+                It will be converted into a purchase order.
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_acc_purchase_form_action" name="采购订单" parent="purchase.menu_procurement_management" action="acc_purchase_form_action" sequence="2"/>
+
+        <!--purchase模块-->
+        <record id="purchase_acc_form_view" model="ir.ui.view">
+            <field name="name">purchase.acc.form</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form"/>
+            <field name="arch" type="xml">
+                    <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="attributes">
+                        <attribute name="string">名称</attribute>
+                    </xpath> --> 
+                    <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="attributes">
+                        <attribute name="string">规格型号</attribute>
+                    </xpath>
+                    <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_uom']" position="attributes">
+                        <attribute name="string">单位</attribute>
+                    </xpath> -->
+                    <xpath expr="//field[@name='date_planned']" position="attributes">
+                        <attribute name="invisible">1</attribute>
+                    </xpath> 
+                    <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='company_id']" position="attributes">
+                        <attribute name="invisible">1</attribute>
+                    </xpath> 
+                    <!-- <xpath expr="//field[@name='account_analytic_id']" position="attributes">
+                        <attribute name="invisible">1</attribute>
+                    </xpath>  -->
+            </field>
+        </record>
+
+        <!-- product.template搜索视图 -->
+        <!-- <record id="acc_product_template_search_view" model="ir.ui.view">
+            <field name="name">acc.product.template.search</field>
+            <field name="model">product.template</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='inactive']" position="after">
+                    <separator/>
+                    <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <field name="partner_id" string="供应商"/>
+                    <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_acc_action_puchased" model="ir.actions.act_window">
+            <field name="name">Products</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form,activity</field>
+            <field name="context">{"search_default_filter_to_purchase":1, "purchase_product_template": 1}</field>
+            <field name="search_view_id" ref="acc_product_template_search_view"/>
+            <field name="view_id" eval="False"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new product
+              </p><p>
+                You must define a product for everything you purchase,
+                whether it's a physical product, a consumable or services.
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_purchase_acc_product_template" name="产品" parent="purchase.menu_procurement_management" action="product_acc_action_puchased" groups="purchase.group_purchase_user" sequence="100"/> -->
+
+
+
+        <record id="action_purchase_partner_other_form" model="ir.actions.act_window">
+            <field name="name">contacts</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <!-- <field name="domain">[('supplier','!=',1),('customer','!=',1),('is_company','!=',1)]</field>
+            <field name="context">{'default_customer':0, 'default_customer':0, 'default_is_company': False, 'search_default_is_company':False,}</field> -->
+            <field name="domain">[('is_company','!=',1)]</field>
+            <field name="context">{'default_is_company': False, 'search_default_is_company':False,}</field>
+            <field name="filter" eval="True"/>
+        </record>
+
+        <menuitem id="menu_purchase_other_management" name="其他信息"
+            parent="purchase.menu_purchase_root" sequence="3" />
+
+        <menuitem id="menu_purchase_uom_form_action" name="计量单位" parent="menu_purchase_other_management" action="uom.product_uom_form_action" groups="purchase.group_purchase_user" sequence="50"/>
+
+        <menuitem id="menu_purchase_partner_other_form" name="联系人" parent="menu_purchase_other_management" action="action_purchase_partner_other_form" groups="purchase.group_purchase_user" sequence="49"/>
+
+    </data>
+</openerp>

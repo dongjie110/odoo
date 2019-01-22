@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <menuitem id="menu_export_data_root" name="导出数据" parent="purchase.menu_purchase_root" sequence="50"/>
+        <menuitem id="menu_export_purchase_form_action" name="采购单数据导出" parent="menu_export_data_root" action="export_purchase_wizard" groups="purchase.group_purchase_user" sequence="10"/>
+    </data>
+</odoo>

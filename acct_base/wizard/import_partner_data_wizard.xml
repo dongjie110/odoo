@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!--导数据-->
+        <record id="import_partner_form_view" model="ir.ui.view">
+            <field name="name">导入数据</field>
+            <field name="model">import.partner.wizard</field>
+            <field name="arch" type="xml">
+                <form string="import">
+                     <sheet>
+                         <group>
+                             <templates>
+                                 <t t-name="kanban-box">
+                                    <div class="o_web_settings_dashboard_pills">
+                                    <a href="/acct_base/static/files/供应商导入模板.xlsx" target="_blank" class="pull-left"><i class="fa text-muted"/>下载模板</a>
+                                    </div>
+                                </t>
+                             </templates>
+                         </group>
+                        <group>
+                            <!-- <field name='file_name'/> -->
+                            <field name='data' string="选择文件"/>
+                            <!--<field name='selected'/>-->
+                            <!--<field name='exported'/>-->
+                        </group>
+                        <footer name="codes" >
+                            <button class="oe_stat_button" name="import_data_all" string="导入" type="object"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--<record id="act_import_result_wizard" model="ir.actions.act_window">-->
+            <!--<field name="name">导入数据</field>-->
+            <!--<field name="res_model">water.card.data.wizard</field>-->
+            <!--<field name="view_type">form</field>-->
+            <!--<field name="view_mode">form</field>-->
+            <!--<field name="context">{"type":"attendance"}</field>-->
+            <!--<field name="view_id" ref="import_data_form_view"/>-->
+            <!--<field name="target">new</field>-->
+        <!--</record>-->
+
+        <!--<act_window id='import_attend_data_wizard'-->
+                    <!--name='导入销售数据'-->
+                    <!--res_model='guide.import.data.wizard'-->
+                    <!--view_mode='form'-->
+                    <!--context="{'type':'attendance'}"-->
+                    <!--target="new"-->
+        <!--/>-->
+
+        <record id="import_partner_data_wizard" model="ir.actions.act_window">
+            <field name="name">供应商导入</field>
+            <field name="res_model">import.partner.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <!-- <field name="context">{"type":"vmc_watergodcard"}</field> -->
+            <field name="view_id" ref="import_partner_form_view"/>
+            <field name="target">new</field>
+        </record>
+
+        <!--<act_window id='import_watercard_data_wizard'-->
+                    <!--name='水神卡数据'-->
+                    <!--res_model='water.card.data.wizard'-->
+                    <!--view_mode='form'-->
+                    <!--context="{'type':'hr_employee'}"-->
+                    <!--target="new"-->
+        <!--/>-->
+    </data>
+</odoo>

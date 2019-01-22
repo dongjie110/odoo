@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <template id="acc_report_purchaseorder">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="o">
+                <style tyle="text/css">
+                    .unovo-report-purchase-title {
+                    font-family:"Arial";
+                    font-size: 25px;
+                    font-weight: bold;
+                    text-align:right;
+                    line-height:40px;
+                    }
+                    .unovo-report-purchase-header {
+                    font-family:"Arial";
+                    line-height:22px;
+                    font-size:16px;
+                    text-align:right;
+                    }
+                    .unovo-report-purchase-table {
+                    font-family:"Arial";
+                    width:100%;
+                    border-collapse:collapse;
+                    border:1px solid #ccc;
+                    background:#3d85c6
+                    }
+                    .unovo-report-purchase-table th{
+                    font-weight:bold;
+                    text-align:center;
+                    height:20px;
+                    font-size:16px;
+                    color:#FFF;
+                    }
+                    .unovo-report-purchase-table td{
+                    height:20px;
+                    font-size:16px;
+                    border:1px solid #ccc;
+                    background:#FFF
+                    }
+                    .unovo-report-purchase-total {
+                    font-family:"Arial";
+                    line-height:20px;
+                    font-size:16px;
+                    }
+                    .unovo-report-purchase-content {
+                    font-family:"Arial";
+                    line-height:22px;
+                    font-size:16px;
+                    }
+                    .unovo-report-purchase-content p {
+                    margin:5px 0px;
+                    }
+                    .unovo-report-purchase-footer {
+                    font-family:"Arial";
+                    line-height:22px;
+                    font-size:16px;
+                    }
+                    .unovo-report-footer-table {
+                    font-family:"Arial";
+                    clear:both;
+                    }
+                    .unovo-report-acc-table {
+                    font-family:"Arial";
+                    border-collapse:collapse;
+                    border:1px solid #ccc;
+                    background:#3d85c6
+                    }
+                    .unovo-report-acc-table th{
+                    width:570px;
+                    font-weight:bold;
+                    text-align:center;
+                    height:25px;
+                    font-size:16px;
+                    }
+                    .unovo-report-acc-table td{
+                    width:250px;
+                    font-weight:bold;
+                    text-align:center;
+                    height:100px;
+                    font-size:16px;
+                    border:1px solid #ccc;
+                    background:#FFF
+                    }
+
+                    .unovo-report-acc-table1 {
+                    font-family:"Arial";
+                    border-collapse:collapse;
+                    border:1px solid #ccc;
+                    width:100%
+                    }
+                    .unovo-report-acc-table1 th{
+                    width:50%;
+                    font-weight:bold;
+                    text-align:center;
+                    height:25px;
+                    font-size:16px;
+                    color:#FFF;
+                    background:#3d85c6;
+                    }
+                    .unovo-report-acc-table1 td{
+                    width:50%;
+                    <!-- font-weight:bold; -->
+                    text-align:center;
+                    height:25px;
+                    font-size:16px;
+                    border:1px solid #ccc;
+                    background:#FFF;
+                    border-bottom:none
+                    }
+                </style>
+                <div class="page">
+                    <div class="row unovo-report-purchase-title">
+                        <div class="col-xs-6" style="width: 50%;text-align: left;">
+                            <!-- <img t-att-src="'data:image/jpg;base64,%s' % o.purchase_company.logo" style="max-height: 45px;"/> -->
+                            <img t-att-src="'data:image/png;base64,%s' % logo" style="max-height: 55px;width:230px"/>
+                        </div>
+                        <div class="col-xs-6" style="width: 50%;text-align: right;color:#3d85c6;">
+                            <strong style="max-height: 70px;width:250px">PURCHASE ORDER</strong>
+                        </div>
+                    </div>
+                    <!-- <div class="row unovo-report-purchase-header">
+                        <div class="col-xs-6" style="width:100%;">
+                            <strong>Date  </strong> <span t-esc="date_code.get('date', '')"/>
+                        </div>
+                    </div>
+                    <div class="row unovo-report-purchase-header">
+                        <div class="col-xs-6" style="width:100%;">
+                            <strong>P.O.#  </strong><span t-esc="date_code.get('code', '')"/>
+                        </div>
+                    </div> -->
+                    <div style="float:left; width:65%"><table>
+                        <tr>
+                            <th>
+                            </th>
+                            <td>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                            </th>
+                            <td>
+                            </td>
+                        </tr>
+                    </table></div>
+                    <div style="float:right; width:35%"><table style="width:100%;" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <th>
+                                Date
+                            </th>
+                            <td >
+                                <span t-esc="date_code.get('date', '')"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                P.O.#
+                            </th>
+                            <td>
+                                <span t-esc="date_code.get('code', '')"/>
+                            </td>
+                        </tr>
+                    </table></div>
+                    <!-- <div class="row unovo-report-purchase-footer">
+                        <div class="col-xs-6" style="width: 100%;text-align: left;">
+                            Building 18, No.1588 , Lianhang Road,Minghang District<br/>Shanghai, 201112, PRC<br/>Tel: +86-21-62208085 +86-21-62208090<br/>Fax: 0086-21-51026636
+                        </div>
+                    </div> -->
+                    <div class="unovo-report-footer-table">
+                        <div style="text-align:left; width:100%">
+                        <strong>Building 18, No.1588 , Lianhang Road,Minghang District<br/>Shanghai, 201112, PRC<br/>Tel: +86-21-62208085 +86-21-62208090<br/>Fax: 0086-21-51026636</strong>
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <!-- <div class="row unovo-report-purchase-footer">
+                        <div class="col-xs-6" style="width: 50%;text-align: left;">
+                            <strong>VENDOR</strong><br/>
+                            <span t-field="o.partner_id.name"/>
+                        </div>
+                        <div class="col-xs-6">
+                            <strong>SHIP TO</strong><br/>
+                            <span t-field="o.delivery_address.name"/>
+                        </div>
+                    </div> -->
+                    <div class="unovo-report-footer-table">
+                        <div style="float: left; width:30%">
+                        <table class="unovo-report-acc-table1" border="1px" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <th colspan="3" class="text-center">
+                                    <strong>VENDOR</strong>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span t-field="o.partner_id.name"/></td>
+                            </tr>
+                        </table>
+                        </div>
+
+                        <div style="float: right; width:30%">
+                        <table class="unovo-report-acc-table1" border="1px" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <th colspan="3" class="text-center">
+                                    <strong>SHIP TO</strong>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td class="text-center"><span t-field="o.delivery_address.name"/></td>
+                            </tr>
+                        </table>
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <table class="unovo-report-purchase-table" border="1px" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <th class="text-center">
+                                    <strong>REQUISITIONER</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>CURRENCY</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>LEAD TIME</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>PAYMENT TERMS</strong>
+                                </th>
+                                <th class="text-center">
+                                    <strong>SHIPPING TERMS</strong>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td class="text-center">
+                                    <span t-field="o.en_name"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="o.currency_id.name"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-esc="date_code.get('en_forcast_date', '')"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="o.payment_rule"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="o.traffic_rule"/>
+                                </td>
+                            </tr>
+                    </table>
+                    <br/>
+                    <table class="unovo-report-purchase-table" border="1px" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <!-- <th>
+                                <strong>序 号</strong>
+                            </th> -->
+                            <!-- <th>
+                                <strong>物料编码</strong>
+                            </th> -->
+                            <th style="width:20%;">
+                                <strong>PART NUMBER</strong>
+                            </th>
+                            <th style="width:40%;">
+                                <strong>DESCRIPTION</strong>
+                            </th>
+                            <th style="width:10%;">
+                                <strong>QTY</strong>
+                            </th>
+                            <th style="width:15%;">
+                                <strong>UNIT PRICE</strong>
+                            </th>
+                            <!-- <th>
+                                <strong>TAX RATE</strong>
+                            </th> -->                           
+                            <th style="width:15%;">
+                                <strong>TOTAL</strong>
+                            </th>
+                        </tr>
+                        <tr t-foreach="o.order_line" t-as="line">
+                            <td class="text-center">
+                                <span t-field="line.product_id.product_tmpl_id.product_model"/>
+                            </td>
+                            <td class="text-center">
+                                <span t-field="line.product_id.product_tmpl_id.product_describe_en"/>
+                            </td>
+                            <td class="text-center">
+                                <span t-esc="'{:,}'.format(int(line.product_qty))"/>
+                            </td>
+
+                            <td class="text-center">
+                                <span t-field="line.price_unit" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                            <!-- <td class="text-center">
+                                <span t-esc="', '.join(map(lambda x: x.name, line.taxes_id))"/>
+                            </td> -->
+                            <td class="text-center">
+                                <!-- <span t-esc="'{:.2f}'.format(round(line.price_unit*line.product_qty,2))" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/> -->
+                                <span t-esc="line.price_unit*line.product_qty" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                    </table>
+                    <br/>
+                    <div class="unovo-report-footer-table">
+                    <div style="float: left; width:60%">
+                        <table class="unovo-report-acc-table" border="1px" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <th colspan="3" class="text-center">
+                                    <strong>Other Comments or Special Instructions</strong>
+                                </th>
+                            </tr>
+                            <tr>
+                                <td></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="float: right;width:40%">
+                    <!-- <div style="text-align: right;">
+                        <strong>SUBTOTAL </strong><span t-esc="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </div>                
+                    <div style="text-align: right;">
+                        <strong>TAX </strong><span t-esc="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </div>                               
+                    <div style="text-align: right;">
+                        <strong>DISCOUNT </strong><span t-esc="o.discount_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </div>                              
+                    <div style="text-align: right;">
+                        <strong>SHIPPING </strong><span t-esc="o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </div>               
+                    <div style="text-align: right;">
+                        <strong>TOTAL </strong><span t-esc="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                    </div> -->
+                    <table cellspacing="3" style="width:60%;" align="right">
+                        <tr>
+                            <th style="width:40%;">
+                                SUBTOTAL
+                            </th>
+                            <td >
+                                <span t-esc="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                TAX
+                            </th>
+                            <td >
+                                <span t-esc="o.amount_tax" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                DISCOUNT
+                            </th>
+                            <td >
+                                <span t-esc="o.discount_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                SHIPPING
+                            </th>
+                            <td >
+                                <span t-esc="o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                TOTAL
+                            </th>
+                            <td>
+                                <span t-esc="o.amount_total - o.discount_amount - o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                            </td>
+                        </tr>
+                    </table>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <div style="border:1px solid black">
+                        <strong style="float:left">Authorized by</strong>
+                        <strong style="float:right">Date</strong>
+                    </div>
+                    </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <div class="unovo-report-footer-table">
+                        <div style="text-align:center; width:100%">
+                        <strong>If you have any questions about this purchase order, please contact<br/><span t-field="o.en_name"/> Mail: <span t-field="o.charge_person.partner_id.email"/></strong>
+                        </div>
+                    </div>
+                </div>
+            <div style="page-break-after:always;"></div>
+            </t>
+
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="doc" t-value="doc.with_context({'lang':doc.partner_id.lang})"/>
+            </t>
+        </t>
+    </template>
+<!--         <template id="unovo_report_purchaseorder">
+        <t t-call="report.html_container">
+            <t t-foreach="doc_ids" t-as="doc_id">
+                <t t-raw="translate_doc(doc_id, doc_model, 'partner_id.lang', 'unovo_report.unovo_report_purchaseorder_document')"/>
+            </t>
+        </t>
+    </template> -->
+</data>
+</odoo>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- Form View -->
+        <record model="ir.ui.view" id="transaction_rule_form">
+            <field name="name">transaction rule</field>
+            <field name="model">transaction.rule</field>
+            <field name="arch" type="xml">
+                <form string="transaction rule" version="12.0">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="transaction_rule_tree">
+            <field name="name">transaction rule</field>
+            <field name="model">transaction.rule</field>
+            <field name="arch" type="xml">
+                <!-- <tree colors="grey:state == 'done'" string="Demand Purchase"> -->
+                <tree string="transaction rule">
+                    <field name="name"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+
+        <record model="ir.actions.act_window" id="action_transaction_rule">
+            <field name="name">交易条款</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">transaction.rule</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <!-- <field name="search_view_id" ref="demand_purchase_search"/> -->
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <menuitem id="menu_transaction_rule" name="交易条款" parent="menu_sale_other_management" action="action_transaction_rule" groups="sales_team.group_sale_salesman" sequence="20"/>
+
+        <!-- <menuitem id="sale_order_menu"
+            name="Orders"
+            parent="sale_menu_root"
+            sequence="2"/> -->
+
+    </data>
+</openerp>

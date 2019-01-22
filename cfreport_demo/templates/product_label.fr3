@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<TfrxReport Version="5.3.16" DotMatrixReport="False" IniFile="\Software\Fast Reports" PreviewOptions.Buttons="4095" PreviewOptions.Zoom="1" PrintOptions.Printer="预设" PrintOptions.PrintOnSheet="0" ReportOptions.CreateDate="43005.0705768981" ReportOptions.Description.Text="" ReportOptions.LastChange="43005.0819142014" ScriptLanguage="PascalScript" ScriptText.Text="begin&#13;&#10;&#13;&#10;end.">
+  <Datasets>
+    <item DataSet="dsProductLabel" DataSetName="ProductLabel"/>
+  </Datasets>
+  <TfrxDataPage Name="" Height="1000" Left="0" Top="0" Width="1000"/>
+  <TfrxReportPage Name="Page1" PaperWidth="210" PaperHeight="297" PaperSize="9" LeftMargin="0" RightMargin="0" TopMargin="0" BottomMargin="0" ColumnWidth="0" ColumnPositions.Text="" HGuides.Text="" VGuides.Text="">
+    <TfrxMasterData Name="MasterData1" FillType="ftBrush" FillGap.Top="0" FillGap.Left="0" FillGap.Bottom="0" FillGap.Right="0" Height="118.67718" Left="0" Top="0" Width="793.7013" Columns="3" ColumnWidth="264.566929133858" ColumnGap="0" DataSet="dsProductLabel" DataSetName="ProductLabel" RowCount="0">
+      <TfrxMemoView Name="ProductLabeldefault_code" Left="15" Top="25" Width="238.63018" Height="29.89765" StretchMode="smActualHeight" DataSet="dsProductLabel" DataSetName="ProductLabel" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="1" Frame.Typ="15" Fill.BackColor="13296895" ParentFont="False" VAlign="vaCenter" Text="［[ProductLabel.&#34;default_code&#34;] ］[ProductLabel.&#34;product_name&#34;]">
+        <Formats>
+          <item/>
+          <item/>
+        </Formats>
+      </TfrxMemoView>
+      <TfrxMemoView Name="ProductLabelbarcode" Left="15" Top="56" Width="170.11039" Height="46.89765" DataField="barcode" DataSet="dsProductLabel" DataSetName="ProductLabel" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="15" HAlign="haCenter" ParentFont="False" VAlign="vaCenter" Text="[ProductLabel.&#34;barcode&#34;]"/>
+      <TfrxMemoView Name="ProductLabellist_price" Left="185" Top="56" Width="68.37013" Height="46.89765" DataSet="dsProductLabel" DataSetName="ProductLabel" Font.Charset="1" Font.Color="-16777208" Font.Height="-13" Font.Name="Arial" Font.Style="0" Frame.Typ="15" HAlign="haCenter" ParentFont="False" VAlign="vaCenter" Text="[ProductLabel.&#34;currency_symbol&#34;]  [ProductLabel.&#34;list_price&#34;]"/>
+      <TfrxBarCodeView Name="BarCode1" Left="52" Top="60" Width="90" Height="42.89765" BarType="bcCodeEAN128" Expression="&#60;ProductLabel.&#34;barcode&#34;&#62;" Rotation="0" Text="12345678" WideBarRatio="2" Zoom="1" Font.Charset="1" Font.Color="0" Font.Height="-12" Font.Name="Arial" Font.Style="0"/>
+    </TfrxMasterData>
+  </TfrxReportPage>
+</TfrxReport>
+<DataStruct><!--康虎软件工作室，官网：http://www.cfsoft.cf，QQ：360026606，Wechat：360026606--><![CDATA[{"Tables":[{"Name":"ProductLabel","Data":[],"Cols":[{"required":false,"type":"str","size":255,"Name":"default_code"},{"required":false,"type":"str","size":255,"Name":"product_name"},{"required":false,"type":"str","size":30,"Name":"barcode"},{"required":false,"type":"str","size":4,"Name":"currency_symbol"},{"required":false,"type":"float","size":0,"Name":"list_price"}]}]}]]></DataStruct>

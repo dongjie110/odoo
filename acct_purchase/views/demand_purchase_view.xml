@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data >
+
+        <!-- Demand Purchase Form View -->
+        <record model="ir.ui.view" id="demand_purchase_form">
+            <field name="name">Demand Purchase</field>
+            <field name="model">demand.purchase</field>
+            <field name="arch" type="xml">
+                <form string="Demand Purchase" version="12.0">
+                    <header>
+                        <button name="draft_button" states="draft" string="提交审批" type="object" groups="purchase.group_purchase_user"/>
+                        <button name="approve" states="confirmed" string="审批通过" type="object" groups="purchase.group_purchase_manager"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" statusbar_colors='{"draft":"red"}'/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="apply_date"/>
+                                <field name="need_date" />
+                                <field name="purchase_type" />
+                                <field name="partner_id" options="{'no_create': True, 'no_open': True}"/>
+                            </group>
+                            <group>
+                                <field name="web_address" />
+                                <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="purchase_order_id"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="note"/>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="采购明细">
+                                <field name="order_line">
+                                    <tree string="采购明细" editable="bottom">
+                                        <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="name"/>                                    
+                                        <field name="product_qty"/>
+                                        <!-- <field name="default_code"/> -->
+                                        <field name="product_uom"/>
+                                        <field name="price_unit"/>
+                                        <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','!=','sale')]"/>
+                                        <field name="price_subtotal"/>
+                                    </tree>
+                                </field>
+
+                                <group class="oe_subtotal_footer oe_right" groups="purchase.group_purchase_user">
+                                    <field name="amount_untaxed" />
+                                    <field name="amount_tax" />
+                                    <div class="oe_subtotal_footer_separator oe_inline">
+                                        <label for="amount_total"/>
+                                    </div>
+                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" />
+                                </group>
+
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="demand_purchase_tree">
+            <field name="name">Demand Purchase</field>
+            <field name="model">demand.purchase</field>
+            <field name="arch" type="xml">
+                <!-- <tree colors="grey:state == 'done'" string="Demand Purchase"> -->
+                <tree string="Demand Purchase">
+                    <field name="name"/>
+                    <field name="create_user"/>
+                    <field name="apply_date" />
+                    <field name="partner_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- <record id="demand_purchase_search" model="ir.ui.view">
+            <field name="name">Demand Purchase Search</field>
+            <field name="model">demand.purchase</field>
+            <field name="arch" type="xml">
+                <search string="Demand Purchase">
+                    <field name="name" string="编号"/>
+                    <group expand="0" string="Group By..." colspan="16">
+                        <filter string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter string="单号" domain="[]" context="{'group_by':'name'}"/>
+                        <filter string="申请日期" domain="[]" context="{'group_by':'apply_date'}"/>
+                        <filter string="申请人" domain="[]" context="{'group_by':'create_user'}"/>
+                        <filter string="需求日期" domain="[]" context="{'group_by':'need_date'}"/> 
+                        <filter string="备注" domain="[]" context="{'group_by':'note'}"/> 
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <!-- <record id="demand_purchase_search" model="ir.ui.view">
+            <field name="name">Demand Purchase Search</field>
+            <field name="model">demand.purchase</field>
+            <field name="arch" type="xml">
+                <search string="Demand Purchase">
+                    <field name="name" string="编号"/>
+                    <group expand="0" string="Group By">
+                        <filter string="供应商" name="vendor" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter string="单号" domain="[]" context="{'group_by':'name'}"/>
+                        <filter string="申请人" domain="[]" context="{'group_by':'create_user'}"/>
+                        <filter string="申请日期" domain="[]" context="{'group_by':'apply_date'}"/>
+                        <filter string="备注" domain="[]" context="{'group_by':'note'}"/>
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <record model="ir.actions.act_window" id="action_demand_purchase">
+            <field name="name">请购单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">demand.purchase</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <!-- <field name="search_view_id" ref="demand_purchase_search"/> -->
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+        <!-- <record model="ir.actions.act_window.view" id="demand_purchase_tree_view">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="demand_purchase_tree"/>
+            <field name="act_window_id" ref="action_demand_purchase"/>
+        </record>
+        <record model="ir.actions.act_window.view" id="demand_purchase_form_view">
+            <field name="sequence" eval="2"/>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="demand_purchase_form"/>
+            <field name="act_window_id" ref="action_demand_purchase"/>
+        </record> -->
+
+
+        <menuitem id="menu_demand_purchase_management" name="请购信息"
+            parent="purchase.menu_purchase_root" sequence="1" />
+
+        <menuitem id="menu_demand_purchase" name="请购单" parent="menu_demand_purchase_management" action="action_demand_purchase" groups="purchase.group_purchase_user" sequence="1"/>
+
+        <!-- <menuitem id="menu_demand_purchase" name="请购单" parent="purchase.menu_procurement_management" action="action_demand_purchase" groups="purchase.group_purchase_user" sequence="1"/> -->
+
+    </data>
+</openerp>

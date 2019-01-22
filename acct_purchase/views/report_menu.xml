@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <report
+                string="锐驰采购单"
+                id="unovo_report_purchase"
+                model="purchase.order"
+                report_type="qweb-html"
+                file="acct_purchase.unovo_report_purchaseorder"
+                name="acct_purchase.unovo_report_purchaseorder"
+        />
+
+        <report
+                string="锐驰英文采购单"
+                id="acc_report_purchase"
+                model="purchase.order"
+                report_type="qweb-html"
+                file="acct_purchase.acc_report_purchaseorder"
+                name="acct_purchase.acc_report_purchaseorder"
+        />
+
+    </data>
+</openerp>

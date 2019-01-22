@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="acc_product_template_form_view" model="ir.ui.view">
+            <field name="name">product.template.form</field>
+            <field name="model">product.template</field>
+            <field name="mode">primary</field>
+            <field name="priority" eval="5"/>
+            <field name="inherit_id" ref="product.product_template_only_form_view"/>
+            <field name="arch" type="xml">
+                <field name="barcode" position="after">
+                    <field name="template_currency_id"/>
+                    <field name="acc_purchase_price"/>
+                    <field name="image_code"/>
+                    <field name="part_code"/>
+                    <field name="brand"/>
+                    <field name="acc_code"/>
+                    <field name="partner_id"/>
+                    <field name="product_model"/>
+                    <field name="uom_id"/>
+                    <!-- <field name="template_currency_id"/> -->
+                </field>
+                <!-- <field name="stanard_price" position="after">
+                    <field name="uom_id"/>
+                </field> -->
+                <xpath expr="//notebook/page/group" position="after">
+                    <group>
+                         <field name="product_describe_cn" string="产品中文描述"/>
+                         <field name="product_describe_en" string="产品英文描述"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+        <!-- 产品模板list视图增加型号字段 -->
+        <record model="ir.ui.view" id="product_template_acc_tree_view">
+        <field name="name">product.template.acc.tree</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="product_model"/>
+            </field>
+        </field>
+        </record>
+        <!-- 产品模板增加供应商筛选功能 -->
+        <!-- <record id="partner_product_template_search_view" model="ir.ui.view">
+            <field name="name">partner.product.template.search</field>
+            <field name="model">product.template</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='pricelist_id']" position="after" >
+                    <field name="partner_id" operator="child_of"/>
+                </xpath>
+            </field>
+        </record> -->
+
+
+        <!-- 产品信息list视图增加型号字段 -->
+        <record model="ir.ui.view" id="product_product_acc_tree_view">
+        <field name="name">product.product.acc.tree</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+                <field name="product_model"/>
+            </field>
+        </field>
+        </record>
+
+        <record id="acc_res_partner_form_view" model="ir.ui.view">
+            <field name="name">res.partner.form</field>
+            <field name="model">res.partner</field>
+            <!-- <field name="mode">primary</field> -->
+            <!-- <field name="priority" eval="5"/> -->
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='lang']" position="after">
+                    <field name="charge_person"/>
+                    <field name="traffic_level" widget="priority"/>
+                    <field name="quality_level" widget="priority"/>
+                    <field name="price_level" widget="priority"/>
+                </xpath>
+                <!-- <xpath expr="//field[@name='vat']" position="after">
+                    <field name="acc_image" widget="image" nolabel="1"  options='{"size":(380,200)}'/>
+                </xpath> -->
+                <xpath expr="//page[@name='sales_purchases']" position="after" >
+                    <page string="营业执照">
+                        <field name="acc_image" widget="image" nolabel="1"  options='{"size":(380,200)}'/>
+                    </page>
+                </xpath> 
+            </field>
+        </record>
+
+        <!-- <record id="acc_product_template_search_view" model="ir.ui.view">
+            <field name="name">acc.product.template.search</field>
+            <field name="model">product.template</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='inactive']" position="after">
+                    <separator/>
+                    <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <field name="partner_id" string="供应商"/>
+                    <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                </xpath>
+            </field>
+        </record> -->
+
+        <record id="acc_product_product_search_view" model="ir.ui.view">
+            <field name="name">acc.product.product.search</field>
+            <field name="model">product.product</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="product.product_search_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='consumable']" position="after">
+                    <separator/>
+                    <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <!-- <field name="product_descript" string="规格描述" filter_domain="[('product_descript','ilike',self)]"/>
+                    <field name="product_mfg_name" string="品牌" filter_domain="[('product_mfg_name','ilike',self)]"/> -->
+                    <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <!-- 仓库product.template搜索视图 -->
+        <record id="acc_product_template_stock_search_view" model="ir.ui.view">
+            <field name="name">acc.product.template.stock.search</field>
+            <field name="model">product.template</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='inactive']" position="after">
+                    <separator/>
+                    <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <field name="partner_id" string="供应商"/>
+                    <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                    <field name="location_id" widget="selection" context="{'location': self}"/>
+                    <field name="warehouse_id" widget="selection" context="{'warehouse': self}"/>
+                    <separator/>
+                    <filter name="real_stock_available" string="Available Products" domain="[('qty_available','&gt;',0)]"/>
+                    <filter name="real_stock_negative" string="Negative Forecasted Quantity" domain="[('virtual_available','&lt;',0)]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- 库存产品菜单actionview -->
+        <record id="acc_product_template_stock_action_product" model="ir.actions.act_window">
+            <field name="name">Products</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <field name="view_type">form</field>
+            <field name="search_view_id" ref="acc_product_template_stock_search_view"/>
+            <field name="context">{"search_default_consumable": 1, 'default_type': 'product'}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new product
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_product_template_stock" name="产品" action="acc_product_template_stock_action_product"
+        parent="stock.menu_stock_inventory_control" sequence="1"/>
+
+        <!-- 采购product.template搜索视图 -->
+        <record id="acc_product_template_search_view" model="ir.ui.view">
+            <field name="name">acc.product.template.search</field>
+            <field name="model">product.template</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="product.product_template_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='inactive']" position="after">
+                    <separator/>
+                    <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <field name="partner_id" string="供应商"/>
+                    <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_acc_action_puchased" model="ir.actions.act_window">
+            <field name="name">Products</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form,activity</field>
+            <field name="context">{"search_default_filter_to_purchase":1, "purchase_product_template": 1}</field>
+            <field name="search_view_id" ref="acc_product_template_search_view"/>
+            <field name="view_id" eval="False"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new product
+              </p><p>
+                You must define a product for everything you purchase,
+                whether it's a physical product, a consumable or services.
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_purchase_acc_product_template" name="产品" parent="purchase.menu_procurement_management" action="product_acc_action_puchased" groups="purchase.group_purchase_user" sequence="100"/>
+    </data>
+</odoo>

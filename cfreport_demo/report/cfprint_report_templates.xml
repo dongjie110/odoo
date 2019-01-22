@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+<!-- 订单/询价单 -->
+<template id="report_saleorder">
+    <t t-call="cfprint.html_container">   <!-- 这里调用 cfprint.html_container ，以便于引入康虎云报表JavaScript基础库-->
+        <div t-if="len(docs) &lt;= 0"><h2 style="text-align: center;">没有可打印的数据，请返回。</h2></div>
+        <div t-if="len(docs) &gt; 0"><h2 style="text-align: center;">正在打印，请稍候...</h2></div>
+
+<!--必须先安装cfprint模块，以引入基础类库-->
+<script type="text/javascript">
+var cfprint_addr = "127.0.0.1";   //打印服务器监听地址
+var _delay_close = -1;          //打印完成后关闭窗口的延时时长(毫秒), -1则表示不关闭
+
+/******************************* 康虎云报表与ODOO集成时，模板调用方法 **********************************/
+/*方法1： 从数据库中获取打印模板（调用简短方法）（在正式使用时要把全角尖括号替换成半角尖括号，并且把sale_order_demo换成实际的模板templ_id）（在真正使用时，必须把全角尖括号改成半角）：*/
+var _data = {"template": "base64:<t t-esc="get_cf_template(user.env, 'cfreport_demo.report_saleorder_cf')" />", "ver": 4, "Copies": 1, "Duplex": 0, "Tables":[]};
+/*******************************************************************************************************/
+
+/*
+Odoo中的LOGO是以Base64保存的，所以只需要把Base64中的换行去掉，然后赋值给字段即可。
+为了减少数据传输量，把LOGO单独放一张表，而不是放在循环中与主表记录一起生成多次。
+*/
+//生成LOGO数据，这部分主要是演示如何向康虎云报表传送图片以及如何把时间转成本地时区时间
+var _tableCompnay = {
+    "Name": "Logo",
+    "Cols":[
+        { "type": "str", "size": 4, "name": "id", "required": false },
+        { "type": "blob", "size": 0, "name": "logo", "required": false },
+        { "type": "str", "size": 50, "name": "user_name", "required": false },
+        { "type": "str", "size": 20, "name": "currdate", "required": false },
+    ],
+    "Data":[
+        {
+            "id": "<t t-esc="res_company.id" />",
+            "logo": "base64/png:<t t-if="res_company.logo" t-esc="res_company.logo.decode().replace('\n','')"/>",
+            "user_name": "<t t-if="user.name" t-esc="user.name" />",
+            "currdate": "<t t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>:<t t-esc="datetime.datetime.now().strftime('%Y-%m-%d %H:%M')"/> ",  /*<t t-usertime="%Y-%m-%d %H:%M:%S" />*/
+        }
+    ]
+}
+
+//生成表结构
+var _tableOrder = {
+    "Name": "Order",
+    "Cols":[
+        { "type": "str", "size": 4, "name": "company_id", "required": false },
+        { "type": "str", "size": 30, "name": "id", "required": false },
+        { "type": "str", "size": 255, "name": "inv_address", "required": false },
+        { "type": "str", "size": 255, "name": "inv_name", "required": false },
+        { "type": "str", "size": 30, "name": "inv_phone", "required": false },
+        { "type": "str", "size": 30, "name": "inv_fax", "required": false },
+        { "type": "str", "size": 255, "name": "partner_address", "required": false },
+        { "type": "str", "size": 255, "name": "partner_name", "required": false },
+        { "type": "str", "size": 30, "name": "partner_vat", "required": false },
+        { "type": "str", "size": 20, "name": "order_name", "required": false },
+        { "type": "str", "size": 20, "name": "client_order_ref", "required": false },
+        { "type": "str", "size": 30, "name": "date_order", "required": false },
+        { "type": "str", "size": 30, "name": "salesperson", "required": false },
+        { "type": "str", "size": 30, "name": "payment_term_id", "required": false },
+        { "type": "float", "size": 0, "name": "amount_untaxed", "required": false },
+        { "type": "float", "size": 0, "name": "amount_total", "required": false },
+        { "type": "str", "size": 100, "name": "note", "required": false },
+        { "type": "str", "size": 100, "name": "payment_term_note", "required": false },
+        { "type": "str", "size": 100, "name": "fiscal_position_note", "required": false },
+        { "type": "str", "size": 10, "name": "state", "required": false },  /*订单状态，draft 或 sent 表示询价单，其他表示订单*/
+    ],
+    "Data":[ ]
+};
+
+var _tableOrderLines = {
+    "Name": "OrderLines",
+    "Cols":[
+        { "type": "str", "size": 30, "name": "order_id", "required": false },
+        { "type": "str", "size": 30, "name": "line_name", "required": false },
+        { "type": "float", "size": 0, "name": "product_uom_qty", "required": false },
+        { "type": "str", "size": 10, "name": "product_uom", "required": false },
+        { "type": "float", "size": 0, "name": "price_unit", "required": false },
+        { "type": "float", "size": 0, "name": "discount", "required": false },
+        { "type": "str", "size": 50, "name": "tax_description", "required": false },
+        { "type": "str", "size": 50, "name": "tax_name", "required": false },
+        { "type": "float", "size": 0, "name": "price_subtotal", "required": false },
+        { "type": "float", "size": 0, "name": "price_total", "required": false },
+        { "type": "float", "size": 0, "name": "subtotal", "required": false }
+    ],
+    "Data":[ ]
+};
+
+/*生成主表数据*/
+<t t-foreach="docs" t-as="doc">
+    <t t-set="doc" t-value="doc.with_context({'lang':doc.partner_id.lang})" />
+_tableOrder.Data.push(
+{
+    "id": "<t t-esc="doc.id"/>",
+    "company_id": "<t t-esc="res_company.id" />",
+    "inv_address": "<span t-field="doc.partner_invoice_id" t-field-options='{"widget": "contact", "fields": ["address"], "no_marker": true, "no_tag_br": true, "data_type": "raw"}'/>",
+    "inv_name": "<t t-if="doc.partner_invoice_id.name" t-esc="doc.partner_invoice_id.name"/>",
+    "inv_phone": "<t t-if="doc.partner_invoice_id.phone" t-esc="doc.partner_invoice_id.phone"/>",
+    "inv_fax": "",
+    "partner_address": "<span t-field="doc.partner_id" t-field-options='{"widget": "contact", "fields": ["address"], "no_marker": true, "no_tag_br": true, "data_type": "raw"}' />",
+    "partner_name": "<t t-if="doc.partner_id.name" t-esc="doc.partner_id.name"/>",
+    "partner_vat": "<t t-if="doc.partner_id.vat" t-esc="doc.partner_id.vat"/>",
+    "order_name": "<t t-esc="doc.name"/>",
+    "client_order_ref": "<t t-if="doc.client_order_ref" t-esc="doc.client_order_ref"/>",
+    "date_order": "<t t-if="doc.date_order" t-esc="doc.date_order"/>",
+    "salesperson": "<t t-if="doc.user_id.name" t-esc="doc.user_id.name"/>",
+    "payment_term_id": "<t t-if="doc.payment_term_id" t-esc="doc.payment_term_id"/>",
+    "amount_untaxed": "<t t-if="doc.amount_untaxed" t-esc="doc.amount_untaxed"/>",
+    "amount_total": "<t t-if="doc.amount_total" t-esc="doc.amount_total"/>",
+    "note": "<t t-if="doc.note" t-esc="doc.note.replace('\n','\\n')"/>",        /*对于note有可能会换行，通过替换转成json里的换行*/
+    "payment_term_note": "<t t-if="doc.payment_term_id.note" t-esc="doc.payment_term_id.note"/>",
+    "fiscal_position_note": "<t t-if="doc.fiscal_position_id and doc.fiscal_position_id.note" t-esc="doc.fiscal_position_id.note"/>"
+});
+
+    /*生成从表数据*/
+    <t t-set="current_subtotal" t-value="0"/>
+
+    <t t-foreach="doc.order_line" t-as="line">
+        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+_tableOrderLines.Data.push(
+{
+    "order_id": "<t t-esc="doc.id"/>",     /*主从表关联字段，对应order表的id*/
+    "line_name": "<t t-if="line.name" t-esc="line.name.replace('\n','\\n')"/>",
+    "product_uom_qty": "<t t-if="line.product_uom_qty" t-esc="line.product_uom_qty"/>",
+    "product_uom": "<t t-if="line.product_uom" t-esc="line.product_uom"/>",
+    "price_unit": "<t t-if="line.price_unit" t-esc="line.price_unit"/>",
+    "discount": "<t t-if="line.discount" t-esc="line.discount"/>",
+    "tax_description": "<t t-if="line.tax_id and cate.tax_id.description" t-esc="line.tax_id.description"/>",
+    "tax_name": "<t t-if="line.tax_id and cate.tax_id.name" t-esc="line.tax_id.name"/>",
+    "price_subtotal": "<t t-if="line.price_subtotal" t-esc="line.price_subtotal"/>",
+    "price_total": "<t t-if="line.price_total" t-esc="line.price_total"/>",
+    "subtotal": "<t t-esc="current_subtotal"/>",
+});
+    </t>
+
+</t>
+/*数据合并到总的数据对象*/
+_data["Tables"].push(_tableCompnay);
+_data["Tables"].push(_tableOrder);
+_data["Tables"].push(_tableOrderLines);
+var _reportData = JSON.stringify(_data);  //转成json字符串
+
+console.log(_reportData);  //在浏览器控制台上打印json内容，便于排错，可去除
+/*生成数据之后，在cfprint_ext.js中会自动调用进行打印*/
+</script>
+
+
+    </t> <!-- End of cfprint.html_container -->
+</template>  <!-- End of report_saleorder -->
+
+<!-- 订单/询价单 结束-->
+
+    </data>
+</odoo>
+

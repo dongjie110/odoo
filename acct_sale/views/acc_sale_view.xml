@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_quotation_send'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_quotation_send'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_quotation_send'][3]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_quotation_send'][4]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='print_quotation'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='print_quotation'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='preview_sale_order']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <!-- <xpath expr="//button[@string='Print'][last()]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='payment_term']" position="after" >
+                    <field name="payment_method"/>
+                </xpath> -->
+                <!-- <xpath expr="//button[@name='cancel']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath> -->
+                <!-- <xpath expr="//field[@name='pricelist_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath> -->
+                <!-- <xpath expr="//field[@name='note']" position="before">
+                    <group>
+                        <group>
+                            <field name="carrier_tracking_ref"/>
+                        </group>
+                    </group>
+                </xpath> -->
+                <xpath expr="//field[@name='partner_id']" position="after" >
+                    <field name="contact_id" context="{'sale_choose_contact':'sale_choose_contact','partner_id':partner_id}"/>
+                    <field name="title"/>
+                    <field name="charge_person"/>
+                    <field name="transfer"/>
+                    <field name="sale_commission"/>
+                    <field name="in_country"/>
+                    <field name="transaction_mode"/>
+                    <field name="transaction_rule"/>
+                    <!-- <field name="unovo_project_id" attrs="{'invisible': [('order_type', '!=', 'returns')]}" on_change="onchange_unovo_project_id(unovo_project_id, order_type)" options="{'no_create': True}"/> -->
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="after">           
+                    <field name="is_invoice"/>
+                    <field name="is_purchasing"/>
+                    <field name="is_send"/>
+                    <field name="is_pay"/>
+                    <field name="send_status"/>
+                    <!-- <field name="validity_date"/> -->
+                    <field name="sale_company"/>
+                </xpath>
+
+                <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='price_unit']" position="after">
+                   <field context="{'contract_id':parent.contract_id,'product_id':product_id,'order_type':parent.order_type}" name="contract_price" options="{'no_create': True,'no_open':True}" on_change="contract_price_change(contract_price,parent.order_type,product_uom_qty)"  />
+                </xpath> -->
+                <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="after">
+                    <field name="product_model"/>
+                </xpath> -->
+                <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="attributes">
+                    <attribute name="string">规格型号</attribute>
+                </xpath>
+                <!-- <xpath expr="/form/sheet/notebook/page/field/form/field[@name='name']" position="after" >
+                    <label string="备注"/>
+                    <field name="line_note"/>
+                </xpath> -->
+      
+                <!-- <xpath expr="//field[@name='price_subtotal']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath> -->                          
+            </field>
+        </record>
+
+        <record id="action_sale_partner_other_form" model="ir.actions.act_window">
+            <field name="name">contacts</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <!-- <field name="domain">[('supplier','!=',1),('customer','!=',1),('is_company','!=',1)]</field>
+            <field name="context">{'default_customer':0, 'default_customer':0, 'default_is_company': False, 'search_default_is_company':False,}</field> -->
+            <field name="domain">[('is_company','!=',1)]</field>
+            <field name="context">{'default_is_company': False, 'search_default_is_company':False,}</field>
+            <field name="filter" eval="True"/>
+        </record>
+
+        <menuitem id="menu_sale_other_management" name="其他信息"
+            parent="sale.sale_menu_root" sequence="60" />
+
+        <!-- <menuitem id="menu_purchase_uom_form_action" name="计量单位" parent="menu_purchase_other_management" action="uom.product_uom_form_action" groups="purchase.group_purchase_user" sequence="50"/> -->
+
+        <menuitem id="menu_sale_partner_other_form" name="联系人" parent="menu_sale_other_management" action="action_sale_partner_other_form" groups="sales_team.group_sale_salesman" sequence="10"/>
+
+    </data>
+</openerp>
