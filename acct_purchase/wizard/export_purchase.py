@@ -64,15 +64,6 @@ class ExportPurchaseWizard(models.TransientModel):
         n = 0
         for i in xrange(len(header)):
             sheet.write(n, i, header[i])
-
-        # font0 = xlwt.Font()
-        # font0.name = 'Times New Roman'
-        # font0.colour_index = 2
-        # font0.bold = True
-        #
-        # style0 = xlwt.XFStyle()
-        # style0.font = font0
-
         for i in xrange(len(body)):
             n += 1
             for j in xrange(len(body[i])):

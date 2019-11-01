@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="view_order_form_inherit" model="ir.ui.view">
+            <field name="name">acc.account.invoice.supplier.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_supplier_form"/>
+            <field name="arch" type="xml">
+                <!-- <xpath expr="//button[@name='action_invoice_open']" position="before">
+                    <button name="teller_accept" string="出纳审核" type="object" states="open" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   
+                </xpath> -->
+                <xpath expr="//button[@name='action_invoice_open']" position="before">
+                    <button name="boss_accept" string="财务经理审核" type="object" states="teller" class="oe_highlight" groups="account.group_account_manager"/>   
+                </xpath>
+                <xpath expr="//button[@name='action_invoice_open']" position="after">
+                    <button name="get_poqty" string="获取订购数量" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>   
+                </xpath>
+                <xpath expr="//field[@name='reference']" position="after">
+                    <field name="invoice_company"/>
+                    <field name="invoice_number"/>
+                    <field name="payment_rule"/>
+                </xpath>
+                <xpath expr="//field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,teller,open,paid</attribute>
+                </xpath>
+                <!-- <xpath expr="/form/sheet/notebook/page[@name='other_info']" position="after">
+                    <page string="付款记录">
+                        <field name="payrecord_line">
+                            <tree string="付款记录" editable="bottom">
+                                <field name="pay_amount"/>
+                                <field name="pay_datetime"/>                           
+                                <field name="pay_user"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath> -->                      
+            </field>
+        </record>
+<!-- sale invoice -->
+        <record id="acccustomer_view_order_form_inherit" model="ir.ui.view">
+            <field name="name">acc.account.invoice.customer.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <!-- <xpath expr="//button[@name='action_invoice_open']" position="before">
+                    <button name="teller_accept" string="出纳审核" type="object" states="open" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   
+                </xpath> -->
+                <xpath expr="//button[@name='action_invoice_open']" position="before">
+                    <button name="boss_accept" string="财务审核" type="object" states="teller" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   
+                </xpath>
+                <!-- <xpath expr="//button[@name='action_invoice_open']" position="after">
+                    <button name="get_poqty" string="获取订购数量" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>   
+                </xpath> -->
+                <xpath expr="//field[@name='date_invoice']" position="attributes">
+                    <attribute name="string">制单日期</attribute>
+                </xpath>
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="invoice_company"/>
+                    <field name="sale_invoice_number"/>
+                    <field name="sale_invoice_date"/>
+                </xpath>
+                <xpath expr="//field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,teller,open,paid</attribute>
+                </xpath>
+                <!-- <xpath expr="/form/sheet/notebook/page[@name='other_info']" position="after">
+                    <page string="付款记录">
+                        <field name="payrecord_line">
+                            <tree string="付款记录" editable="bottom">
+                                <field name="pay_amount"/>
+                                <field name="pay_datetime"/>                           
+                                <field name="pay_user"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath> -->                      
+            </field>
+        </record>
+    </data>
+</openerp>

@@ -21,14 +21,23 @@
     'version': '1.0.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','sale','web','account'],
+    'depends': ['acct_base','acct_purchase','base','sale','web','account','crm'],
 
     # always loaded
     'data': [
         'security/ir.model.access.csv',
         'views/acc_sale_view.xml',
         'views/transaction_rule_view.xml',
+        'views/acc_crm_lead_view.xml',
 
-        # 'data/template_category_data.xml',
+        'report/acc_quotation_report_view.xml',
+        'report/acc_contract_report_view.xml',
+        'report/accen_quotation_report_view.xml',
+        'report/accen_contract_report_view.xml',
+        'report/accall_quotation_report_view.xml',
+        'report/accenall_quotation_report_view.xml',
+        'views/ir_sequence.xml',
+
+        'views/report_menu.xml',
     ],
 }

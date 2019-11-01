@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_crm_lead_form_inherit" model="ir.ui.view">
+            <field name="name">crm.lead.inherit</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_form_view_oppor"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_set_won_rainbowman']" position="before">
+                    <button string="新建报价单" name="%(sale_action_acc_quotations_new)d" type="action" class="oe_highlight"
+                        attrs="{'invisible': ['&amp;', ('probability', '=', 0), ('active', '=', False)]}"
+                        context="{'search_default_partner_id': partner_id,
+                                  'default_partner_id': partner_id,
+                                  'default_contact_id': contact_id,
+                                  'default_title': name,
+                                  'default_user_id': user_id,}"/>
+                </xpath>
+                <xpath expr="//button[@name='action_set_won_rainbowman']" position="after">
+                    <button string="查看报价单" name="acc_quotation_list" type="object" class="oe_highlight"
+                        attrs="{'invisible': ['&amp;', ('probability', '=', 0), ('active', '=', False)]}"/>
+                </xpath>                      
+            </field>
+        </record>
+
+        <menuitem id="acc_crm_my_partner"
+            name="我的客户"
+            parent="crm.crm_menu_sales"
+            groups="acct_base.unovo_it_operation_group"
+            action="acct_base.action_acc_partner_form"
+            sequence="10"/>
+        <menuitem id="acc_crm_all_partner"
+            name="所有客户"
+            parent="crm.crm_menu_sales"
+            groups="acct_base.acc_manage_level1_group"     
+            action="acct_base.action_acc_all_partner_form"
+            sequence="15"/>
+
+        <!-- <menuitem id="sale_order_menu"
+            name="Orders"
+            parent="sale_menu_root"
+            sequence="2"/> -->
+
+    </data>
+</openerp>

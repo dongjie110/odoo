@@ -4,18 +4,30 @@ from odoo import api, SUPERUSER_ID, fields, models, _
 from odoo.http import request
 import logging
 import xlrd
+import xlwt
 from collections import Counter
 import re
 import datetime as dt
 
 import pytz
-
-from odoo.tools.misc import DEFAULT_SERVER_DATETIME_FORMAT
+import sys,os
+file_url = 'my_addons/acct_purchase'
+file_url = os.path.join(sys.path[0],file_url)
+import logging
 from datetime import datetime
-# from ..controllers.common import localizeStrTime
 from odoo.exceptions import UserError, ValidationError
 
 _logger = logging.getLogger(__name__)
+
+
+def check_path(image_path):
+    try:
+        dir_path = os.path.dirname(image_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    except OSError as e:
+        logging.debug("file cant be created!{}".format(e))
+    return True
 
 class CFTemplateCategory(models.Model):
     """
@@ -25,8 +37,19 @@ class CFTemplateCategory(models.Model):
 
 
     title = fields.Char(string=u'标题', required=True)
+    state = fields.Selection([
+        ('draft', 'RFQ'),
+        ('confirm', '已提交审批'),
+        ('pomanager', '采购经理已审批'),
+        ('sent', 'RFQ Sent'),
+        ('to approve', 'To Approve'),
+        ('boss', '管理部已批准'),
+        ('purchase', 'Purchase Order'),
+        ('done', 'Locked'),
+        ('cancel', 'Cancelled')
+    ], string='Status', readonly=True, index=True, copy=False, default='draft', track_visibility='onchange')
     crm_ponumber = fields.Char(string=u'老采购单号',readonly=True)
-    charge_person = fields.Many2one('res.users',string=u'负责人',required=True)
+    charge_person = fields.Many2one('res.users',string=u'负责人',default=lambda self: self.env.user.id,required=True)
     traffic_rule = fields.Char(string=u'运输条款',required=True)
     delivery_time = fields.Char(string=u'货期',placeholder="填写格式如(1-2周,1-2weeks,1-2天，1-2days)")
     product_state = fields.Selection([('new', '未到货'), ('part', '部分到货'), ('all', '全部到货'), ('cancel', '取消订单')], '产品到货状态', default='new')
@@ -38,9 +61,9 @@ class CFTemplateCategory(models.Model):
     payment_rule = fields.Char(string=u'支付条款',required=True)
     end_date = fields.Date(string=u'截止日期')
     forcast_date = fields.Date(string='预计到货日期',required=True)
-    # forcast_date = fields.Date(string='预计到货日期')
     gen_date = fields.Datetime(string=u'生成日期',default=lambda self: fields.Datetime.now(),readonly=True)
     demand_purchase = fields.Many2one('demand.purchase',string='关联请购单',readonly=True)
+    before_purchase_id = fields.Many2one('before.purchase',string='源待确认询价单',readonly=True)
     delivery_address = fields.Many2one('delivery.address',string='交货地址')
     discount_type = fields.Selection([('nodiscount', '无折扣'), ('discount', '折扣(%价格)'), ('minusprice', '直接降价')],'折扣',default='nodiscount')
     discount_rate = fields.Float('折扣比例')
@@ -49,19 +72,98 @@ class CFTemplateCategory(models.Model):
     discount_amount = fields.Monetary('折扣总额',store=True, readonly=True, compute='_amount_discount')
     contact_id = fields.Many2one('res.partner',string='联系人')
     en_name = fields.Char(string='负责人英文名')
+    purchase_type = fields.Selection([('trade', '贸易'), ('office', '办公用品'), ('manufacture', '生产'),('accessories', '辅料')],'采购类型',default='trade')
+    merge_info = fields.Char(string='合并信息',readonly=True)
     origin_order = fields.Many2one('sale.order',string='关联销售订单',readonly=True)
+    purchase_payrecord_line = fields.One2many('purchase.payrecord.line', 'purchase_payrecord_id','Payrecord line')
 
 
     def search(self, args, offset=0, limit=None, order=None, count=False):
         args = args or []
         if self._uid == 2:
             return super(CFTemplateCategory, self).search(args, offset, limit, order, count)
+        elif self.env.user.has_group('acct_base.unovo_it_info_group'):
+            return super(CFTemplateCategory, self).search(args, offset, limit, order, count)
+        elif self.env.user.has_group('acct_base.acc_commerce_manager_group'):
+            users = self.get_users()
+            args.extend([('charge_person', 'in', users)])
+            return super(CFTemplateCategory, self).search(args, offset, limit, order, count)
         # 普通员工
         else:
             args.extend([('charge_person', '=', self._uid)])
         return super(CFTemplateCategory, self).search(args, offset, limit, order, count)
 
+    def get_users(self):
+        commerce_group = self.env['res.groups'].search([('name', '=', '商务部员工')])
+        gid = commerce_group.id
+        cr = self.env.cr
+        sql = """
+                select * from res_groups_users_rel where gid = %s
+        """%(gid)
+        cr.execute(sql)
+        result = cr.dictfetchall()
+        uids = [m['uid'] for m in result]
+        # lists = [1,2]
+        return uids
 
+    @api.depends('order_line.price_total')
+    def _amount_all(self):
+        res = super(CFTemplateCategory, self)._amount_all()
+        self.amount_total = self.amount_untaxed + self.amount_tax - self.discount_amount
+        return res
+
+    
+    @api.multi
+    def boss_accept(self):
+        self.filtered(lambda r: r.state == 'pomanager').write({'state': 'boss'})
+        toaddrs = ['yuanyuan.lu@neotel-technology.com']
+        toaddrs.append(self.charge_person.login)
+        # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
+        subjects = "采购单{}管理部已审批完成,请及时确认".format(self.name)
+        message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>管理部审批完成,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
+        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        return True
+
+    @api.multi
+    def button_approve(self):
+        res = super(CFTemplateCategory, self).button_approve()
+        return res
+
+    @api.multi
+    def button_draft(self):
+        res = super(CFTemplateCategory, self).button_draft()
+        toaddrs = []
+        toaddrs.append(self.charge_person.login)
+        # toaddrs = ['jie.dong@acctronics.cn','cissy.shen@acctronics.cn']
+        # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
+        subjects = "采购单{}已被拒绝,请修改后重新提交".format(self.name)
+        message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>已被拒绝,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
+        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        return res
+
+    @api.multi
+    def confirm(self):
+        self.filtered(lambda r: r.state == 'draft').write({'state': 'confirm'})
+        # toaddrs = []
+        # toaddrs.append(self.manage_user.login)
+        toaddrs = ['cissy.shen@neotel-technology.com']
+        # toaddrs = ['jie.dong@acctronics.cn']
+        subjects = "采购单{}需要您审批,请及时处理".format(self.name)
+        message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>需要您审批,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
+        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        return True
+
+    @api.multi
+    def pomanager(self):
+        self.filtered(lambda r: r.state == 'confirm').write({'state': 'pomanager'})
+        # toaddrs = []
+        # toaddrs.append(self.manage_user.login)
+        toaddrs = ['al@neotel-technology.com','luna.zhang@acctronics.cn']
+        # toaddrs = ['jie.dong@acctronics.cn']
+        subjects = "采购单{}需要您审批,请及时处理".format(self.name)
+        message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>需要您审批,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
+        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        return True
 
     @api.depends('order_line.price_total','discount_type','discount_rate','minus_amount')
     def _amount_discount(self):
@@ -125,33 +227,80 @@ class CFTemplateCategory(models.Model):
             login_en_name = login[0:login_index]
             self.en_name = login_en_name
 
-    @api.onchange('charge_person')
-    def onchange_en_name(self):
-        if self.charge_person:
-            login_en_name = 0
-            login = self.charge_person.login
-            login_index = login.index('@')
-            login_en_name = login[0:login_index]
-            self.en_name = login_en_name
+    @api.onchange('forcast_date')
+    def onchange_forcast_date(self):
+        if self.forcast_date:
+            for line in self.order_line:
+                line.update({'forcast_date':self.forcast_date})
 
+
+    # @api.onchange('charge_person')
+    # def onchange_en_name(self):
+    #     if self.charge_person:
+    #         login_en_name = 0
+    #         login = self.charge_person.login
+    #         login_index = login.index('@')
+    #         login_en_name = login[0:login_index]
+    #         self.en_name = login_en_name
+    #         
+    # @api.multi
+    # def check_office_price(self,vals):
+    #     raise_tips = ""
+    #     if vals.get('purchase_type') == 'office':
+    #         order_line = vals.get('order_line')
+    #         for line in order_line:
+    #             product_id = line[2]['product_id']
+    #             product_object = self.env['product.product'].search([('id', '=', product_id)])
+    #             product_tmpl_obj = self.env['product.template'].search([('id', '=', product_object.product_tmpl_id.id)])
+    #             product_price = product_tmpl_obj.acc_purchase_price
+    #             # product_price = line.product_id.product_tmpl_id.acc_purchase_price
+    #             product_name = product_tmpl_obj.name
+    #             actual_price = line[2]['price_unit']
+    #             if actual_price > product_price:
+    #                 raise_tips = "所填产品名称 {}，填写价格{} 产品采购定价{},所填价格高于定价，请检查".format(product_name, actual_price,product_price)
+    #                 # raise ValidationError("所填产品价格高于产品定价，请检查")
+    #                 raise ValidationError(raise_tips)
+        # if self.purchase_type == 'office' and vals.get('order_line'):
+        #     order_line = vals.get('order_line')
+        #     for line in order_line:
+        #         product_id = line[2]['product_id']
+        #         product_object = self.env['product.product'].search([('id', '=', product_id)])
+        #         product_tmpl_obj = self.env['product.template'].search([('id', '=', product_object.product_tmpl_id.id)])
+        #         product_price = product_tmpl_obj.acc_purchase_price
+        #         # product_price = line.product_id.product_tmpl_id.acc_purchase_price
+        #         product_name = product_tmpl_obj.name
+        #         actual_price = line[2]['price_unit']
+        #         if actual_price > product_price:
+        #             raise_tips = "所填产品名称 {}，填写价格{} 产品采购定价{},所填价格高于定价，请检查".format(product_name, actual_price,product_price)
+        #             # raise ValidationError("所填产品价格高于产品定价，请检查")
+        #             raise ValidationError(raise_tips)
     @api.model
     def create(self,vals):
-        # amount = 0.0
-        amount = vals.get('amount_total',0) + vals.get('ship_fee',0)
+        # if vals.get('order_line'):
+        #     self.check_office_price(vals)
+        amount = vals.get('amount_total',0) + vals.get('ship_fee',0) - vals.get('discount_amount',0)
         vals.update({
                 "amount_total": amount
             })
         res = super(CFTemplateCategory, self).create(vals)
         return res
 
-    @api.model
+    @api.multi
     def write(self, vals):
-        # amount = 0.0
-        if vals.get('ship_fee'):
-            amount = self.amount_total + vals.get('ship_fee', 0)
+        # if self.purchase_type == 'office':
+        #     self.check_office_price(vals)
+        if vals.get('minus_amount'):
+        # if self.discount_type != 'nodiscount':
+            amount = self.amount_untaxed + self.amount_tax - vals.get('minus_amount', 0)
             vals.update({
-                "amount_total": amount
-            })
+                    "amount_total": amount
+                })
+        if vals.get('discount_rate'):
+            rate_amount = self.amount_untaxed * vals.get('discount_rate')/100
+            amount = self.amount_untaxed + self.amount_tax - rate_amount
+            vals.update({
+                    "amount_total": amount
+                })  
         res = super(CFTemplateCategory, self).write(vals)
         return res
 
@@ -299,12 +448,142 @@ class CFTemplateCategory(models.Model):
         else:
             raise ValidationError(import_tips)
 
+    def save_exel(self, header, body, file_name):
+        wbk = xlwt.Workbook(encoding='utf-8', style_compression=0)
+        # wbk.write(codecs.BOM_UTF8)
+        style1 = xlwt.easyxf('font: bold True;''alignment: horz center,vert center')
+        sheet = wbk.add_sheet('sheet1', cell_overwrite_ok=True)
+        # sheet.write(codecs.BOM_UTF8) 
+
+        sheet.write(0, 0, 'some text')
+        sheet.write(0, 0, 'this should overwrite')  ##重新设置，需要cell_overwrite_ok=True
+        n = 0
+        for i in range(len(header)):
+            sheet.write(n, i, header[i])
+        for i in range(len(body)):
+            n += 1
+            for j in range(len(body[i])):
+                # sheet.write(n, j, body[i][j], self.set_style())
+                sheet.write(n, j, body[i][j])
+        wbk.save(file_name)  ##该文件名必须存在
+
+    def export_record(self,file_name):
+        """
+        导出采购单信息
+        :return:
+        """
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/download/work/files_export?file=%s' % (file_name),
+            'target': 'self'
+        }
+
+    def export_purchase_record(self):
+        cr = self.env.cr
+        # if not product_state and not payment_state:
+        all_total = """ SELECT
+                            ru. LOGIN AS apply_person,
+                            po. NAME AS apply_code,
+                            po.title AS project_name,
+                            pt.brand AS brand,
+                            pt. NAME AS product_name,
+                            pt.acc_code AS acc_code,
+                            pt.partner_code AS partner_code,
+                            pt.product_model AS product_model,
+                            pol.product_qty AS qty,
+                            rp. NAME AS supplier,
+                            pol.forcast_date AS forcast_date
+                        FROM
+                            purchase_order_line pol
+                        LEFT JOIN purchase_order po ON po. ID = pol.order_id
+                        LEFT JOIN product_product pp ON pp. ID = pol.product_id
+                        LEFT JOIN res_partner rp ON rp. ID = po.partner_id
+                        LEFT JOIN product_template pt ON pt. ID = pp.product_tmpl_id
+                        LEFT JOIN res_users ru ON ru. ID = po.charge_person
+                        WHERE
+                          order_id = %s """%(self.id)
+        cr.execute(all_total)
+        result = cr.dictfetchall()
+        detail_list_all=[]
+
+        # print result
+        # strftime("%Y%m%d_%H%M%S")
+        i= 0
+        for line in result:
+            detail_list_first = []
+            i += 1
+            # print ((line.get('create_date').strftime("%Y-%m-%d %H:%M:%S"))[0:11])
+            detail_list_first.append(i)
+            detail_list_first.append(line.get('apply_person'))
+            detail_list_first.append(line.get('apply_code'))
+            detail_list_first.append(line.get('project_name'))
+            detail_list_first.append(line.get('brand'))
+            detail_list_first.append(line.get('product_name'))
+            detail_list_first.append(line.get('acc_code'))
+            detail_list_first.append(line.get('partner_code'))
+            detail_list_first.append(line.get('product_model'))
+            detail_list_first.append(line.get('qty'))
+            detail_list_first.append(line.get('supplier'))
+            if line.get('forcast_date'):
+                detail_list_first.append(line.get('forcast_date').strftime("%Y-%m-%d"))
+            else:
+                detail_list_first.append(line.get('forcast_date'))
+            detail_list_all.append(detail_list_first)
+
+        dir_path = os.path.join(file_url, 'Administrator')
+        filename = "{}.xls".format('询价单明细表')
+        file_path = os.path.join(dir_path, filename)
+        check_path(file_path)
+        head = ['序号', '负责人','单号','标题','品牌','产品名称','产品编码','供应商编码','产品型号','数量','供应商','预计到货日期']
+        self.save_exel(head, detail_list_all, file_path)
+        return self.export_record(file_path)
+
+    def update_newinfo(self):
+        cr = self.env.cr
+        # if not product_state and not payment_state:
+        sql = """ UPDATE purchase_order_line
+                        SET partner_code = (
+                            SELECT
+                                product_product.partner_code
+                            FROM
+                                product_product
+                            WHERE
+                                product_product. ID = purchase_order_line.product_id
+                        ),
+                            name = (
+                            SELECT
+                                product_product.product_model
+                            FROM
+                                product_product
+                            WHERE
+                                product_product. ID = purchase_order_line.product_id
+                        ),
+                            price_unit = (
+                            SELECT
+                                product_product.acc_purchase_price
+                            FROM
+                                product_product
+                            WHERE
+                                product_product. ID = purchase_order_line.product_id
+                        )
+                        where order_id = %s """%(self.id)
+        cr.execute(sql)
+        for p in self.order_line:
+            p._compute_amount()
+
 
 class AccPurchaseLine(models.Model):
     """
     采购单继承
     """
     _inherit = "purchase.order.line"
+
+    acc_code = fields.Char(string='产品编码')
+    partner_code = fields.Char(string='供应商编码')
+    # forcast_date = fields.Date(string='预计到货时间',compute='_compute_date',inverse="_inverse_compute_date",store=True)
+    # f_date = fields.Date(string='预计到货时间')
+    forcast_date = fields.Date(string='预计到货时间')
+    # forcast_date = fields.Date(string='预计到货时间')
 
     @api.onchange('product_qty', 'product_uom')
     def _onchange_quantity(self):
@@ -313,8 +592,19 @@ class AccPurchaseLine(models.Model):
         for rec in self:
             rec.price_unit = self.product_id.product_tmpl_id.acc_purchase_price
             rec.name = self.product_id.product_tmpl_id.product_model
-
+            rec.acc_code = self.product_id.product_tmpl_id.acc_code
+            rec.partner_code = self.product_id.product_tmpl_id.partner_code
         return res
+
+    # @api.depends('order_id.forcast_date')
+    # def _compute_date(self):
+    #     for line in self:
+    #         date = line.order_id.forcast_date
+    #         line.update({'forcast_date':date})
+
+    # @api.one
+    # def _inverse_compute_date(self):
+    #     self.f_date = self.forcast_date
 
     def import_purchase_line_data(self, fileName=None, content=None):
         import_tips = ""
@@ -375,6 +665,19 @@ class AccPurchaseLine(models.Model):
             logging.error(e)
         else:
             raise ValidationError(import_tips)
+
+class PurchasePayrecordLine(models.Model):
+    """
+    付款记录
+    """
+    _name = 'purchase.payrecord.line'
+    # _inherit = ['mail.thread']
+    _description = "付款记录"
+
+    purchase_payrecord_id = fields.Many2one('purchase.order', 'account Reference')
+    pay_amount = fields.Float(u'金额')
+    pay_datetime = fields.Datetime(string='时间')
+    pay_user = fields.Many2one('res.users',string='操作人')
 
 
 

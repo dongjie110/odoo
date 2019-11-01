@@ -6,5 +6,12 @@ access_acc_company_user,acc.company,model_acc_company,base.group_user,1,1,1,0
 access_delivery_address_manager,delivery.address,model_delivery_address,purchase.group_purchase_manager,1,1,1,1
 access_demand_purchase_line,demand.purchase.line,model_demand_purchase_line,purchase.group_purchase_user,1,1,1,1
 access_demand_purchase_line_manager,demand.purchase.line,model_demand_purchase_line,purchase.group_purchase_manager,1,1,1,1
+access_demand_bom_line_manager,demand.bom.line,model_demand_bom_line,purchase.group_purchase_manager,1,1,1,1
+access_demand_bom_line,demand.bom.line,model_demand_bom_line,purchase.group_purchase_user,1,1,1,1
 access_demand_purchase,demand.purchase,model_demand_purchase,purchase.group_purchase_user,1,1,1,1
 access_demand_purchase_manager,demand.purchase,model_demand_purchase,purchase.group_purchase_manager,1,1,1,1
+access_before_purchase,before.purchase,model_before_purchase,purchase.group_purchase_user,1,1,1,1
+access_before_purchase_manager,before.purchase,model_before_purchase,purchase.group_purchase_manager,1,1,1,1
+access_before_purchase_line,before.purchase.line,model_before_purchase_line,purchase.group_purchase_user,1,1,1,1
+access_before_purchase_line_manager,before.purchase.line,model_before_purchase_line,purchase.group_purchase_manager,1,1,1,1
+access_purchase_payrecord_line,purchase.payrecord.line,model_purchase_payrecord_line,purchase.group_purchase_user,1,0,0,0

@@ -21,31 +21,53 @@
                 <xpath expr="//button[@name='print_quotation'][2]" position="attributes">
                     <attribute name="invisible">1</attribute>   
                 </xpath>
-                <xpath expr="//button[@name='action_view_invoice'][1]" position="attributes">
-                    <attribute name="invisible">1</attribute>   
+                <xpath expr="//button[@name='button_confirm'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//button[@name='action_view_invoice'][2]" position="attributes">
-                    <attribute name="invisible">1</attribute>   
+                <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
+                <xpath expr="//button[@name='action_view_invoice'][2]" position="after">
+                    <!-- <button name="export_purchase_record" string="导出询价单信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/> -->
+                    <button name="export_purchase_record" string="导出询价单信息" type="object" class="oe_highlight" groups="base.group_user"/>
+                    <button name="update_newinfo" string="更新产品信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+                    <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+                    <button name="pomanager" string="采购经理审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_commerce_manager_group"/>
+                    <button name="button_draft" string="取消" type="object" states="confirm,pomanager" class="oe_highlight" groups="base.group_user"/>
+                    <button name="boss_accept" string="管理部审批" type="object" states="pomanager" class="oe_highlight" groups="acct_base.acc_manage_info_group"/>
+
+                    <button name="button_draft" string="拒绝" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_commerce_manager_group"/>
+                    <button name="button_draft" string="拒绝" type="object" states="pomanager" class="oe_highlight" groups="acct_base.acc_manage_info_group"/>
+                    <button name="button_approve" string="确认订单" type="object" class="oe_highlight" attrs="{'invisible': [('state', 'not in', ['boss'])]}" groups="acct_base.acc_commerce_manager_group"/>   
+                </xpath>
+                <xpath expr="//field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,confirm,pomanager,boss,purchase</attribute>
+                </xpath>
+                <!-- <button name="print_quotation" string="Print RFQ" type="object" states="draft" class="oe_highlight" groups="base.group_user"/> -->
                 <xpath expr="//field[@name='partner_ref']" position="after" >
                     <field name="contact_id" context="{'choose_contact':'choose_contact','partner_id':partner_id}"/>
                     <field name="title"/>
+                    <!-- <button class="oe_stat_button" name="export_purchase_record" string="导出" type="object"/> -->
                     <field name="charge_person"/>
                     <field name="traffic_rule"/>
                     <field name="delivery_time" placeholder="填写格式如(1-2周,1-2weeks,1-2天,1-2days)"/>
                     <field name="product_state"/>
                     <field name="payment_state"/>
                     <field name="delivery_address"/>
+                    <field name="picking_type_id"/>
+                    <field name="merge_info"/>
                 </xpath>
                 <xpath expr="//field[@name='date_order']" position="after" >
                     <field name="crm_ponumber"/>
                     <field name="purchase_way"/>
+                    <field name="purchase_type"/>
                     <field name="purchase_company" options="{'no_create': True, 'no_open': True}"/>
                     <field name="quality_state"/>
                     <field name="payment_rule"/>
                     <field name="end_date"/>
                     <field name="forcast_date"/>
                     <field name="demand_purchase"/>
+                    <!-- <field name="before_purchase_id"/> -->
                     <field name="origin_order"/>
                     <field name="en_name" invisible='1'/>
                     <field name="ship_fee"/>
@@ -58,6 +80,17 @@
                 <xpath expr="//field[@name='amount_tax']" position="after" >
                     <field name="discount_amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                 </xpath>
+                <!-- <xpath expr="/form/sheet/notebook/page[@name='purchase_delivery_invoice']" position="after">
+                    <page string="付款记录">
+                        <field name="purchase_payrecord_line">
+                            <tree string="付款记录" editable="bottom">
+                                <field name="pay_amount"/>
+                                <field name="pay_datetime"/>                           
+                                <field name="pay_user"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath> -->
             </field>
         </record>
 
@@ -94,6 +127,7 @@
                     <separator/>
                     <field name="title" string="标题" filter_domain="[('title','ilike',self)]"/>
                     <field name="charge_person" string="负责人"/>
+                    <field name="order_line" string="产品编码" filter_domain="[('order_line.product_id.acc_code', 'ilike', self)]"/>
                     <separator/>
                     <filter name="product_state" string="未到货" domain="[('product_state','=', 'new')]"/>
                     <filter name="product_state" string="部分到货" domain="[('product_state','=', 'part')]"/>
@@ -122,11 +156,44 @@
             </field>
         </record>
 
+        <record id="wait_acc_purchase_pomanger1" model="ir.actions.act_window">
+            <field name="name">待采购经理审批采购单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
+            <field name="search_view_id" ref="acc_purchase_order_search_view"/>
+            <field name="domain">[('state','=','confirm')]</field>
+        </record>
+
+        <record id="wait_acc_purchase_boss1" model="ir.actions.act_window">
+            <field name="name">待管理部审批采购单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
+            <field name="search_view_id" ref="acc_purchase_order_search_view"/>
+            <field name="domain">[('state','=','pomanager')]</field>
+        </record>
+
+        <record id="wait_acc_purchase_manager1" model="ir.actions.act_window">
+            <field name="name">待确认采购单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">purchase.order</field>
+            <field name="view_mode">tree,kanban,form,pivot,graph,calendar,activity</field>
+            <field name="search_view_id" ref="acc_purchase_order_search_view"/>
+            <field name="domain">[('state','=','boss')]</field>
+        </record>
+
         <!-- <menuitem action="purchase_rfq" id="menu_purchase_rfq"
             parent="purchase.menu_procurement_management"
             sequence="0"/> -->
 
         <menuitem id="menu_acc_purchase_rfq" name="询价单" parent="purchase.menu_procurement_management" action="acc_purchase_rfq" sequence="1"/>
+
+        <menuitem id="menu_wait_acc_purchase_pomanager1" name="待采购经理审批采购单" parent="purchase.menu_procurement_management" action="wait_acc_purchase_pomanger1" sequence="2"/>
+
+        <menuitem id="menu_wait_acc_purchase_boss1" name="待管理部审批采购单" parent="purchase.menu_procurement_management" action="wait_acc_purchase_boss1" sequence="3"/>
+
+        <menuitem id="menu_wait_acc_purchase_queren1" name="待确认采购单" parent="purchase.menu_procurement_management" action="wait_acc_purchase_manager1" sequence="4"/>
 
         <record id="acc_purchase_form_action" model="ir.actions.act_window">
             <field name="name">采购订单</field>
@@ -157,6 +224,12 @@
                     </xpath> --> 
                     <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="attributes">
                         <attribute name="string">规格型号</attribute>
+                    </xpath>
+                    <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="after">
+                        <field name="acc_code"/>
+                        <field name="partner_code"/>
+                        <field name="forcast_date"/>
+                        <!-- <field name="f_date"/> -->
                     </xpath>
                     <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_uom']" position="attributes">
                         <attribute name="string">单位</attribute>

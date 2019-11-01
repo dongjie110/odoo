@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data >
+
+        <!-- Demand Purchase Form View -->
+        <record model="ir.ui.view" id="before_purchase_form">
+            <field name="name">Before Purchase</field>
+            <field name="model">before.purchase</field>
+            <field name="arch" type="xml">
+                <form string="Before Purchase" version="12.0" create="0">
+                    <header>
+                        <button name="draft_button" states="draft" string="确认生成" type="object" groups="purchase.group_purchase_user"/>
+                        <button name="draft_cancel" states="draft" string="拒绝" type="object" groups="purchase.group_purchase_user"/>
+                        <button name="merge_before_line" states="draft" string="合并重复产品" type="object" groups="purchase.group_purchase_user"/>
+                        <button name="%(add_partner_wizard)d" type="action" string="批量添加供应商" class="oe_highlight" groups="purchase.group_purchase_user"/>
+                        <!-- <button name='attachment_tree_view' type='object' string='附件'/> -->
+                        <field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors='{"draft":"red"}'/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="sale_order_id" readonly="1"/>
+                                <field name="demand_purchase_id" readonly="1"/>
+                                <field name="po_number" />
+                                <field name="delivery_address"/>
+                            </group>
+                            <group>
+                                <field name="gen_datetime" readonly="1"/>
+                                <field name="charge_person"/>
+                                <field name="purchase_company"/>
+                            </group>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="待确认明细行">
+                                <field name="order_line">
+                                    <tree string="待确认明细行" editable="bottom">
+                                        <field name="product_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                        <field name="product_model" readonly="1"/>          
+                                        <field name="brand" readonly="1"/>
+                                        <field name="acc_code" readonly="1"/>
+                                        <field name="partner_code" readonly="1"/>
+                                        <field name="partner_id"/>
+                                        <field name="acc_purchase_price"/>
+                                        <field name="qty" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="before_purchase_tree">
+            <field name="name">Before Purchase</field>
+            <field name="model">before.purchase</field>
+            <field name="arch" type="xml">
+                <!-- <tree colors="grey:state == 'done'" string="Demand Purchase"> -->
+                <tree decoration-danger="state=='draft'" decoration-success="state=='done'" string="Before Purchase" create="0">
+                    <field name="name"/>
+                    <field name="sale_order_id"/>
+                    <field name="demand_purchase_id"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- <record id="demand_purchase_search" model="ir.ui.view">
+            <field name="name">Demand Purchase Search</field>
+            <field name="model">demand.purchase</field>
+            <field name="arch" type="xml">
+                <search string="Demand Purchase">
+                    <field name="name" string="编号"/>
+                    <group expand="0" string="Group By..." colspan="16">
+                        <filter string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>
+                        <filter string="单号" domain="[]" context="{'group_by':'name'}"/>
+                        <filter string="申请日期" domain="[]" context="{'group_by':'apply_date'}"/>
+                        <filter string="申请人" domain="[]" context="{'group_by':'create_user'}"/>
+                        <filter string="需求日期" domain="[]" context="{'group_by':'need_date'}"/> 
+                        <filter string="备注" domain="[]" context="{'group_by':'note'}"/> 
+                    </group>
+                </search>
+            </field>
+        </record> -->
+
+        <record id="before_purchase_search" model="ir.ui.view">
+            <field name="name">Before Purchase Search</field>
+            <field name="model">before.purchase</field>
+            <field name="arch" type="xml">
+            <search string="Search before purchase">
+                <filter string="待确认" name="wait_confirm" domain="[('state','=','draft')]"/>
+                <field name="sale_order_id"/>
+                <field name="demand_purchase_id"/>
+                <field name="charge_person"/>
+            </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_before_purchase">
+            <field name="name">待确认询价单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">before.purchase</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="before_purchase_search"/>
+            <field name="context">{'search_default_wait_confirm': 1}</field>
+        </record>
+
+        <menuitem id="menu_acct_before_purchase" name="待确认生成询价单" parent="menu_demand_purchase_management" action="action_before_purchase" groups="purchase.group_purchase_user" sequence="1"/>
+
+    </data>
+</openerp>

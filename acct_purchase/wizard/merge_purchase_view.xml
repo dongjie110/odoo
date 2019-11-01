@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--导出数据-->
+        <record id="merge_purchase_form_view" model="ir.ui.view">
+            <field name="name">询价单合并</field>
+            <field name="model">merge.purchase.wizard</field>
+            <field name="arch" type="xml">
+                <form string="export">
+                     <sheet>
+                        <div style="font-size:20px">
+                            询价单合并
+                        </div>
+                        <group>
+                            <field name="title"/>
+                            <field name="charge_person"/>
+                            <field name="purchase_type"/>
+                            <field name="traffic_rule"/>
+                            <field name="payment_rule"/>
+                            <field name="delivery_address"/>
+                            <field name="purchase_company"/>
+                            <field name="purchase_ids" widget="many2many_tags"/>
+                            <field name="purchase_order_id"/>
+                        </group>
+                        <group>
+                            <button class="oe_stat_button" name="merge_purchase_order" string="确认合并" type="object"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_merge_purchase_wizard" model="ir.actions.act_window">
+            <field name="name">询价单合并</field>
+            <field name="res_model">merge.purchase.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="merge_purchase_form_view"/>
+            <field name="target">inline</field>
+        </record>
+
+        <act_window id='merge_purchase_wizard'
+                    name='询价单合并'
+                    res_model='merge.purchase.wizard'
+                    view_id="merge_purchase_form_view"
+                    view_mode='form'
+                    target="inline"
+        />
+
+
+    </data>
+</odoo>

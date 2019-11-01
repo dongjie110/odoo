@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data >
+        <!--短信接口-->
+        <record model="ir.ui.view" id="acc_message_interface_tree">
+            <field name="name">短信接口</field>
+            <field name="model">acc.message.interface</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="短信接口">
+                    <field name="topic"/>
+                    <field name="user_name"/>
+                    <field name="phone"/>
+                    <field name="name"/>
+                    <field name="create_date"/>
+                    <field name="write_date"/>
+                    <field name="state"/>             
+                </tree>
+            </field>
+        </record>
+        
+        <record model="ir.ui.view" id="acc_message_interface_form">
+            <field name="name">短信接口</field>
+            <field name="model">acc.message.interface</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="短信接口">
+                     <header>
+                        <button name="sms_send" states="draft" type="object" string="发送"/>
+                        <field name="state"  widget="statusbar" statusbar_visible="draft,done,error"/>
+                    </header>
+                    <group>
+                        <field name="topic" attrs="{'readonly':[('state','=', 'done')]}"/>
+                        <field name="user_name" attrs="{'readonly':[('state','=', 'done')]}"/>
+                        <field name="phone" attrs="{'readonly':[('state','=', 'done')]}"/>
+                        <field name="name" attrs="{'readonly':[('state','=', 'done')]}"/>
+                        <field name="create_date"/>
+                        <field name="write_date"/>
+                        <field name="note" attrs="{'invisible':[('state','!=', 'error')]}"/>
+                        <field name="state"/> 
+                    </group>         
+                </form>
+            </field>
+        </record>
+
+        <record id="acc_message_interface_search" model="ir.ui.view">
+            <field name="name">Search</field>
+            <field name="model">acc.message.interface</field>
+            <field name="arch" type="xml">
+                <search string="搜索">
+                    <field name="phone" string="手机号码"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_acc_message_interface">
+            <field name="name">发送短信</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">acc.message.interface</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="acc_message_interface_tree"/>
+        </record>  
+        <!-- <menuitem id="menu_action_unovo_message_interface" action="action_unovo_message_interface" parent="menu_unovo_message_interface_mgmt" string="短信记录" sequence="10"/>  -->
+
+    </data>
+</openerp>

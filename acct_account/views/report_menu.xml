@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <report
+                string="挚锦科技出货单"
+                id="acc_report_stock"
+                model="stock.picking"
+                report_type="qweb-html"
+                file="acct_stock.acct_report_stock"
+                name="acct_stock.acct_report_stock"
+        />
+    </data>
+</openerp>

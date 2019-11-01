@@ -11,6 +11,11 @@
                     <header>
                         <button name="draft_button" states="draft" string="提交审批" type="object" groups="purchase.group_purchase_user"/>
                         <button name="approve" states="confirmed" string="审批通过" type="object" groups="purchase.group_purchase_manager"/>
+                        <button name="cancel" states="confirmed" string="取消" type="object" groups="purchase.group_purchase_manager"/>
+                        <button name="reject" states="confirmed" string="拒绝" type="object" groups="purchase.group_purchase_manager"/>
+                        <button name="cancel_draft" states="cancel" string="设为草稿" type="object" groups="purchase.group_purchase_user"/>
+                        <button name="add_new_bom" states="done" string="物料清单变更" type="object" groups="purchase.group_purchase_user"/>
+                        <!-- <button name='make_acccode' type='object' string='test'/> -->
                         <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,done" statusbar_colors='{"draft":"red"}'/>
                     </header>
                     <sheet>
@@ -19,15 +24,21 @@
                         </div>
                         <group>
                             <group>
+                                <field name="create_user"/>
                                 <field name="apply_date"/>
+                                <field name="bomupdate_time"/>
+                                <field name="manage_user"/>
                                 <field name="need_date" />
-                                <field name="purchase_type" />
-                                <field name="partner_id" options="{'no_create': True, 'no_open': True}"/>
+                                <!-- <field name="purchase_type" /> -->
+                                <field name="delivery_address"/>
+                                <field name="before_purchase_id" readonly="1"/>
                             </group>
                             <group>
-                                <field name="web_address" />
+                                <field name="po_number" />
+                                <field name="charge_person" />
+                                <field name="purchase_company" />
                                 <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
-                                <field name="purchase_order_id"/>
+                                <!-- <field name="purchase_order_id"/> -->
                             </group>
                         </group>
                         <group>
@@ -58,6 +69,18 @@
                                 </group>
 
                             </page>
+                            <page string="物料清单记录">
+                                <field name="bom_line">
+                                    <tree string="物料清单记录">
+                                        <field name="mrp_bom_id"/>
+                                        <field name="code"/>                            
+                                        <field name="product_qty"/>
+                                        <field name="gen_date"/>
+                                        <field name="acc_type"/>
+                                        <field name="is_active"/>
+                                    </tree>
+                                </field>
+                            </page>
                         </notebook>
                     </sheet>
                     <div class="oe_chatter">
@@ -73,7 +96,7 @@
             <field name="model">demand.purchase</field>
             <field name="arch" type="xml">
                 <!-- <tree colors="grey:state == 'done'" string="Demand Purchase"> -->
-                <tree string="Demand Purchase">
+                <tree decoration-danger="state=='confirmed'" decoration-success="state=='done'" string="Demand Purchase">
                     <field name="name"/>
                     <field name="create_user"/>
                     <field name="apply_date" />
@@ -82,41 +105,6 @@
                 </tree>
             </field>
         </record>
-
-        <!-- <record id="demand_purchase_search" model="ir.ui.view">
-            <field name="name">Demand Purchase Search</field>
-            <field name="model">demand.purchase</field>
-            <field name="arch" type="xml">
-                <search string="Demand Purchase">
-                    <field name="name" string="编号"/>
-                    <group expand="0" string="Group By..." colspan="16">
-                        <filter string="供应商" domain="[]" context="{'group_by':'partner_id'}"/>
-                        <filter string="单号" domain="[]" context="{'group_by':'name'}"/>
-                        <filter string="申请日期" domain="[]" context="{'group_by':'apply_date'}"/>
-                        <filter string="申请人" domain="[]" context="{'group_by':'create_user'}"/>
-                        <filter string="需求日期" domain="[]" context="{'group_by':'need_date'}"/> 
-                        <filter string="备注" domain="[]" context="{'group_by':'note'}"/> 
-                    </group>
-                </search>
-            </field>
-        </record> -->
-
-        <!-- <record id="demand_purchase_search" model="ir.ui.view">
-            <field name="name">Demand Purchase Search</field>
-            <field name="model">demand.purchase</field>
-            <field name="arch" type="xml">
-                <search string="Demand Purchase">
-                    <field name="name" string="编号"/>
-                    <group expand="0" string="Group By">
-                        <filter string="供应商" name="vendor" domain="[]" context="{'group_by':'partner_id'}"/>
-                        <filter string="单号" domain="[]" context="{'group_by':'name'}"/>
-                        <filter string="申请人" domain="[]" context="{'group_by':'create_user'}"/>
-                        <filter string="申请日期" domain="[]" context="{'group_by':'apply_date'}"/>
-                        <filter string="备注" domain="[]" context="{'group_by':'note'}"/>
-                    </group>
-                </search>
-            </field>
-        </record> -->
 
         <record model="ir.actions.act_window" id="action_demand_purchase">
             <field name="name">请购单</field>
@@ -147,7 +135,11 @@
 
         <menuitem id="menu_demand_purchase" name="请购单" parent="menu_demand_purchase_management" action="action_demand_purchase" groups="purchase.group_purchase_user" sequence="1"/>
 
-        <!-- <menuitem id="menu_demand_purchase" name="请购单" parent="purchase.menu_procurement_management" action="action_demand_purchase" groups="purchase.group_purchase_user" sequence="1"/> -->
+        <!-- <menuitem id="menu_acct_bom" name="物料清单" parent="menu_demand_purchase_management" action="acct_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="1"/> -->
+
+        <menuitem id="menu_merge_purchase_form_action" name="询价单合并" parent="menu_demand_purchase_management" action="merge_purchase_wizard" groups="purchase.group_purchase_user" sequence="10"/>
+
+        <menuitem id="menu_merge_bom_form_action" name="物料清单合并" parent="menu_demand_purchase_management" action="merge_bom_wizard" groups="purchase.group_purchase_user" sequence="10"/>
 
     </data>
 </openerp>

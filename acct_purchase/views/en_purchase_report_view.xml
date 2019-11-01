@@ -31,6 +31,7 @@
                     height:20px;
                     font-size:16px;
                     color:#FFF;
+                    background:#3d85c6
                     }
                     .unovo-report-purchase-table td{
                     height:20px;
@@ -100,20 +101,19 @@
                     }
                     .unovo-report-acc-table1 td{
                     width:50%;
-                    <!-- font-weight:bold; -->
+                    font-weight:bold;
                     text-align:center;
                     height:25px;
                     font-size:16px;
                     border:1px solid #ccc;
                     background:#FFF;
-                    border-bottom:none
                     }
                 </style>
                 <div class="page">
                     <div class="row unovo-report-purchase-title">
                         <div class="col-xs-6" style="width: 50%;text-align: left;">
                             <!-- <img t-att-src="'data:image/jpg;base64,%s' % o.purchase_company.logo" style="max-height: 45px;"/> -->
-                            <img t-att-src="'data:image/png;base64,%s' % logo" style="max-height: 55px;width:230px"/>
+                            <img t-att-src="'data:image/png;base64,%s' % logo" style="max-height: 110px;width:170px"/>
                         </div>
                         <div class="col-xs-6" style="width: 50%;text-align: right;color:#3d85c6;">
                             <strong style="max-height: 70px;width:250px">PURCHASE ORDER</strong>
@@ -215,19 +215,19 @@
                     <br/>
                     <table class="unovo-report-purchase-table" border="1px" cellspacing="0" cellpadding="0">
                             <tr>
-                                <th class="text-center">
+                                <th class="text-center" style="width:20%;">
                                     <strong>REQUISITIONER</strong>
                                 </th>
-                                <th class="text-center">
+                                <th class="text-center" style="width:15%;">
                                     <strong>CURRENCY</strong>
                                 </th>
-                                <th class="text-center">
+                                <th class="text-center" style="width:15%;">
                                     <strong>LEAD TIME</strong>
                                 </th>
-                                <th class="text-center">
+                                <th class="text-center" style="width:30%;">
                                     <strong>PAYMENT TERMS</strong>
                                 </th>
-                                <th class="text-center">
+                                <th class="text-center" style="width:20%;">
                                     <strong>SHIPPING TERMS</strong>
                                 </th>
                             </tr>
@@ -252,12 +252,6 @@
                     <br/>
                     <table class="unovo-report-purchase-table" border="1px" cellspacing="0" cellpadding="0">
                         <tr>
-                            <!-- <th>
-                                <strong>序 号</strong>
-                            </th> -->
-                            <!-- <th>
-                                <strong>物料编码</strong>
-                            </th> -->
                             <th style="width:20%;">
                                 <strong>PART NUMBER</strong>
                             </th>
@@ -269,10 +263,7 @@
                             </th>
                             <th style="width:15%;">
                                 <strong>UNIT PRICE</strong>
-                            </th>
-                            <!-- <th>
-                                <strong>TAX RATE</strong>
-                            </th> -->                           
+                            </th>                          
                             <th style="width:15%;">
                                 <strong>TOTAL</strong>
                             </th>
@@ -281,7 +272,7 @@
                             <td class="text-center">
                                 <span t-field="line.product_id.product_tmpl_id.product_model"/>
                             </td>
-                            <td class="text-center">
+                            <td style="text-align:left;">
                                 <span t-field="line.product_id.product_tmpl_id.product_describe_en"/>
                             </td>
                             <td class="text-center">
@@ -310,7 +301,9 @@
                                 </th>
                             </tr>
                             <tr>
-                                <td></td>
+                                <td>
+                                   <span t-field="o.notes"/> 
+                                </td>
                             </tr>
                         </table>
                     </div>
@@ -332,7 +325,7 @@
                     </div> -->
                     <table cellspacing="3" style="width:60%;" align="right">
                         <tr>
-                            <th style="width:40%;">
+                            <th style="width:70%;">
                                 SUBTOTAL
                             </th>
                             <td >
@@ -368,7 +361,8 @@
                                 TOTAL
                             </th>
                             <td>
-                                <span t-esc="o.amount_total - o.discount_amount - o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                <!-- <span t-esc="o.amount_total - o.discount_amount - o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/> -->
+                                <span t-esc="o.amount_total - o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                             </td>
                         </tr>
                     </table>
@@ -383,10 +377,27 @@
                     <br/>
                     <div style="border:1px solid black">
                         <strong style="float:left">Authorized by</strong>
-                        <strong style="float:right">Date</strong>
+                        <strong style="float:right">Date&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;</strong>
                     </div>
                     </div>
                     </div>
+                    <!-- <div class="unovo-report-footer-table">
+                    <div style="text-align:center;width:50%; border:1px solid black;"></div>
+                    <div class="col-xs-6" style="width: 50%;text-align: left;">
+                        <strong>Authorized by</strong>
+                    </div>
+                    <div class="col-xs-6">
+                        <strong>Date</strong>
+                    </div>
+                    </div> -->
+                    <!-- <div class="row unovo-report-purchase-title">
+                        <div class="col-xs-6" style="width: 50%;text-align: left;">
+                            <strong>Authorized by</strong>
+                        </div>
+                        <div class="col-xs-6" style="width: 50%;text-align: right;">
+                            <strong>Date</strong>
+                        </div>
+                    </div> -->
                     <br/>
                     <br/>
                     <div class="unovo-report-footer-table">
@@ -395,7 +406,7 @@
                         </div>
                     </div>
                 </div>
-            <div style="page-break-after:always;"></div>
+            <div style="page-break-after:auto;"></div>
             </t>
 
             <t t-foreach="docs" t-as="doc">

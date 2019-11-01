@@ -27,83 +27,110 @@
                 <xpath expr="//button[@name='preview_sale_order']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <!-- <xpath expr="//button[@string='Print'][last()]" position="attributes">
+                <xpath expr="//button[@name='action_confirm'][1]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//field[@name='payment_term']" position="after" >
-                    <field name="payment_method"/>
-                </xpath> -->
-                <!-- <xpath expr="//button[@name='cancel']" position="attributes">
+                <xpath expr="//button[@name='action_confirm'][2]" position="attributes">
                     <attribute name="invisible">1</attribute>
-                </xpath> -->
-                <!-- <xpath expr="//field[@name='pricelist_id']" position="attributes">
-                    <attribute name="invisible">1</attribute>
-                </xpath> -->
-                <!-- <xpath expr="//field[@name='note']" position="before">
-                    <group>
-                        <group>
-                            <field name="carrier_tracking_ref"/>
-                        </group>
-                    </group>
-                </xpath> -->
+                </xpath>
+                <xpath expr="//button[@name='preview_sale_order']" position="after">
+                    <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+                    <!-- <button name="boss_accept" string="管理部审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_manage_info_group"/> -->
+                    <button name="action_confirm" string="确认订单" type="object" class="oe_highlight" attrs="{'invisible': [('state', 'not in', ['confirm'])]}" groups="acct_base.acc_commerce_manager_group"/>
+                    <button name="add_new_bom" states="sale" string="物料清单变更" type="object" groups="acct_base.acc_commerce_manager_group"/>   
+                </xpath>
+                <xpath expr="//field[@name='state']" position="attributes">
+                    <attribute name="statusbar_visible">draft,confirm,sale</attribute>
+                </xpath>
                 <xpath expr="//field[@name='partner_id']" position="after" >
                     <field name="contact_id" context="{'sale_choose_contact':'sale_choose_contact','partner_id':partner_id}"/>
                     <field name="title"/>
-                    <field name="user_id"/>
+                    <field name="user_id" string="负责人"/>
+                    <field name="bomupdate_time"/>
                     <field name="transfer"/>
                     <field name="sale_commission"/>
                     <field name="in_country"/>
+                    <field name="tax_id"/>
+                    <field name="partner_ponumber"/>
                     <field name="transaction_mode"/>
                     <field name="transaction_rule"/>
+                    <field name="delivery_time"/>
                     <field name="sale_company"/>
                     <!-- <field name="unovo_project_id" attrs="{'invisible': [('order_type', '!=', 'returns')]}" on_change="onchange_unovo_project_id(unovo_project_id, order_type)" options="{'no_create': True}"/> -->
                 </xpath>
-                <xpath expr="//field[@name='payment_term_id']" position="after">           
+                <xpath expr="//field[@name='payment_term_id']" position="after">
+                    <field name="is_makepo"/>
+                    <field name="purchase_charge_person"/>          
                     <field name="is_invoice"/>
                     <field name="is_purchasing"/>
                     <field name="purchase_date"/>
                     <field name="po_number"/>
+                    <field name="before_purchase_id" readonly="1"/>
+                    <field name="acc_quotation_id" readonly="1"/>
                     <field name="is_send"/>
                     <field name="send_date"/>
                     <field name="is_pay"/>
                     <field name="send_status"/>
+                    <field name="wait_change"/>
                     <!-- <field name="validity_date"/> -->
                 </xpath>
 
-                <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='price_unit']" position="after">
-                   <field context="{'contract_id':parent.contract_id,'product_id':product_id,'order_type':parent.order_type}" name="contract_price" options="{'no_create': True,'no_open':True}" on_change="contract_price_change(contract_price,parent.order_type,product_uom_qty)"  />
-                </xpath> -->
-                <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="after">
-                    <field name="product_model"/>
-                </xpath> -->
                 <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="attributes">
                     <attribute name="string">规格型号</attribute>
                 </xpath>
-                <!-- <xpath expr="/form/sheet/notebook/page/field/form/field[@name='name']" position="after" >
-                    <label string="备注"/>
-                    <field name="line_note"/>
-                </xpath> -->
-      
-                <!-- <xpath expr="//field[@name='price_subtotal']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath> -->                          
+
+                <xpath expr="/form/sheet/notebook/page[@name='order_lines']" position="after">
+                    <page string="报价单明细">
+                        <field name="quotation_line">
+                            <tree string="报价单明细" editable="bottom">
+                                <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="acc_code"/>
+                                <field name="product_model"/>                           
+                                <field name="product_qty"/>
+                                <field name="description"/>
+                                <field name="price_unit"/>
+                                <field name="product_uom"/>
+                                <!-- <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','!=','sale')]"/> -->
+                                <field name="price_subtotal"/>
+                            </tree>
+                        </field>
+                        <group class="oe_subtotal_footer oe_right" groups="purchase.group_purchase_user">
+                            <field name="quo_amount_untaxed" />
+                            <field name="quo_amount_tax" />
+                            <div class="oe_subtotal_footer_separator oe_inline">
+                                <label for="quo_amount_total"/>
+                            </div>
+                            <field name="quo_amount_total" nolabel="1" class="oe_subtotal_footer_separator" />
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page[@name='order_lines']" position="after">
+                    <page string="英文合同相关信息" name="acc_information">
+                            <group>
+                                <group string="英文合同相关信息" name="acc_information">
+                                    <field name="origin_country"/>
+                                    <field name="port_shipment"/>
+                                    <field name="destination_port"/>
+                                    <field name="destination_address"/>
+                                    <field name="shipping_method"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="物料清单记录">
+                            <field name="bom_line">
+                                <tree string="物料清单记录">
+                                    <field name="mrp_bom_id"/>
+                                    <field name="code"/>                            
+                                    <field name="product_qty"/>
+                                    <field name="gen_date"/>
+                                    <field name="acc_type"/>
+                                    <!-- <field name="is_active"/> -->
+                                </tree>
+                            </field>
+                        </page>
+                </xpath>                       
             </field>
         </record>
-
-        <!-- <record id="view_order_tree_inherit" model="ir.ui.view">
-            <field name="name">sale.order.tree.inherit</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.view_order_tree"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='partner_id']" position="after">   
-                    <field name="charge_person"/>
-                </xpath>
-                <xpath expr="//field[@name='user_id']" position="attributes" >
-                    <attribute name="invisible">1</attribute>
-                </xpath>
-            </field>
-        </record> -->
-
         <record id="action_sale_partner_other_form" model="ir.actions.act_window">
             <field name="name">contacts</field>
             <field name="type">ir.actions.act_window</field>
@@ -117,12 +144,231 @@
             <field name="filter" eval="True"/>
         </record>
 
+        <!-- 自定义报价单搜索视图 -->
+        <record id="acc_sale_order_view_search_inherit_quotation" model="ir.ui.view">
+            <field name="name">acc.sale.order.search.inherit.quotation</field>
+            <field name="model">sale.order</field>
+            <field name="mode">primary</field>
+            <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='my_sale_orders_filter']" position="replace">
+                    <separator/>
+                    <filter string="所有报价单" name="my_quotation" domain="[('state','=','draft')]"/>
+                    <separator/>
+                    <filter string="报价单" name="draft" domain="[('state','in',('draft', 'sent'))]"/>
+                    <filter string="销售订单" name="sales" domain="[('state','in',('sale','done'))]"/>
+                    <separator/>
+                    <filter string="单据日期" name="filter_order_date" date="date_order"/>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- 自定义报价单 -->
+        <record id="action_acc_quotations" model="ir.actions.act_window">
+            <field name="name">报价单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="search_view_id" ref="acc_sale_order_view_search_inherit_quotation"/>
+            <field name="context">{'search_default_my_quotation': 1}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a new quotation, the first step of a new sale!
+              </p><p>
+                Once the quotation is confirmed by the customer, it becomes a sales order.<br/> You will be able to create an invoice and collect the payment.
+              </p>
+            </field>
+        </record>
+
+        <!-- <record id="action_acc_boss_order" model="ir.actions.act_window">
+            <field name="name">待管理部审批销售单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="domain">[('state','=','confirm')]</field>
+        </record> -->
+
+        <record id="action_acc_manager_order" model="ir.actions.act_window">
+            <field name="name">待确认销售单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="domain">[('state','=','confirm')]</field>
+            <!-- <field name="search_view_id" ref="acc_sale_order_view_search_inherit_quotation"/> -->
+            <!-- <field name="context">{'search_default_my_quotation': 1}</field> -->
+        </record>
+
+        <!-- <menuitem id="menu_acc_boss_sale_order"
+                action="action_acc_boss_order"
+                parent="sale.sale_order_menu"
+                sequence="3" name="待管理部审批销售单"/> -->
+
+        <menuitem id="menu_acc_manager_sale_order"
+                action="action_acc_manager_order"
+                parent="sale.sale_order_menu"
+                sequence="2" name="待确认销售单"/>
+
+       <!--  <record id="view_crm_lead_form_inherit" model="ir.ui.view">
+            <field name="name">crm.lead.inherit</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_form_view_oppor"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after" >
+                    <field name="contact_id" context="{'crm_choose_contact':'crm_choose_contact','partner_id':partner_id}"/>
+                </xpath>                       
+            </field>
+        </record> -->
+
+        <!-- 挚锦报价单 -->
+        <record model="ir.ui.view" id="acc_quotation_form">
+            <field name="name">Acc Quotation</field>
+            <field name="model">acc.quotation</field>
+            <field name="arch" type="xml">
+                <form string="Acc Quotation" version="12.0">
+                    <header>
+                        <!-- <button name="draft_button" states="draft" string="提交审批" type="object" groups="purchase.group_purchase_user"/> -->
+                        <button name="create_so" confirm='是否确认生成销售单!' states="draft" string="确认" type="object"/>
+                        <button name="cancel" confirm='是否取消报价单!' states="draft" string="取消" type="object"/>
+                        <!-- <button name='make_acccode' type='object' string='test'/> -->
+                        <field name="state" widget="statusbar" statusbar_visible="draft,done,cancel" statusbar_colors='{"draft":"red"}'/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="name"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="contact_id" context="{'sale_choose_contact':'sale_choose_contact','partner_id':partner_id}"/>
+                                <field name="pricelist_id" />
+                                <field name="currency_id"/>
+                                <field name="tax_id"/>
+                                <!-- <field name="purchase_type" /> -->
+                                <field name="title"/>
+                                <field name="gen_date"/>
+                                <field name="user_id"/>
+                                <field name="transfer"/>
+                                <field name="delivery_time"/>
+                                <field name="crm_lead_id"/>
+                            </group>
+                            <group>
+                                <field name="sale_commission" />
+                                <field name="in_country" />
+                                <field name="purchase_charge_person" />
+                                <field name="transaction_mode"/>
+                                <field name="transaction_rule"/>
+                                <field name="sale_company" />
+                                <field name="sale_order"/>
+                                <field name="discount" />
+                                <field name="ship_fee"/>
+                                <!-- <field name="transaction_rule"/> -->
+                            </group>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="挚锦报价单明细">
+                                <field name="accquotation_line">
+                                    <tree string="挚锦报价单明细" editable="bottom">
+                                        <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
+                                        <field name="acc_code"/>
+                                        <field name="product_model"/>                           
+                                        <field name="product_qty"/>
+                                        <field name="description"/>
+                                        <field name="price_unit"/>
+                                        <field name="product_uom"/>
+                                        <!-- <field name="taxes_id" widget="many2many_tags" domain="[('type_tax_use','!=','sale')]"/> -->
+                                        <field name="price_subtotal"/>
+                                    </tree>
+                                </field>
+
+                                <group class="oe_subtotal_footer oe_right" groups="purchase.group_purchase_user">
+                                    <field name="amount_untaxed" />
+                                    <field name="amount_tax" />
+                                    <div class="oe_subtotal_footer_separator oe_inline">
+                                        <label for="amount_total"/>
+                                    </div>
+                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" />
+                                </group>
+
+                            </page>
+                            <page string="挚锦报价单日志">
+                                <field name="log_line">
+                                    <tree string="挚锦报价单日志">
+                                        <field name="user_id"/>
+                                        <field name="gen_date"/>                        
+                                        <field name="amount_total"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="acc_quotation_tree">
+            <field name="name">Acc Quotation</field>
+            <field name="model">acc.quotation</field>
+            <field name="arch" type="xml">
+                <!-- <tree colors="grey:state == 'done'" string="Demand Purchase"> -->
+                <tree string="Acc Quotation">
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="title" />
+                    <field name="gen_date"/>
+                    <field name="sale_order"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_acc_quotation1">
+            <field name="name">挚锦报价单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">acc.quotation</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <!-- <field name="search_view_id" ref="demand_purchase_search"/> -->
+            <field name="domain">[]</field>
+            <field name="context">{}</field>
+        </record>
+
+        <record id="sale_action_acc_quotations_new" model="ir.actions.act_window">
+            <field name="name">挚锦报价单</field>
+            <field name="res_model">acc.quotation</field>
+            <field name="view_mode">form,tree</field>
+            <field name="domain">[('crm_lead_id', '=', active_id)]</field>
+            <field name="context">{'search_default_crm_lead_id': active_id, 'default_crm_lead_id': active_id}</field>
+        </record>
+
+        <menuitem id="menu_acc_sale_quotations"
+                action="action_acc_quotations"
+                parent="sale.sale_order_menu"
+                sequence="2" name="所有销售单" groups="sales_team.group_sale_salesman"/>
+        <!-- <menuitem id="menu_acc_boss_sale_order"
+                action="action_acc_quotations"
+                parent="sale.sale_order_menu"
+                sequence="1" name="所有销售单" groups="sales_team.group_sale_salesman"/> -->
+
+        <menuitem id="menu_crm_acc_sale_quotations"
+                action="action_acc_quotations"
+                parent="crm.crm_menu_sales"
+                sequence="1" name="报价单" groups="sales_team.group_sale_salesman"/>
+
+        <menuitem id="menu_zhijing_acc_sale_quotation"
+                action="action_acc_quotation1"
+                parent="sale.sale_order_menu"
+                sequence="1" name="报价单" groups="acct_base.acc_commerce_level_group"/>
+
         <menuitem id="menu_sale_other_management" name="其他信息"
             parent="sale.sale_menu_root" sequence="60" />
 
         <!-- <menuitem id="menu_purchase_uom_form_action" name="计量单位" parent="menu_purchase_other_management" action="uom.product_uom_form_action" groups="purchase.group_purchase_user" sequence="50"/> -->
 
-        <menuitem id="menu_sale_partner_other_form" name="联系人" parent="menu_sale_other_management" action="action_sale_partner_other_form" groups="sales_team.group_sale_salesman" sequence="10"/>
+        <!-- <menuitem id="menu_sale_partner_other_form" name="联系人" parent="menu_sale_other_management" action="action_sale_partner_other_form" groups="sales_team.group_sale_salesman" sequence="10"/> -->
 
     </data>
 </openerp>

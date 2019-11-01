@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--导出数据-->
+        <record id="merge_bom_form_view" model="ir.ui.view">
+            <field name="name">物料清单合并</field>
+            <field name="model">merge.bom.wizard</field>
+            <field name="arch" type="xml">
+                <form string="mergebom">
+                     <sheet>
+                        <div style="font-size:20px">
+                            物料清单合并
+                        </div>
+                        <group>
+                            <!-- <field name="title"/>
+                            <field name="charge_person"/>
+                            <field name="purchase_type"/>
+                            <field name="traffic_rule"/>
+                            <field name="payment_rule"/> -->
+                            <field name="product_tmpl_id"/>
+                            <field name="code"/>
+                            <field name="bom_ids" widget="many2many_tags"/>
+                            <field name="mrp_bom_id"/>
+                        </group>
+                        <group>
+                            <button class="oe_stat_button" name="merge_bom_order" string="确认合并" type="object"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_merge_bom_wizard" model="ir.actions.act_window">
+            <field name="name">物料清单合并</field>
+            <field name="res_model">merge.bom.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="merge_bom_form_view"/>
+            <field name="target">inline</field>
+        </record>
+
+        <act_window id='merge_bom_wizard'
+                    name='物料清单合并'
+                    res_model='merge.bom.wizard'
+                    view_id="merge_bom_form_view"
+                    view_mode='form'
+                    target="inline"
+        />
+
+
+    </data>
+</odoo>

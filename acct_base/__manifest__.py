@@ -21,16 +21,18 @@
     'version': '1.0.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','purchase','sale','web','account','stock'],
+    'depends': ['base','purchase','sale','web','account','stock','mrp','crm'],
 
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
-        # 'report/layout_templates.xml',
+        'views/ir_attachment_view.xml',
         'views/acc_product_view.xml',
         'views/res_groups.xml',
         'views/info_read_group.xml',
         'views/acc_contact_view.xml',
+        'views/message_interface_view.xml',
+        'views/ir_sequence.xml',
         'wizard/import_partner_data_wizard.xml',
         'wizard/import_contact_data_wizard.xml',
         'wizard/import_product_data_wizard.xml',

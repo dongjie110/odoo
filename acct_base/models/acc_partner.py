@@ -27,19 +27,19 @@ class res_partner_acc(models.Model):
     price_level = fields.Selection([('0', '一般'), ('1', '低'), ('2', '高'), ('3', '非常高')], '价格评级', default='0')
     acc_image = fields.Binary("营业执照", attachment=True)
     
-    @api.model
-    def create(self,vals):
-        if vals.get('name') and not vals.get('parent_id'):
-            name_list = []
-            new_name = vals.get('name','')
-            request.cr.execute("""select name from res_partner""")
-            names = request.cr.dictfetchall()
-            for name in names:
-                name_list.append(name['name'])
-            if new_name in name_list:
-                raise ValidationError('供应商或客户名称重复！！')
-        res = super(res_partner_acc, self).create(vals)
-        return res
+    # @api.model
+    # def create(self,vals):
+    #     if vals.get('name') and not vals.get('parent_id'):
+    #         name_list = []
+    #         new_name = vals.get('name','')
+    #         request.cr.execute("""select name from res_partner""")
+    #         names = request.cr.dictfetchall()
+    #         for name in names:
+    #             name_list.append(name['name'])
+    #         if new_name in name_list:
+    #             raise ValidationError('供应商或客户名称重复！！')
+    #     res = super(res_partner_acc, self).create(vals)
+    #     return res
 
     #采购订单中根据所选供应商对联系人进行筛选
     
@@ -51,12 +51,28 @@ class res_partner_acc(models.Model):
             domain = []
             contact = self.search(args, limit=limit)
             return contact.name_get()
+        if context.get('crm_choose_contact'):
+            domain = []
+            contact = self.search(args, limit=limit)
+            return contact.name_get()
+        # else:
+        #     contact = self.search(args, limit=limit)
+        #     return contact.name_get()
         return super(res_partner_acc, self).name_search(name=name, args=args, operator=operator, limit=limit)
 
 
     @api.model
     def search(self, args, offset=0, limit=None, order=None, count=False):
         context = self.env.context
+        # if self._uid == 2:
+        #     return super(res_partner_acc, self).search(args, offset, limit, order, count)
+        # # 管理部门
+        # elif self.env.user.has_group('acct_base.acc_manage_level1_group'):
+        #     return super(res_partner_acc, self).search(args, offset, limit, order, count)
+        # # 商务部
+        # elif self.env.user.has_group('acct_base.acc_commerce_user_group'):
+        #     args.extend([('supplier', '=', True)])
+        #     return super(res_partner_acc, self).search(args, offset, limit, order, count)
         if context.get('choose_contact') or context.get('sale_choose_contact'):
             partner_id = context.get('partner_id','')
             # print company_id
@@ -78,9 +94,29 @@ class res_partner_acc(models.Model):
                 contact_ids = [contact[0] for contact in contact_ids]
                 args.append(('id','in',contact_ids))
                 order = 'name desc'
-
+        if context.get('crm_choose_contact'):
+            partner_id = context.get('partner_id','')
+            # print company_id
+            contact_ids = []
+            if partner_id:
+                # machines = machines_ids[0][2]
+                # print machines_ids
+                cr = self.env.cr
+                sql = """
+                        SELECT
+                            ID
+                        FROM
+                            res_partner
+                        WHERE
+                            parent_id = %s
+                      """ %(partner_id)
+                cr.execute(sql)
+                contact_ids = cr.fetchall()
+                contact_ids = [contact[0] for contact in contact_ids]
+                args.append(('id','in',contact_ids))
+                order = 'name desc'
         return super(res_partner_acc, self).search(args, offset, limit, order, count)
-
+        
     def import_supply(self, fileName=None, content=None):
         import_tips = ""
         card_number_repeated = False

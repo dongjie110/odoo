@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <report
+                string="打印付款审批"
+                id="acct_report_expense_sheet"
+                model="hr.expense.sheet"
+                report_type="qweb-html"
+                file="acct_expense.acct_report_expense_sheet"
+                name="acct_expense.acct_report_expense_sheet"
+        />
+    </data>
+</openerp>

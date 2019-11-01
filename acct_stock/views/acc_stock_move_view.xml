@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="acc_view_location_tree" model="ir.ui.view">
+        <field name="name">acc.stock.location.tree</field>
+        <field name="model">stock.location</field>
+        <field name="priority" eval="2"/>
+        <field name="arch" type="xml">
+            <tree string="Stock Location" decoration-info="usage=='view'" decoration-danger="usage=='internal'" create="false">
+                <field name="active" invisible="1"/>
+                <field name="display_name" string="Location"/>
+                <field name="usage"/>
+                <!-- <field name="company_id" groups="base.group_multi_company"/> -->
+            </tree>
+        </field>
+    </record>
+
+    <!-- 库存位置上的查看库存按钮action -->
+    <!-- <record model="ir.actions.act_window" id="acc_location_open_quants">
+        <field name="context">{'search_default_productgroup': 1}</field>
+        <field name="domain">[('location_id', 'child_of', active_ids)]</field>
+        <field name="name">Current Stock</field>
+        <field name="res_model">stock.quant</field>
+    </record> -->
+
+    <record id="stock_quant_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.quant.tree.inherit</field>
+            <field name="model">stock.quant</field>
+            <field name="inherit_id" ref="stock.view_stock_quant_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='location_id']" position="after" >
+                    <field name="product_model"/>
+                    <field name="acc_code"/>   
+                </xpath>
+            </field>
+    </record>
+
+    <record id="acc_stock_quant_search_view" model="ir.ui.view">
+        <field name="name">acc.stock.quant.search</field>
+        <field name="model">stock.quant</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="stock.quant_search_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after" >
+                <field name="acc_code" string="产品编码" filter_domain="[('acc_code','ilike',self)]"/>
+                <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 库存盘点视图继承 -->
+    <record id="stock_inventory_form_inherit" model="ir.ui.view">
+            <field name="name">stock.inventory.form.inherit</field>
+            <field name="model">stock.inventory</field>
+            <field name="inherit_id" ref="stock.view_inventory_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_validate']" position="before">
+                    <button name="draft_accept" string="审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_manage_level1_group"/>   
+                </xpath>
+                <xpath expr="//field[@name='date']" position="after">
+                    <field name="process_state"/>   
+                </xpath>
+            </field>
+    </record>
+
+    <record id="action_acc_location_form" model="ir.actions.act_window">
+        <field name="name">库存</field>
+        <field name="res_model">stock.location</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_type">form</field>
+        <field name="view_id" ref="acc_view_location_tree"/>
+        <!-- <field name="search_view_id" ref="view_location_search"/> -->
+        <field name="domain">[('usage','=','view')]</field>
+        <!-- <field name="context">{'search_default_in_location':1}</field> -->
+    </record>
+    <!-- <menuitem action="action_acc_location_form" name='库存数量查看' id="menu_action_acc_location_form"
+        parent="stock.menu_warehouse_config" sequence="2"/> -->
+
+    <!-- stock.picking视图继承 -->
+    <record id="acc_stock_picking_form_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//button[@name='action_confirm]" position="after">
+                <button name="get_potitle" string="获取项目号" type="object" class="oe_highlight" groups="base.group_user"/>   
+            </xpath> -->
+            <xpath expr="//field[@name='origin']" position="after">
+                <field name="title"/>
+                <!-- <field name="actual_location_id"/>  -->
+            </xpath>
+        </field>
+    </record>
+
+    <!-- stock.invetory视图继承 -->
+    <record id="acc_stock_inventory_form_inherit" model="ir.ui.view">
+        <field name="name">stock.inventory.form.inherit</field>
+        <field name="model">stock.inventory</field>
+        <field name="inherit_id" ref="stock.view_inventory_form"/>
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//button[@name='action_confirm]" position="after">
+                <button name="get_potitle" string="获取项目号" type="object" class="oe_highlight" groups="base.group_user"/>   
+            </xpath> -->
+            <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="after">
+                <field name="acc_code"/>
+                <field name="product_model"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="acc_stock_picking_tree_inherit" model="ir.ui.view">
+        <field name="name">stock.picking.tree.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.vpicktree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='origin']" position="after" >
+                <field name="title"/>
+                <!-- <field name="actual_location_id"/>  --> 
+            </xpath>
+        </field>
+    </record>
+
+    <menuitem id="menu_acc_stock_report" name="库存数量" parent="stock.menu_stock_root" sequence="2"/>
+    <menuitem action="action_acc_location_form" name='库存数量查看' id="menu_action_acc_stock_location"
+        parent="menu_acc_stock_report" sequence="2"/>
+    </data>
+</openerp>

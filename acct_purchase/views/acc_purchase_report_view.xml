@@ -70,23 +70,23 @@
                     <div class="row unovo-report-purchase-title">
                         <div class="col-xs-6" style="width: 50%;text-align: left;">
                             <!-- <img t-att-src="'data:image/jpg;base64,%s' % o.purchase_company.logo" style="max-height: 45px;"/> -->
-                            <img t-att-src="'data:image/png;base64,%s' % logo" style="max-height: 70px;width:270px"/>
+                            <img t-att-src="'data:image/png;base64,%s' % logo" style="max-height: 110px;width:170px"/>
                         </div>
                     </div>
                     <br/>
                     <table class="unovo-report-purchase-table" border="1px" cellspacing="0" cellpadding="0">
                             <tr>
-                                <th colspan="9" class="text-center">
+                                <th colspan="10" class="text-center">
                                     <strong><span t-field="o.purchase_company.name"/></strong>
                                 </th>
                             </tr>
                             <tr>
-                                <th colspan="9" class="text-center">
+                                <th colspan="10" class="text-center">
                                     <strong>采 购 合 同</strong>
                                 </th>
                             </tr>
                             <tr>
-                                <td colspan="4" class="text-center">
+                                <td colspan="5" class="text-center">
                                     合同编号：<span t-field="o.name"/>
                                 </td>
                                 <td colspan="5" class="text-center">
@@ -97,7 +97,7 @@
                                 <td colspan="2" class="text-center">
                                     甲方(需方)
                                 </td>
-                                <td colspan="2" class="text-center">
+                                <td colspan="3" class="text-center">
                                     <span t-field="o.purchase_company.name"/>
                                 </td>
                                 <td colspan="2" class="text-center">
@@ -111,7 +111,7 @@
                                 <td colspan="2" class="text-center">
                                     甲方联系人
                                 </td>
-                                <td colspan="2" class="text-center">
+                                <td colspan="3" class="text-center">
                                     <span t-field="o.charge_person.partner_id.name"/>
                                 </td>
                                 <td colspan="2" class="text-center">
@@ -125,7 +125,7 @@
                                 <td colspan="2" class="text-center">
                                     甲方电话：
                                 </td>
-                                <td colspan="2" class="text-center">
+                                <td colspan="3" class="text-center">
                                     <span t-field="o.charge_person.partner_id.mobile"/>
                                 </td>
                                 <td colspan="2" class="text-center">
@@ -136,7 +136,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="9" class="text-left">
+                                <td colspan="10" class="text-left">
                                     甲方向乙方订购以下产品，请按照要求货期准时送货。
                                 </td>
                             </tr>
@@ -147,13 +147,16 @@
                                 <!-- <th>
                                     <strong>物料编码</strong>
                                 </th> -->
-                                <th style="width:10%;">
+                                <th style="width:9%;">
                                     名称
                                 </th>
-                                <th style="width:10%;">
+                                <th style="width:9%;">
                                     规格型号
                                 </th>
-                                <th style="width:25%;">
+                                <th style="width:8%;">
+                                    供应商编号
+                                </th>
+                                <th style="width:20%;">
                                     描述
                                 </th>
                                 <th style="width:8%;">
@@ -162,7 +165,7 @@
                                 <th style="width:7%;">
                                     数量
                                 </th>
-                                <th style="width:10%;">
+                                <th style="width:9%;">
                                     单价
                                 </th>
                                 <th style="width:10%;">
@@ -184,6 +187,9 @@
                                 </td>
                                 <td class="text-center">
                                     <span t-field="line.product_id.product_tmpl_id.product_model"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="line.product_id.product_tmpl_id.partner_code"/>
                                 </td>
                                 <td class="text-center">
                                     <span t-field="line.product_id.product_tmpl_id.product_describe_cn"/>
@@ -213,7 +219,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="9" class="text-left">
+                                <td colspan="10" class="text-left">
                                     备注:<span t-field="o.notes"/>
                                 </td>
                                 <!-- <th colspan="1">
@@ -238,7 +244,7 @@
                     </div> -->
                     <div class="unovo-report-purchase-content">
                         <p>
-                            一、本合同合计金额大写：人民币<span t-esc="total.get('upper_amount', '')"/>（<span t-esc="o.amount_untaxed" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>）。
+                            一、本合同合计金额大写：人民币<span t-esc="total.get('upper_amount', '')"/>（<span t-esc="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>）。
                         </p>
                         <p>
                             二、订购产品名称、规格型号、订购数量、价格、交货日期等参见上表。
@@ -289,7 +295,7 @@
                         </p>
                         <p>
                             十、违约责任：
-                                <p style="text-indent:2em;">1、甲方逾期付款，每逾期一日需支付乙方合同金额1%的违约金，逾期超过五日，乙方有权单方解除合同。</p>
+                                <p style="text-indent:2em;">1、甲方逾期付款，每逾期一日需支付乙方合同金额1‰的违约金，逾期超过五日，乙方有权单方解除合同。</p>
                                 <p style="text-indent:2em;">2、乙方逾期发货的，每逾期一日需支付甲方合同金额1%的违约金，逾期超过五日，甲方有权单方解除合同。</p>
 
                         </p>

@@ -27,7 +27,7 @@ class unovoReport(models.AbstractModel):
 
     def rmb_upper(self, value):
         map = [u"零",u"壹",u"贰",u"叁",u"肆",u"伍",u"陆",u"柒",u"捌",u"玖"]
-        unit = [u"分",u"角",u"元",u"拾",u"百",u"千",u"万",u"拾",u"百",u"千",u"亿",u"拾",u"百",u"千",u"万",u"拾",u"百",u"千",u"兆"]
+        unit = [u"分",u"角",u"元",u"拾",u"佰",u"仟",u"万",u"拾",u"佰",u"仟",u"亿",u"拾",u"佰",u"仟",u"万",u"拾",u"佰",u"仟",u"兆"]
 
         nums = []   #取出每一位数字，整数用字符方式转换避大数出现误差   
         for i in range(len(unit)-3, -3, -1):

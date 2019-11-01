@@ -72,7 +72,7 @@ class accenReport(models.AbstractModel):
         # company_id = self.env.user.company_id
         purchase = self.env['purchase.order'].browse(docids)
         company_id = purchase.purchase_company
-        logo = company_id.logo
+        logo = company_id.en_logo
         logo_transfer = str(logo, encoding="UTF8")
         # print (logo_transfer)
         return logo_transfer

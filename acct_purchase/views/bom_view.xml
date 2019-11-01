@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!--purchase模块-->
+        <record id="mrp_acc_form_view" model="ir.ui.view">
+            <field name="name">mrp.acc.form</field>
+            <field name="model">mrp.bom</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+            <field name="arch" type="xml">
+                <!-- <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-bars">
+                                <field name="active" widget="boolean_button" options="{&quot;terminology&quot;: &quot;archive&quot;}"/>
+                            </button> -->
+                <xpath expr="//field[@name='code']" position="after">
+                    <button name="%(import_bom_data_wizard)d" type="action" string="导入物料清单" class="oe_highlight" groups="acct_base.acc_manufacture_level_group"/>
+                    <button name="export_bom_record" string="导出明细行" type="object" class="oe_highlight" groups="acct_base.acc_manufacture_level_group"/>
+                    <button name="update_newinfo" string="更新产品信息" type="object" class="oe_highlight" groups="acct_base.acc_manufacture_level_group"/>
+                    <field name="acc_type"/>
+                    <field name="merge_info"/>
+                    <!-- <field name="is_active"/> -->
+                    <field name="version"/>
+                    <field name="version_date"/>
+                </xpath> 
+                <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="after">
+                    <field name="number"/>
+                    <field name="acc_code"/>
+                    <!-- <field name="internal_des"/> -->
+                    <field name="product_model"/>
+                    <field name="brand"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mrp_acc_tree_inherit" model="ir.ui.view">
+            <field name="name">mrp.bom.tree.inherit</field>
+            <field name="model">mrp.bom</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_tmpl_id']" position="after">
+                    <field name="version_date"/>  
+                </xpath>
+            </field>
+        </record>
+
+    	<record id="acct_mrp_bom_form_action" model="ir.actions.act_window">
+            <field name="name">所有物料清单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.bom</field>
+            <field name="domain">[]</field> <!-- force empty -->
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+
+        <record id="acct_standard_mrp_bom_form_action" model="ir.actions.act_window">
+            <field name="name">标准物料清单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.bom</field>
+            <field name="domain">[('acc_type','=','standard')]</field> <!-- force empty -->
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+        <record id="acct_base_mrp_bom_form_action" model="ir.actions.act_window">
+            <field name="name">基础物料清单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.bom</field>
+            <field name="domain">[('acc_type','=','base')]</field> <!-- force empty -->
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+        <record id="acct_change_mrp_bom_form_action" model="ir.actions.act_window">
+            <field name="name">可变物料清单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.bom</field>
+            <field name="domain">[('acc_type','=','change')]</field> <!-- force empty -->
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record>
+
+        <!-- <record id="acct_expire_mrp_bom_form_action" model="ir.actions.act_window">
+            <field name="name">过期物料清单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.bom</field>
+            <field name="domain">[('is_active','=',False)]</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,kanban,form</field>
+        </record> -->
+
+        <!-- mrp.production视图继承 -->
+        <record id="mrp_production_acc_form_view" model="ir.ui.view">
+            <field name="name">mrp.production.acc.form</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='origin']" position="after">
+                    <!-- <field name="location_src_id"/>
+                    <field name="location_dest_id"/> -->
+                    <field name="plan_date"/>
+                    <field name="date_finished"/>
+                </xpath>
+                <xpath expr="//field[@name='date_planned_start']" position="attributes">
+                    <attribute name="string">开始生产日期</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- mrp.eco视图继承 -->
+        <record id="mrp_eco_acc_form_view" model="ir.ui.view">
+            <field name="name">mrp.eco.acc.form</field>
+            <field name="model">mrp.eco</field>
+            <field name="inherit_id" ref="mrp_plm.mrp_eco_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="is_use"/>
+                </xpath>
+            </field>
+        </record>
+
+        <menuitem id="menu_acc_bom_management" name="物料清单信息"
+            parent="purchase.menu_purchase_root" sequence="3" />
+
+        <menuitem id="menu_acct_all_bom" name="物料清单" parent="menu_acc_bom_management" action="acct_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="5"/>
+        <!-- <menuitem id="menu_acct_standard_bom" name="标准物料清单" parent="menu_acc_bom_management" action="acct_standard_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="1"/>
+        <menuitem id="menu_acct_base_bom" name="基础物料清单" parent="menu_acc_bom_management" action="acct_base_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="2"/>
+        <menuitem id="menu_acct_change_bom" name="可变物料清单" parent="menu_acc_bom_management" action="acct_change_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="3"/> -->
+        <!-- <menuitem id="menu_acct_expire_bom" name="过期物料清单" parent="menu_acc_bom_management" action="acct_expire_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="4"/> -->
+        <!-- <menuitem id="menu_acct_merge_bom_form_action" name="物料清单合并" parent="menu_acc_bom_management" action="merge_bom_wizard" groups="purchase.group_purchase_user" sequence="10"/> -->
+
+ </data>
+</openerp>

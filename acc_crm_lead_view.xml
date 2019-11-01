@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <!-- <record model="ir.actions.act_window" id="acc_crm_lead_opportunities_tree_view">
+            <field name="name">Pipeline</field>
+            <field name="res_model">crm.lead</field>
+            <field name="view_mode">kanban,tree,graph,pivot,form,calendar,activity</field>
+            <field name="domain">[('type','=','opportunity')]</field>
+            <field name="context">{
+                    'default_type': 'opportunity'
+            }</field>
+            <field name="search_view_id" ref="crm.view_crm_case_opportunities_filter"/>
+        </record> -->
+
+        <menuitem id="acc_crm_my_partner"
+            name="我的客户"
+            parent="crm.crm_menu_sales"
+            groups="acct_base.unovo_it_operation_group"
+            action="acct_base.action_acc_partner_form"
+            sequence="10"/>
+        <menuitem id="acc_crm_all_partner"
+            name="所有客户"
+            parent="crm.crm_menu_sales"
+            groups="acct_base.acc_manage_level1_group"     
+            action="acct_base.action_acc_all_partner_form"
+            sequence="15"/>
+
+        <!-- <menuitem id="sale_order_menu"
+            name="Orders"
+            parent="sale_menu_root"
+            sequence="2"/> -->
+
+    </data>
+</openerp>

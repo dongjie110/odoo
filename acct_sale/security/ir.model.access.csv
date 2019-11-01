@@ -1,2 +1,7 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_transaction_rule,transaction.rule,model_transaction_rule,sales_team.group_sale_salesman,1,1,1,1
+access_quotation_line,quotation_line,model_quotation_line,sales_team.group_sale_salesman,1,1,1,1
+access_acc_quotation,acc_quotation,model_acc_quotation,sales_team.group_sale_salesman,1,1,1,0
+access_accquotation_line,accquotation_line,model_accquotation_line,sales_team.group_sale_salesman,1,1,1,1
+access_log_line,log_line,model_log_line,sales_team.group_sale_salesman,1,1,1,0
+access_sale_bom_line,sale_bom_line,model_sale_bom_line,sales_team.group_sale_salesman,1,1,1,1

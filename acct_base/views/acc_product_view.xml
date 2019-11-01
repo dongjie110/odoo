@@ -9,6 +9,13 @@
             <field name="inherit_id" ref="product.product_template_only_form_view"/>
             <field name="arch" type="xml">
                 <field name="barcode" position="after">
+                    <div>
+                        <label for="attachment" string="产品附件"/>
+                        <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label=" attachment" title="attachment"/>
+                    </div>
+                    <!-- <button name="make_acccode" string="编码" type="object"/> -->
+                    <field name="en_name"/>
+                    <field name="internal_des"/>
                     <field name="template_currency_id"/>
                     <field name="acc_purchase_price"/>
                     <field name="image_code"/>
@@ -16,6 +23,7 @@
                     <field name="brand"/>
                     <field name="acc_code"/>
                     <field name="partner_id"/>
+                    <field name="partner_code"/>
                     <field name="product_model"/>
                     <field name="uom_id"/>
                     <!-- <field name="template_currency_id"/> -->
@@ -38,6 +46,8 @@
         <field name="inherit_id" ref="product.product_template_tree_view"/>
         <field name="arch" type="xml">
             <field name="name" position="after">
+                <field name="internal_des"/>
+                <field name="partner_code"/>
                 <field name="product_model"/>
             </field>
         </field>
@@ -55,6 +65,45 @@
             </field>
         </record> -->
 
+        <!-- ##################################### -->
+        <record id="product_unovo_form_view" model="ir.ui.view">
+            <field name="name">product.product.unovo.form</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="arch" type="xml">
+                <field name="barcode" position="after">
+                    <div>
+                        <label for="attachment" string="产品附件"/>
+                        <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label=" attachment" title="attachment"/>
+                    </div>
+                    <field name="en_name"/>
+                    <field name="internal_des"/>
+                    <field name="template_currency_id"/>
+                    <field name="acc_purchase_price"/>
+                    <field name="image_code"/>
+                    <field name="part_code"/>
+                    <field name="brand"/>
+                    <field name="acc_code"/>
+                    <field name="partner_id"/>
+                    <field name="partner_code"/>
+                    <field name="product_model"/>
+                    <field name="uom_id"/>
+                    <!-- <field name="template_currency_id"/> -->
+                </field>
+                <!-- <field name="stanard_price" position="after">
+                    <field name="uom_id"/>
+                </field> -->
+                <xpath expr="//notebook/page/group" position="after">
+                    <group>
+                         <field name="product_describe_cn" string="产品中文描述"/>
+                         <field name="product_describe_en" string="产品英文描述"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- ##################################### -->
+
 
         <!-- 产品信息list视图增加型号字段 -->
         <record model="ir.ui.view" id="product_product_acc_tree_view">
@@ -63,7 +112,10 @@
         <field name="inherit_id" ref="product.product_product_tree_view"/>
         <field name="arch" type="xml">
             <field name="name" position="after">
+                <field name="internal_des"/>
+                <field name="partner_code"/>
                 <field name="product_model"/>
+                <field name="acc_code"/>
             </field>
         </field>
         </record>
@@ -116,9 +168,11 @@
                 <xpath expr="//filter[@name='consumable']" position="after">
                     <separator/>
                     <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <field name="internal_des" string="内部描述" filter_domain="[('internal_des','ilike',self)]"/>
                     <!-- <field name="product_descript" string="规格描述" filter_domain="[('product_descript','ilike',self)]"/>
                     <field name="product_mfg_name" string="品牌" filter_domain="[('product_mfg_name','ilike',self)]"/> -->
                     <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                    <field name="acc_code" string="产品编码" filter_domain="[('acc_code','ilike',self)]"/>
                 </xpath>
             </field>
         </record>
@@ -134,8 +188,10 @@
                 <xpath expr="//filter[@name='inactive']" position="after">
                     <separator/>
                     <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <field name="internal_des" string="内部描述" filter_domain="[('internal_des','ilike',self)]"/>
                     <field name="partner_id" string="供应商"/>
                     <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                    <field name="acc_code" string="产品编码" filter_domain="[('acc_code','ilike',self)]"/>
                     <field name="location_id" widget="selection" context="{'location': self}"/>
                     <field name="warehouse_id" widget="selection" context="{'warehouse': self}"/>
                     <separator/>
@@ -174,8 +230,10 @@
                 <xpath expr="//filter[@name='inactive']" position="after">
                     <separator/>
                     <field name="brand" string="品牌" filter_domain="[('brand','ilike',self)]"/>
+                    <field name="internal_des" string="内部描述" filter_domain="[('internal_des','ilike',self)]"/>
                     <field name="partner_id" string="供应商"/>
                     <field name="product_model" string="产品型号" filter_domain="[('product_model','ilike',self)]"/>
+                    <field name="acc_code" string="产品编码" filter_domain="[('acc_code','ilike',self)]"/>
                 </xpath>
             </field>
         </record>

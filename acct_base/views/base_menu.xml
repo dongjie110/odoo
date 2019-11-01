@@ -13,5 +13,8 @@
         <menuitem id="import_product_data" name="产品数据导入" parent="acct_data_import_menu" sequence="1" action="import_product_data_wizard"/>
         <menuitem id="import_purchase_data" name="采购单表头数据导入" parent="acct_data_import_menu" sequence="10" action="import_purchase_data_wizard"/>
         <menuitem id="import_purchase_line_data" name="采购单明细数据导入" parent="acct_data_import_menu" sequence="15" action="import_purchase_line_data_wizard"/>
+
+        <menuitem id="acct_message_base_menu" name="短信记录" parent="acct_baseconfig" sequence="100"/>
+        <menuitem id="acct_message" name="短信记录" parent="acct_message_base_menu" sequence="1" action="action_acc_message_interface"/>
     </data>
 </openerp>

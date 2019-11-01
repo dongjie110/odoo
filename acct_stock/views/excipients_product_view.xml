@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data >
+
+        <!-- Demand Purchase Form View -->
+        <record model="ir.ui.view" id="excipients_product_form">
+            <field name="name">excipients product</field>
+            <field name="model">excipients.product</field>
+            <field name="arch" type="xml">
+                <form string="excipients product" version="12.0">
+                    <sheet>
+                        <!-- <div class="oe_title">
+                            <h1><field name="name" readonly="1"/></h1>
+                        </div> -->
+                        <group>
+                            <group>
+                                <field name="product_id"/>
+                                <field name="acc_code"/>
+                                <field name="brand" />
+                                <field name="product_model"/>
+                                <field name="internal_des"/>
+                            </group>
+                            <group>
+                                <field name="gen_datetime"/>
+                                <field name="now_qty"/>
+                                <field name="min_qty" />
+                                <field name="max_qty"/>
+                                <field name="active"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="excipients_product_tree">
+            <field name="name">excipients product</field>
+            <field name="model">excipients.product</field>
+            <field name="arch" type="xml">
+                <!-- <tree colors="grey:state == 'done'" string="Demand Purchase"> -->
+                <!-- <tree decoration-danger="state=='draft'" decoration-success="state=='done'" string="Before Purchase" create="0"> -->
+                <tree string="excipients_product">
+                    <field name="product_id"/>
+                    <field name="acc_code"/>
+                    <field name="product_model"/>
+                    <field name="now_qty"/>
+                    <field name="min_qty"/>
+                    <field name="max_qty"/>
+                    <field name="active"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="excipients_product_search" model="ir.ui.view">
+            <field name="name">excipients product Search</field>
+            <field name="model">excipients.product</field>
+            <field name="arch" type="xml">
+            <search string="excipients product search">
+                <!-- <filter string="待确认" name="wait_confirm" domain="[('state','=','draft')]"/> -->
+                <field name="product_id"/>
+                <field name="acc_code"/>
+                <field name="product_model"/>
+            </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_excipients_product">
+            <field name="name">辅料清单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">excipients.product</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="search_view_id" ref="excipients_product_search"/>
+            <!-- <field name="context">{'search_default_wait_confirm': 1}</field> -->
+        </record>
+
+        <menuitem id="menu_acct_excipients_product" name="辅料清单" parent="menu_acc_stock_report" action="action_excipients_product" groups="base.group_user" sequence="2"/>
+
+    </data>
+</openerp>

@@ -12,7 +12,12 @@
                         <group>
                             <group>
                                 <field name="name"/>
+                                <field name="bank"/>
+                                <field name="bank_number"/>
+                                <field name="vat"/>
                                 <field name="logo" widget="image" class="oe_avatar"/>
+                                <field name="en_logo" widget="image" class="oe_avatar"/>
+                                <field name="qr_code" widget="image" class="oe_avatar"/>
                                 <field name="active"/>
                             </group>
                         </group>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    <!-- 费用报告视图继承 -->
+    <record id="hr_expense_sheet_form_inherit" model="ir.ui.view">
+        <field name="name">hr.expense.sheet.form.inherit</field>
+        <field name="model">hr.expense.sheet</field>
+        <field name="inherit_id" ref="hr_expense.view_hr_expense_sheet_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_sheet_move_create']" position="before">
+                <button name="teller_accept" string="出纳审核" type="object" states="approve" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   
+            </xpath>
+            <xpath expr="//button[@name='action_sheet_move_create']" position="before">
+                <button name="boss_accept" string="财务经理审核" type="object" states="teller" class="oe_highlight" groups="account.group_account_manager"/>   
+            </xpath>
+            <xpath expr="//button[@name='action_sheet_move_create']" position="before">
+                <button name="export_expense_record" string="导出明细行" type="object" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   
+            </xpath>
+            <xpath expr="//button[@name='action_sheet_move_create']" position="attributes">
+                <attribute name="states">boss</attribute>   
+            </xpath>
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,submit,approve,teller,boss,post,done</attribute>   
+            </xpath>
+            <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='sale_order_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath> -->
+            <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='tax_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="after">
+                <field name="product_id" string='产品名称'/>
+                <field name="description" string='备注'/>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- 待出纳审核action -->
+    <record id="action_hr_expense_sheet_all_to_teller" model="ir.actions.act_window">
+        <field name="name">待出纳审核</field>
+        <field name="res_model">hr.expense.sheet</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph</field>
+        <field name="search_view_id" ref="hr_expense.view_hr_expense_sheet_filter"/>
+        <field name="domain">[('state','=','approve')]</field>
+        <!-- <field name="context">{'search_default_to_post': 1}</field> -->
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new expense report
+          </p><p>
+            Once you have created your expense, submit it to your manager who will validate it.
+          </p>
+        </field>
+    </record>
+
+    <!-- 待管理部审核action -->
+    <record id="action_hr_expense_sheet_all_to_boss" model="ir.actions.act_window">
+        <field name="name">待管理部审核</field>
+        <field name="res_model">hr.expense.sheet</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph</field>
+        <field name="search_view_id" ref="hr_expense.view_hr_expense_sheet_filter"/>
+        <field name="domain">[('state','=','teller')]</field>
+        <!-- <field name="context">{'search_default_to_post': 1}</field> -->
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new expense report
+          </p><p>
+            Once you have created your expense, submit it to your manager who will validate it.
+          </p>
+        </field>
+    </record>
+
+    <!-- 已拒绝 -->
+    <record id="action_hr_expense_sheet_all_to_cancel" model="ir.actions.act_window">
+        <field name="name">已拒绝</field>
+        <field name="res_model">hr.expense.sheet</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph</field>
+        <field name="search_view_id" ref="hr_expense.view_hr_expense_sheet_filter"/>
+        <field name="domain">[('state','=','cancel')]</field>
+        <!-- <field name="context">{'search_default_to_post': 1}</field> -->
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new expense report
+          </p><p>
+            Once you have created your expense, submit it to your manager who will validate it.
+          </p>
+        </field>
+    </record>
+
+    <!-- 已拒绝 -->
+    <record id="action_hr_expense_sheet_all_to_done" model="ir.actions.act_window">
+        <field name="name">已支付</field>
+        <field name="res_model">hr.expense.sheet</field>
+        <field name="view_mode">tree,kanban,form,pivot,graph</field>
+        <field name="search_view_id" ref="hr_expense.view_hr_expense_sheet_filter"/>
+        <field name="domain">[('state','=','done')]</field>
+        <!-- <field name="context">{'search_default_to_post': 1}</field> -->
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new expense report
+          </p><p>
+            Once you have created your expense, submit it to your manager who will validate it.
+          </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_hr_expense_sheet_all_to_teller" name="待出纳审核" sequence="4" parent="hr_expense.menu_hr_expense_report"
+            action="action_hr_expense_sheet_all_to_teller" groups="account.group_account_user"/>
+    <menuitem id="menu_hr_expense_sheet_all_to_boss" name="待管理部审核" sequence="4" parent="hr_expense.menu_hr_expense_report"
+            action="action_hr_expense_sheet_all_to_boss" groups="account.group_account_user"/>
+    <menuitem id="menu_hr_expense_sheet_all_to_cancel" name="已拒绝" sequence="4" parent="hr_expense.menu_hr_expense_report"
+            action="action_hr_expense_sheet_all_to_cancel" groups="account.group_account_user"/>
+    <menuitem id="menu_hr_expense_sheet_all_to_done" name="已支付" sequence="4" parent="hr_expense.menu_hr_expense_report"
+            action="action_hr_expense_sheet_all_to_done" groups="account.group_account_user"/>
+    </data>
+</openerp>
