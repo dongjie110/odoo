@@ -33,5 +33,14 @@
         <record id="purchase.menu_purchase_form_action" model="ir.ui.menu">  
             <field name="groups_id" eval="[(6, 0, [ref('wb_less_important')])]"/>   
         </record>
+
+        <!-- 屏蔽主菜单中的日历 -->
+        <record id="calendar.mail_menu_calendar" model="ir.ui.menu">  
+            <field name="groups_id" eval="[(6, 0, [ref('wb_less_important')])]"/>   
+        </record>
+        <!-- 屏蔽主菜单中的联系人 -->
+        <record id="contacts.menu_contacts" model="ir.ui.menu">  
+            <field name="groups_id" eval="[(6, 0, [ref('wb_less_important')])]"/>   
+        </record>
     </data>
 </openerp>

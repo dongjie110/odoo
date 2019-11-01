@@ -30,6 +30,7 @@
         'views/acc_product_view.xml',
         'views/res_groups.xml',
         'views/info_read_group.xml',
+        'views/acc_contact_view.xml',
         'wizard/import_partner_data_wizard.xml',
         'wizard/import_contact_data_wizard.xml',
         'wizard/import_product_data_wizard.xml',

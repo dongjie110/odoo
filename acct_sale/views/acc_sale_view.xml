@@ -49,22 +49,25 @@
                 <xpath expr="//field[@name='partner_id']" position="after" >
                     <field name="contact_id" context="{'sale_choose_contact':'sale_choose_contact','partner_id':partner_id}"/>
                     <field name="title"/>
-                    <field name="charge_person"/>
+                    <field name="user_id"/>
                     <field name="transfer"/>
                     <field name="sale_commission"/>
                     <field name="in_country"/>
                     <field name="transaction_mode"/>
                     <field name="transaction_rule"/>
+                    <field name="sale_company"/>
                     <!-- <field name="unovo_project_id" attrs="{'invisible': [('order_type', '!=', 'returns')]}" on_change="onchange_unovo_project_id(unovo_project_id, order_type)" options="{'no_create': True}"/> -->
                 </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="after">           
                     <field name="is_invoice"/>
                     <field name="is_purchasing"/>
+                    <field name="purchase_date"/>
+                    <field name="po_number"/>
                     <field name="is_send"/>
+                    <field name="send_date"/>
                     <field name="is_pay"/>
                     <field name="send_status"/>
                     <!-- <field name="validity_date"/> -->
-                    <field name="sale_company"/>
                 </xpath>
 
                 <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='price_unit']" position="after">
@@ -86,6 +89,20 @@
                 </xpath> -->                          
             </field>
         </record>
+
+        <!-- <record id="view_order_tree_inherit" model="ir.ui.view">
+            <field name="name">sale.order.tree.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='partner_id']" position="after">   
+                    <field name="charge_person"/>
+                </xpath>
+                <xpath expr="//field[@name='user_id']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record> -->
 
         <record id="action_sale_partner_other_form" model="ir.actions.act_window">
             <field name="name">contacts</field>

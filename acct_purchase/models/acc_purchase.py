@@ -49,7 +49,7 @@ class CFTemplateCategory(models.Model):
     discount_amount = fields.Monetary('折扣总额',store=True, readonly=True, compute='_amount_discount')
     contact_id = fields.Many2one('res.partner',string='联系人')
     en_name = fields.Char(string='负责人英文名')
-    origin_order = fields.Many2one('sale.order',string='关联销售订单')
+    origin_order = fields.Many2one('sale.order',string='关联销售订单',readonly=True)
 
 
     def search(self, args, offset=0, limit=None, order=None, count=False):
@@ -124,6 +124,16 @@ class CFTemplateCategory(models.Model):
             login_index = login.index('@')
             login_en_name = login[0:login_index]
             self.en_name = login_en_name
+
+    @api.onchange('charge_person')
+    def onchange_en_name(self):
+        if self.charge_person:
+            login_en_name = 0
+            login = self.charge_person.login
+            login_index = login.index('@')
+            login_en_name = login[0:login_index]
+            self.en_name = login_en_name
+
     @api.model
     def create(self,vals):
         # amount = 0.0
@@ -143,6 +153,14 @@ class CFTemplateCategory(models.Model):
                 "amount_total": amount
             })
         res = super(CFTemplateCategory, self).write(vals)
+        return res
+
+    @api.multi
+    def button_confirm(self):
+        if self.origin_order:
+            so = self.env['sale.order'].search([('id', '=', self.origin_order.id)])
+            so.write({'send_date':fields.Datetime.now(),'is_send':True})
+        res = super(CFTemplateCategory,self).button_confirm()
         return res
 
     def import_purchase_data(self, fileName=None, content=None):

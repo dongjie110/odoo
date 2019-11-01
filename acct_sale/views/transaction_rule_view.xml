@@ -38,7 +38,7 @@
 
 
         <record model="ir.actions.act_window" id="action_transaction_rule">
-            <field name="name">交易条款</field>
+            <field name="name">交易方式</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">transaction.rule</field>
             <field name="view_type">form</field>
@@ -48,7 +48,7 @@
             <field name="context">{}</field>
         </record>
 
-        <menuitem id="menu_transaction_rule" name="交易条款" parent="menu_sale_other_management" action="action_transaction_rule" groups="sales_team.group_sale_salesman" sequence="20"/>
+        <menuitem id="menu_transaction_rule" name="交易方式" parent="menu_sale_other_management" action="action_transaction_rule" groups="sales_team.group_sale_salesman" sequence="20"/>
 
         <!-- <menuitem id="sale_order_menu"
             name="Orders"

@@ -30,26 +30,47 @@ class AccSaleOrder(models.Model):
     transfer = fields.Char(string='承运人')
     sale_commission = fields.Float(string='销售佣金')
     in_country = fields.Boolean(string='是否为国内订单')
-    is_invoice = fields.Boolean(string='是否开票')
-    is_purchasing = fields.Boolean(string='是否开始采购')
-    is_send = fields.Boolean(string='是否发货')
-    is_pay = fields.Boolean(string='是否收款')
+    is_invoice = fields.Boolean(string='是否开票',readonly=True)
+    is_purchasing = fields.Boolean(string='是否开始采购',readonly=True)
+    purchase_date = fields.Datetime(string='开始采购时间',readonly=True)
+    is_send = fields.Boolean(string='是否发货',readonly=True)
+    send_date = fields.Datetime(string='发货时间',readonly=True)
+    is_pay = fields.Boolean(string='是否收款',readonly=True)
     send_status = fields.Selection([('no', '未发货'), ('yes', '已发货'), ('part', '部分发货')], '发货情况')
     transaction_mode = fields.Many2one('transaction.rule',string='交易方式')
     transaction_rule = fields.Char(string='交易条款')
     # validity_date = fields.Date(string='有效期至')
     sale_company = fields.Many2one('acc.company',string = '卖方公司')
+    po_number = fields.Char(string='关联的采购单',readonly=True)
 
 
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        args = args or []
+        if self._uid == 2:
+            return super(AccSaleOrder, self).search(args, offset, limit, order, count)
+        elif self.env.user.has_group('acct_base.unovo_it_info_group'):
+            return super(AccSaleOrder, self).search(args, offset, limit, order, count)
+        # 普通员工
+        else:
+            args.extend([('user_id', '=', self._uid)])
+        return super(AccSaleOrder, self).search(args, offset, limit, order, count)
+
+    # @api.model
     # def search(self, args, offset=0, limit=None, order=None, count=False):
     #     args = args or []
     #     if self._uid == 2:
     #         return super(CFTemplateCategory, self).search(args, offset, limit, order, count)
-    #     # 普通员工
-    #     else:
-    #         args.extend([('charge_person', '=', self._uid)])
-    #     return super(CFTemplateCategory, self).search(args, offset, limit, order, count)
-    #     
+    #     args = self._get_domain(args)
+    #     return super(CFTemplateCategory, self).search(args, offset=offset, limit=limit, order=order, count=count)
+
+
+    # @api.model
+    # def _get_domain(self, domain=None):
+    #     domain = domain or []
+    #     if self.env.user.has_group('unovo_base.unovo_group_account_invoice'):
+    #         domain = ['|'] + domain + [('state', 'in', ('accepted', 'accepted2', 'account', 'done', 'paid'))]
+    #     return domain
+        
     
     @api.multi
     def action_confirm(self):
@@ -98,7 +119,7 @@ class AccSaleOrder(models.Model):
                     'partner_id':line.product_id.product_tmpl_id.partner_id.id,
                     'title':self.name,
                     'purchase_company':self.sale_company.id,
-                    'charge_person':self.charge_person.id,
+                    'charge_person':self.user_id.id,
                     'forcast_date':fields.Datetime.now(),
                     'date_planned':fields.Datetime.now(),
                     'traffic_rule':' ',
@@ -108,10 +129,10 @@ class AccSaleOrder(models.Model):
             }
             if not exits_order:
                 po_obj = self.env['purchase.order'].create(po_vals)
+                self.add_ponumber(po_obj)
             if exits_order:
                 exits_order.write({'order_line':res_line})
-                # if po_obj:
-                #     self.write({'purchase_order_id':po_obj.id})
+            self.write({'purchase_date':fields.Datetime.now(),'is_purchasing':True})
             # if exits_order:
         return True
 
@@ -120,6 +141,20 @@ class AccSaleOrder(models.Model):
         supply_partner_id = line.product_id.product_tmpl_id.partner_id.id
         exits_order = self.env['purchase.order'].search([('partner_id', '=', supply_partner_id),('origin_order', '=', self.id)])
         return exits_order
+
+    @api.multi
+    def add_ponumber(self,pobj):
+        new_po_name = ''
+        po_name = pobj.name
+        po_number = self.po_number
+        if po_number:
+            new_po_name = po_number + ',' + po_name
+        if not po_name:
+            new_po_name = po_name
+        self.write({'po_name':new_po_name})
+
+
+
 
 
     # @api.model

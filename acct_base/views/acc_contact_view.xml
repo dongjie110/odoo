@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+    	<record id="action_acc_contact_form" model="ir.actions.act_window">
+            <field name="name">contacts</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">kanban,tree,form</field>
+            <!-- <field name="domain">[('supplier','!=',1),('customer','!=',1),('is_company','!=',1)]</field>
+            <field name="context">{'default_customer':0, 'default_customer':0, 'default_is_company': False, 'search_default_is_company':False,}</field> -->
+            <field name="domain">[('is_company','!=',1)]</field>
+            <field name="context">{'default_is_company': False, 'search_default_is_company':False,}</field>
+            <field name="filter" eval="True"/>
+        </record>
+
+        <menuitem id="menu_acc_contact" name="联系人" groups="unovo_it_operation_group"/>
+        <menuitem id="acc_customer_menu" name="客户联系人" parent="menu_acc_contact" sequence="10"/>
+        <menuitem id="acct_contact_data" name="联系人" parent="acc_customer_menu" sequence="1" action="action_acc_contact_form"/>
+    </data>
+</openerp>

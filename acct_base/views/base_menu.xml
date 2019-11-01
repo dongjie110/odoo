@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <menuitem id="acct_baseconfig" name="基础配置"/>
+        <menuitem id="acct_baseconfig" name="基础配置" groups="acc_manage_level1_group"/>
 
 
         <menuitem id="acct_vendor_customer_import_menu" name="供应商客户数据" parent="acct_baseconfig" sequence="10"/>
