@@ -116,6 +116,11 @@ class res_partner_acc(models.Model):
                 args.append(('id','in',contact_ids))
                 order = 'name desc'
         return super(res_partner_acc, self).search(args, offset, limit, order, count)
+
+    @api.onchange('charge_person')
+    def onchange_en_name(self):
+        if self.charge_person:
+            self.user_id = self.charge_person
         
     def import_supply(self, fileName=None, content=None):
         import_tips = ""

@@ -181,7 +181,6 @@ class ExcipientsProduct(models.Model):
     #     return result
 
 
-    # name = fields.Char(string='名称')
     product_id = fields.Many2one('product.product',string='物料产品')
     gen_datetime = fields.Datetime(string='创建时间',default=lambda self: fields.Datetime.now(),readonly=True)
     partner_code = fields.Char(string='供应商编码',readonly=True)
