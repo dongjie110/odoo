@@ -183,17 +183,111 @@ class ExcipientsProduct(models.Model):
 
     product_id = fields.Many2one('product.product',string='物料产品')
     gen_datetime = fields.Datetime(string='创建时间',default=lambda self: fields.Datetime.now(),readonly=True)
-    partner_code = fields.Char(string='供应商编码',readonly=True)
-    brand = fields.Char(string='品牌',readonly=True)
-    internal_des = fields.Char(string='内部描述',readonly=True)
+    partner_code = fields.Char(string='供应商编码')
+    brand = fields.Char(string='品牌')
+    internal_des = fields.Char(string='内部描述')
     # product_describe_cn = fields.Text(string='产品中文描述')
     # product_describe_en = fields.Text(string='产品英文描述')
-    product_model = fields.Char(string='产品型号',readonly=True)
-    acc_code = fields.Char(string='产品编码',readonly=True)
+    product_model = fields.Char(string='产品型号')
+    location_id = fields.Many2one('stock.location',string='位置')
+    acc_code = fields.Char(string='产品编码')
+    uom_id = fields.Many2one('uom.uom',string='单位')
     now_qty = fields.Float(string='当前数量')
     min_qty = fields.Float(string='最低库存')
     max_qty = fields.Float(string='最大库存')
-    active = fields.Boolean(string='有效')
+    active = fields.Boolean(string='有效',default=True)
+
+
+    @api.onchange('product_id')
+    def onchange_product_id(self):
+        if self.product_id:
+            self.partner_code = self.product_id.product_tmpl_id.partner_code
+            self.brand = self.product_id.product_tmpl_id.brand
+            self.internal_des = self.product_id.product_tmpl_id.internal_des
+            self.acc_code = self.product_id.product_tmpl_id.acc_code
+            self.product_model = self.product_id.product_tmpl_id.product_model
+            self.uom_id = self.product_id.product_tmpl_id.uom_po_id
+
+
+    @api.multi
+    def compute_now_qty(self):
+        # location_ids = self.get_location_ids()
+        p_id = self.product_id.id
+        location_id = self.location_id.id
+        cr = self.env.cr
+        # location_ids = []
+        now_qty_sql = """ SELECT
+                            SUM (quantity-reserved_quantity) AS theory_qty
+                        FROM
+                            stock_quant
+                        WHERE
+                            location_id = %s
+                        AND product_id = %s """%(location_id, p_id)
+        # now_qty = cr.execute(now_qty_sql, (location_id,p_id))
+        cr.execute(now_qty_sql)
+        result = request.cr.dictfetchall()
+        if result[0]['theory_qty']:
+            now_qty = result[0]['theory_qty']
+        else:
+            now_qty = 0.00
+        self.write({'now_qty':now_qty})
+        return now_qty
+
+
+
+    # @api.multi
+    # def get_location_ids(self):
+    #     cr = self.env.cr
+    #     # location_ids = []
+    #     all_location = """ SELECT * from stock_location where location_id = 53 """
+    #     # cr.execute(all_total)
+    #     result = cr.execute(all_location)
+    #     location_ids = [m['id'] for m in result]
+    #     return location_ids
+
+    @api.model
+    def _check_need_purchase(self):
+        excipients = self.env['excipients.product'].search([('active', '=', True)])
+        res_line = []
+        for ex in excipients:
+            now_qty = ex.compute_now_qty()
+            if now_qty < ex.min_qty:
+                line_vals = {
+                  # 'order_id':self.before_purchase_id.id,
+                  'product_id':ex.product_id.id,
+                  'product_model':ex.product_id.product_tmpl_id.product_model,
+                  'qty':100,
+                  'acc_purchase_price':ex.product_id.product_tmpl_id.acc_purchase_price,
+                  'brand':ex.product_id.product_tmpl_id.brand,
+                  'acc_code':ex.product_id.product_tmpl_id.acc_code,
+                  'partner_code':ex.product_id.product_tmpl_id.partner_code
+                }
+                res_line.append(line_vals)
+        new_res_line = []
+        for line in res_line:
+            new_line_vals = {
+                        'product_id':line['product_id'],
+                        'product_model':line['product_model'],
+                        'qty':line['qty'],
+                        'acc_purchase_price':line['acc_purchase_price'],
+                        'brand':line['brand'],
+                        'acc_code':line['acc_code'],
+                        'partner_code':line['partner_code'],
+            }
+            new_res_line.append((0,0,new_line_vals))
+        vals = {
+            # 'demand_purchase_id':self.id,
+            'purchase_company':1,
+            # 'delivery_address':self.delivery_address.id,
+            'charge_person':2,
+            'order_line':new_res_line
+        }
+        bp_obj = self.env['before.purchase'].create(vals)
+
+
+
+
+
 
 
     

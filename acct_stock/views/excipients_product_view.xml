@@ -16,12 +16,15 @@
                             <group>
                                 <field name="product_id"/>
                                 <field name="acc_code"/>
+                                <field name="partner_code"/>
                                 <field name="brand" />
                                 <field name="product_model"/>
                                 <field name="internal_des"/>
+                                <field name="uom_id"/>
                             </group>
                             <group>
                                 <field name="gen_datetime"/>
+                                <field name="location_id"/>
                                 <field name="now_qty"/>
                                 <field name="min_qty" />
                                 <field name="max_qty"/>
@@ -79,6 +82,24 @@
         </record>
 
         <menuitem id="menu_acct_excipients_product" name="辅料清单" parent="menu_acc_stock_report" action="action_excipients_product" groups="base.group_user" sequence="2"/>
+
+        <!-- 辅料清单自动采购定时任务 -->
+        <data noupdate="1">
+        <record id="ir_cron_acc_excipients_product" model="ir.cron">
+            <field name="name">Check excipients product</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="model_id" ref="model_excipients_product"/>
+            <field name="code">model._check_need_purchase()</field>
+            <field name="state">code</field>
+            <field eval="True" name="doall"/>
+            <!-- <field eval="'excipients.product'" name="model"/> -->
+            <!-- <field eval="'_check_need_purchase'" name="function"/> -->
+            <field eval="0" name="priority"/>
+            <field name="active" eval="True"/>
+        </record>
+        </data>
 
     </data>
 </openerp>

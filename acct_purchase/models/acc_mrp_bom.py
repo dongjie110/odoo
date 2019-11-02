@@ -358,23 +358,23 @@ class AccMrpProduction(models.Model):
         help="Location where the system will stock the finished products.")
 
 
-    # @api.onchange('location_src_id')
-    # def onchange_location_src_id(self):
-    #     if self.location_src_id:
-    #         move_ids = []
-    #         # print (self.location_src_id)
-    #         for line in self.move_raw_ids:
-    #             if line.raw_material_production_id:
-    #                 move_ids.append(line.id)
-    #                 # line.update({'location_id':self.location_src_id})
-    #         if move_ids:
-    #             cr = self.env.cr
-    #             change_sql = """ UPDATE stock_move
-    #                             SET location_id = %s
-    #                             WHERE
-    #                                 id in %s """
-    #             # cr.execute(all_total)
-    #             cr.execute(change_sql, (self.location_src_id.id,tuple(move_ids)))
+    @api.onchange('location_src_id')
+    def onchange_location_src_id(self):
+        if self.location_src_id:
+            move_ids = []
+            # print (self.location_src_id)
+            for line in self.move_raw_ids:
+                if line.raw_material_production_id:
+                    move_ids.append(line.id)
+                    # line.update({'location_id':self.location_src_id})
+            if move_ids:
+                cr = self.env.cr
+                change_sql = """ UPDATE stock_move
+                                SET location_id = %s
+                                WHERE
+                                    id in %s """
+                # cr.execute(all_total)
+                cr.execute(change_sql, (self.location_src_id.id,tuple(move_ids)))
 
     # @api.onchange('location_dest_id')
     # def onchange_location_dest_id(self):
