@@ -27,9 +27,16 @@
                 <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <xpath expr="//button[@name='action_view_invoice'][1]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_view_invoice'][2]" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <xpath expr="//button[@name='action_view_invoice'][2]" position="after">
                     <!-- <button name="export_purchase_record" string="导出询价单信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/> -->
                     <button name="export_purchase_record" string="导出询价单信息" type="object" class="oe_highlight" groups="base.group_user"/>
+                    <button name="%(purchase_separate_wizard)d" type="action" string="分批账单" class="oe_highlight" groups="purchase.group_purchase_user"/>
                     <button name="update_newinfo" string="更新产品信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <button name="pomanager" string="采购经理审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_commerce_manager_group"/>
@@ -53,6 +60,7 @@
                     <field name="delivery_time" placeholder="填写格式如(1-2周,1-2weeks,1-2天,1-2days)"/>
                     <field name="product_state"/>
                     <field name="payment_state"/>
+                    <field name="paid_rate"/>
                     <field name="delivery_address"/>
                     <field name="picking_type_id"/>
                     <field name="merge_info"/>
@@ -67,8 +75,8 @@
                     <field name="end_date"/>
                     <field name="forcast_date"/>
                     <field name="demand_purchase"/>
-                    <!-- <field name="before_purchase_id"/> -->
                     <field name="origin_order"/>
+                    <field name="is_excipients"/>
                     <field name="en_name" invisible='1'/>
                     <field name="ship_fee"/>
                     <!-- <field name="discount_amount"/> -->

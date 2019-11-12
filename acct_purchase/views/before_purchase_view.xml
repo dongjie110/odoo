@@ -24,6 +24,7 @@
                             <group>
                                 <field name="sale_order_id" readonly="1"/>
                                 <field name="demand_purchase_id" readonly="1"/>
+                                <field name="is_excipients" readonly="1"/>
                                 <field name="po_number" />
                                 <field name="delivery_address"/>
                             </group>

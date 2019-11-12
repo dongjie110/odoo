@@ -7,6 +7,7 @@ from odoo.exceptions import UserError, ValidationError
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.header import Header
+import datetime as dt
 import smtplib
 import logging
 import time
@@ -111,49 +112,79 @@ class AccMessageInterface(models.Model):
     state = fields.Selection([('draft',u'待发送'), ('done', u'已发送'),('error', u'发送失败'),],string=u'发送状态',default='draft',required=True, readonly = True)
 
     # def sms_send(self, cr, uid, ids, context=None):
-    #     sms = self.read(cr, uid, ids, ['phone', 'name', 'topic', 'user_name'], context=context)
-    #     for sms in self.browse(cr, uid, ids, context=context):
-    #         text = sms.name
-    #         phones = sms.phone
-    #         topic = sms.topic
-    #         if not phones:
-    #             _logger.warning(u"%s手机号不存在!"%sms.user_name, )
-    #             return False
-    #         try:
-    #             import requests
-    #             import json
-    #             url = 'http://121.43.62.168/messagecenter/api/20150927/system/messagecenter/send'
-    #             args = {"channel": 102, "targets": json.dumps([phones]), 'topic': topic, 'content': text}
-    #             respon = requests.post(url, data=args)
-    #             result = json.loads(respon.text)
-    #             if result.get('errorCode',False) == 0:
-    #                 self.write(cr, uid, sms.id, {'state': 'done','write_date':time.strftime('%Y-%m-%d %H:%M:%S'),}, context=context)
-    #             else :
-    #                 note = result.get('message',False)
-    #                 self.write(cr, uid, sms.id, {'state': 'error','note':note,'write_date':time.strftime('%Y-%m-%d %H:%M:%S'),}, context=context)
-    #         except Exception as e:
-    #             self.write(cr, uid, sms.id, {'state': 'error'}, context=context)
-    #             continue
-    #     return True
+        # sms = self.read(cr, uid, ids, ['phone', 'name', 'topic', 'user_name'], context=context)
+        # for sms in self.browse(cr, uid, ids, context=context):
+        #     text = sms.name
+        #     phones = sms.phone
+        #     topic = sms.topic
+        #     if not phones:
+        #         _logger.warning(u"%s手机号不存在!"%sms.user_name, )
+        #         return False
+        #     try:
+        #         import requests
+        #         import json
+        #         url = 'http://121.43.62.168/messagecenter/api/20150927/system/messagecenter/send'
+        #         args = {"channel": 102, "targets": json.dumps([phones]), 'topic': topic, 'content': text}
+        #         respon = requests.post(url, data=args)
+        #         result = json.loads(respon.text)
+        #         if result.get('errorCode',False) == 0:
+        #             self.write(cr, uid, sms.id, {'state': 'done','write_date':time.strftime('%Y-%m-%d %H:%M:%S'),}, context=context)
+        #         else :
+        #             note = result.get('message',False)
+        #             self.write(cr, uid, sms.id, {'state': 'error','note':note,'write_date':time.strftime('%Y-%m-%d %H:%M:%S'),}, context=context)
+        #     except Exception as e:
+        #         self.write(cr, uid, sms.id, {'state': 'error'}, context=context)
+        #         continue
+        # return True
   
     @api.multi
     def sms_send(self):
-#         Sms_Send.asp?CorpID=100000&LoginName=Admin&TimeStamp=0514094912
-
-# &send_no=139123456&msg=这是测试短信
-        # SecretKey = MD5(300000 + Admin + 0514094912)
-        # m = hashlib.md5()
-        # b = str.encode(encoding='utf-8')
-        # m.update(b)
-        # str_md5 = m.hexdigest()
-        # Passwd = "300238Rk1358020517171100"
-        str_md5 = hashlib.md5(b'300238Rk1358020517171100').hexdigest()
-        url="http://sms3.mobset.com/SDK2/Sms_Send.asp"
-        args = {"CorpID":"300238", "LoginName":"Admin","TimeStamp":"0517171100" ,"send_no":"17621827400","msg":"test","Passwd":"str_md5"}
-        respons = requests.post(url, data=args)
-        print (respons)
-        result = json.loads(respons.text)
-        return result
+        # sms = self.read(['phone', 'name', 'topic', 'user_name'], context=context)
+        for sms in self:
+            text = sms.name
+            phones = sms.phone
+            topic = sms.topic
+            if not phones:
+                _logger.warning(u"%s手机号不存在!"%sms.user_name, )
+                return False
+            try:
+                url="http://sms3.mobset.com/SDK2/Sms_Send.asp"
+                # str_time = "2019-11-12 10:23:10"
+                # time_array = time.strptime(str_time, "%m%d%H%M%S")
+                # fields.Datetime.now()
+                now_date = fields.Datetime.now() + dt.timedelta(hours=8)
+                time_array = (now_date.strftime('%m%d%H%M%S'))
+                # hashs = '300238' + 'Rk135802' + time_array
+                # str_md5 = hashlib.md5(hashs).hexdigest()
+                m=hashlib.md5()
+                strs='300238' + 'Rk135802' + time_array
+                m.update(strs.encode("utf8"))
+                str_md5 = m.hexdigest()
+                # print(m.hexdigest())
+                args = {"CorpID": "300238", "LoginName": "Admin", "TimeStamp": time_array, "send_no": phones,
+                        "msg": text, "Passwd": str_md5}
+                respons = requests.post(url, data=args)
+                # result = response.json()
+                result = json.loads(respons.text)
+            except Exception as e:
+                self.write({'state': 'error'})
+                continue
+        return True
+        # hashs = '300238' + 'Rk135802' + '1111172309'
+        # SecretKey = hashlib.md5()
+        # SecretKey.update(hashs.encode("utf-8"))
+        # # b = str.encode(encoding='utf-8')
+        # # m.update(b)
+        # # str_md5 = m.hexdigest()
+        # # Passwd = "300238Rk1358020517171100"
+        # # ts = datetime.now().timestamp()
+        # str_md5 = hashlib.md5(b'300238Rk1358021111172309').hexdigest()
+        # url="http://sms3.mobset.com/SDK2/Sms_Send.asp"
+        # args = {"CorpID":"300238", "LoginName":"Admin","TimeStamp":"1111172309" ,"send_no":"17621827400","msg":"test message","Passwd":str_md5}
+        # respons = requests.post(url, data=args)
+        # print (respons)
+        # result = json.loads(respons.text)
+        # return result
 
     # def schedule_send(self, cr, uid, ids=False,context=None):
     #     self.sms_send(cr, uid, ids, context=None)

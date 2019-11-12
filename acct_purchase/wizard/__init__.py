@@ -4,3 +4,4 @@ from . import merge_purchase
 from . import merge_bom
 from . import import_bom
 from . import add_partner
+from . import purchase_separate

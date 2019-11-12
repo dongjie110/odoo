@@ -28,6 +28,8 @@ class AccAccountInvoice(models.Model):
     sale_invoice_number = fields.Char(string = '发票号')
     sale_invoice_date = fields.Datetime(string = '发票日期')
     payment_rule = fields.Char(string=u'支付条款',readonly=True)
+    pay_rate = fields.Float(string='付款比例(%)',readonly=True)
+    minus_amount = fields.Float('折扣总额',readonly=True)
     payrecord_line = fields.One2many('payrecord.line', 'payrecord_id','Payrecord line')
     state = fields.Selection([
             ('draft','Draft'),
@@ -48,18 +50,19 @@ class AccAccountInvoice(models.Model):
 
 
 
-    # @api.model
-    # def create(self,vals):
-    #     # if vals.get('product_tmpl_id'):
-    #     #     id_list = []
-    #     #     new_id = vals.get('product_tmpl_id','')
-    #     #     request.cr.execute("""select product_tmpl_id from mrp_bom""")
-    #     #     lists = request.cr.dictfetchall()
-    #     #     for p_id in lists:
-    #     #         id_list.append(int(p_id['product_tmpl_id']))
-    #     #     if new_id in id_list:
-    #     #         raise ValidationError('物料清单重复！！')
-    #     res = super(AccMrpBom, self).create(vals)
+    # @api.one
+    # @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'tax_line_ids.amount_rounding',
+    #              'currency_id', 'company_id', 'date_invoice', 'type')
+    # def _compute_amount(self):
+    #     res = super(AccAccountInvoice, self)._compute_amount()
+    #     if self.type == 'in_invoice':
+    #         self.amount_untaxed = self.amount_untaxed * (self.pay_rate/100)
+    #         self.amount_tax = self.amount_tax * (self.pay_rate/100)
+    #         self.amount_total = (self.amount_untaxed + self.amount_tax - self.minus_amount)
+    #         amount_total_company_signed = self.amount_total
+    #         sign = self.type in ['in_refund', 'out_refund'] and -1 or 1
+    #         self.amount_total_company_signed = amount_total_company_signed * sign
+    #         self.amount_total_signed = self.amount_total * sign
     #     return res
 
 
@@ -70,27 +73,63 @@ class AccAccountInvoice(models.Model):
             line.quantity = product_qty
         return True
 
+    @api.multi
+    def add_discount_line(self):
+        minus_amount = self.minus_amount
+        if minus_amount == 0.0:
+            raise ValidationError("此账单无折扣金额")
+        else:
+            discount_product_tmpl = self.env['product.template'].search([('name', '=', '折扣调节')])
+            discount_product_id = self.env['product.product'].search([('product_tmpl_id', '=', discount_product_tmpl.id)])
+            discount_data = {
+            'name': self.origin + ': ' + discount_product_tmpl.name,
+            'origin': self.origin,
+            'uom_id': discount_product_tmpl.uom_id.id,
+            'product_id': discount_product_id.id,
+            # 'account_id': invoice_line.with_context({'journal_id': self.journal_id.id, 'type': 'in_invoice'})._default_account(),
+            'account_id': self.journal_id.default_debit_account_id.id,
+            # 'price_unit': line.order_id.currency_id._convert(
+            #     line.price_unit, self.currency_id, line.company_id, date or fields.Date.today(), round=False),
+            'price_unit': -self.minus_amount,
+            'quantity': 1,
+            'discount': 0.0,
+            'invoice_id':self.id
+            # 'account_analytic_id': line.account_analytic_id.id,
+            # 'analytic_tag_ids': line.analytic_tag_ids.ids,
+            # 'invoice_line_tax_ids': invoice_line_tax_ids.ids
+            }
+            self.env['account.invoice.line'].create(discount_data)
+        return True
+
     # @api.multi
     # def teller_accept(self):
     #     self.filtered(lambda r: r.state == 'open').write({'state': 'teller'})
     #     return True
+    #     
+    # @api.model
+    # def create(self,vals):
+    #     if vals.get('pay_rate'):
+    #         po_obj = self.env['purchase.order'].search([('name', '=', vals.get('origin'))])
+    #         paid_rate = po_obj.paid_rate + vals.get('pay_rate')
+    #     result = super(AccAccountInvoice,self).create(vals)
+    #     return result
 
     @api.multi
     def boss_accept(self):
         self.filtered(lambda r: r.state == 'teller').write({'state': 'open'})
         return True
 
-    @api.multi
-    def action_invoice_paid(self):
-        res = super(AccAccountInvoice,self).action_invoice_paid()
-        po_name = self.origin
-        po_obj = self.env['purchase.order'].search([('name', '=', po_name)])
-        if po_obj:
-            if self.state == 'paid':
-                po_obj.write({'payment_state':'allpay'})
-            if self.state == 'open':
-                po_obj.write({'payment_state':'partpay'})
-        return res
+    # @api.multi
+    # def action_invoice_paid(self):
+    #     res = super(AccAccountInvoice,self).action_invoice_paid()
+    #     po_name = self.origin
+    #     po_obj = self.env['purchase.order'].search([('name', '=', po_name)])
+    #     if po_obj:
+    #         if self.state == 'paid':
+    #             po_obj.write({'payment_state':'allpay'})
+    #         if self.state == 'open':
+    #             po_obj.write({'payment_state':'partpay'})
+    #     return res
 
     # @api.multi
     # def pay_and_reconcile(self, pay_journal, pay_amount=None, date=None, writeoff_acc=None):
@@ -143,4 +182,5 @@ class PayrecordLine(models.Model):
     pay_amount = fields.Float(u'金额')
     pay_datetime = fields.Datetime(string='时间')
     pay_user = fields.Many2one('res.users',string='操作人')
+
 

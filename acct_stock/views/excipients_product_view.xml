@@ -28,7 +28,7 @@
                                 <field name="now_qty"/>
                                 <field name="min_qty" />
                                 <field name="max_qty"/>
-                                <field name="active"/>
+                                <field name="is_active"/>
                             </group>
                         </group>
                     </sheet>
@@ -53,7 +53,7 @@
                     <field name="now_qty"/>
                     <field name="min_qty"/>
                     <field name="max_qty"/>
-                    <field name="active"/>
+                    <field name="is_active"/>
                 </tree>
             </field>
         </record>

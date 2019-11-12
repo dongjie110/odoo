@@ -15,10 +15,15 @@
                 <xpath expr="//button[@name='action_invoice_open']" position="after">
                     <button name="get_poqty" string="获取订购数量" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>   
                 </xpath>
+                <xpath expr="//button[@name='action_invoice_open']" position="after">
+                    <button name="add_discount_line" string="添加折扣" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>   
+                </xpath>
                 <xpath expr="//field[@name='reference']" position="after">
                     <field name="invoice_company"/>
                     <field name="invoice_number"/>
                     <field name="payment_rule"/>
+                    <field name="pay_rate"/>
+                    <field name="minus_amount"/>
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
                     <attribute name="statusbar_visible">draft,teller,open,paid</attribute>

@@ -26,6 +26,7 @@ class BeforePurchase(models.Model):
     name = fields.Char(string='名称')
     sale_order_id = fields.Many2one('sale.order',string='源销售单')
     demand_purchase_id = fields.Many2one('demand.purchase',string='源请购单')
+    is_excipients = fields.Boolean(string='辅料采购')
     charge_person = fields.Many2one('res.users',string='采购负责人')
     gen_datetime = fields.Datetime(string='生成时间',default=lambda self: fields.Datetime.now(),)
     po_number = fields.Text(string='关联的采购单',readonly=True)
@@ -86,6 +87,7 @@ class BeforePurchase(models.Model):
                     'payment_rule':' ',
                     'demand_purchase':self.demand_purchase_id.id,
                     'origin_order':self.sale_order_id.id,
+                    'is_excipients':self.is_excipients,
                     'order_line':res_line
             }
             if not exits_order:

@@ -95,13 +95,14 @@ class AccStockPicking(models.Model):
             for line in self.move_ids_without_package:
                 line.update({'location_dest_id':self.location_dest_id})
                 move_ids.append(line.id)
-            cr = self.env.cr
-            change_sql = """ UPDATE stock_move_line
-                            SET location_dest_id = %s
-                            WHERE
-                                move_id in %s """
-            # cr.execute(all_total)
-            cr.execute(change_sql, (self.location_dest_id.id,tuple(move_ids)))
+            if move_ids:
+                cr = self.env.cr
+                change_sql = """ UPDATE stock_move_line
+                                SET location_dest_id = %s
+                                WHERE
+                                    move_id in %s """
+                # cr.execute(all_total)
+                cr.execute(change_sql, (self.location_dest_id.id,tuple(move_ids)))
     # def deal_update_add(self,product_id,mos,qty):
     #     cr = self.env.cr
     #     add_sql = """ UPDATE stock_move
@@ -195,7 +196,7 @@ class ExcipientsProduct(models.Model):
     now_qty = fields.Float(string='当前数量')
     min_qty = fields.Float(string='最低库存')
     max_qty = fields.Float(string='最大库存')
-    active = fields.Boolean(string='有效',default=True)
+    is_active = fields.Boolean(string='有效',default=True)
 
 
     @api.onchange('product_id')
@@ -247,7 +248,7 @@ class ExcipientsProduct(models.Model):
 
     @api.model
     def _check_need_purchase(self):
-        excipients = self.env['excipients.product'].search([('active', '=', True)])
+        excipients = self.env['excipients.product'].search([('is_active', '=', True)])
         res_line = []
         for ex in excipients:
             now_qty = ex.compute_now_qty()
@@ -256,7 +257,7 @@ class ExcipientsProduct(models.Model):
                   # 'order_id':self.before_purchase_id.id,
                   'product_id':ex.product_id.id,
                   'product_model':ex.product_id.product_tmpl_id.product_model,
-                  'qty':100,
+                  'qty':ex.max_qty - now_qty,
                   'acc_purchase_price':ex.product_id.product_tmpl_id.acc_purchase_price,
                   'brand':ex.product_id.product_tmpl_id.brand,
                   'acc_code':ex.product_id.product_tmpl_id.acc_code,
@@ -277,9 +278,9 @@ class ExcipientsProduct(models.Model):
             new_res_line.append((0,0,new_line_vals))
         vals = {
             # 'demand_purchase_id':self.id,
-            'purchase_company':1,
-            # 'delivery_address':self.delivery_address.id,
-            'charge_person':2,
+            'purchase_company':2,
+            'is_excipients':True,
+            'charge_person':10,
             'order_line':new_res_line
         }
         bp_obj = self.env['before.purchase'].create(vals)
