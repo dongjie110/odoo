@@ -38,6 +38,7 @@
                                 <field name="charge_person" />
                                 <field name="purchase_company" />
                                 <field name="currency_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="internal_note" />
                                 <!-- <field name="purchase_order_id"/> -->
                             </group>
                         </group>
@@ -100,7 +101,7 @@
                     <field name="name"/>
                     <field name="create_user"/>
                     <field name="apply_date" />
-                    <field name="partner_id"/>
+                    <field name="internal_note"/>
                     <field name="state"/>
                 </tree>
             </field>

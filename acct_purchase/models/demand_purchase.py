@@ -59,6 +59,7 @@ class DemandPurchase(models.Model):
     web_address = fields.Char(string=u'链接地址')
     purchase_company = fields.Many2one('acc.company',string='采购公司')
     note = fields.Text(string=u'备注')
+    internal_note = fields.Char(string=u'内部备注')
     state = fields.Selection([('draft', '草稿'), ('confirmed', '审批中'), ('done', '完成'),('cancel', '取消')], '状态', default='draft',track_visibility='onchange')
     currency_id = fields.Many2one('res.currency', '币种', required=True,
         default=lambda self: self.env.user.company_id.currency_id.id)

@@ -56,7 +56,7 @@ class CFTemplateCategory(models.Model):
     payment_state = fields.Selection([('partpay', '部分已付'), ('nopay', '未付'), ('allpay', '全部付清')], '付款状态', default='nopay')
     purchase_way = fields.Char(string=u'采购用途')
     pay_rate = fields.Float(string=u'本次付款比例(%)')
-    paid_rate = fields.Float(string=u'已付款比例(%)',readonly=True)
+    paid_rate = fields.Float(string=u'已付款比例(%)')
     is_excipients = fields.Boolean(string='辅料采购',readonly=True)
     purchase_company = fields.Many2one('acc.company',string=u'采购公司',required=True)
     # purchase_company = fields.Many2one('res.company',string=u'采购公司')

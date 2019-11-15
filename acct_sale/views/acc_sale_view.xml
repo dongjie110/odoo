@@ -67,6 +67,7 @@
                     <field name="po_number"/>
                     <field name="before_purchase_id" readonly="1"/>
                     <field name="acc_quotation_id" readonly="1"/>
+                    <field name="origin_sale_order_id"/>
                     <field name="is_send"/>
                     <field name="send_date"/>
                     <field name="is_pay"/>

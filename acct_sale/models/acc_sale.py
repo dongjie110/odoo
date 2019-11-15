@@ -85,7 +85,8 @@ class AccSaleOrder(models.Model):
     sale_company = fields.Many2one('acc.company',string = '卖方公司')
     po_number = fields.Char(string='关联的采购单',readonly=True,copy=False)
     before_purchase_id = fields.Many2one('before.purchase',string='待确认生成询价单',copy=False)
-    acc_quotation_id = fields.Many2one('acc.quotation',string='关联报价单')
+    origin_sale_order_id = fields.Many2one('sale.order',string='源销售单',copy=False)
+    acc_quotation_id = fields.Many2one('acc.quotation',string='关联报价单',copy=False)
     quo_amount_untaxed = fields.Float(string='未含税金额', store=True, readonly=True, compute='_amount_quo_all', track_visibility='always')
     quo_amount_tax = fields.Float(string='税', store=True, readonly=True, compute='_amount_quo_all')
     quo_amount_total = fields.Float(string='总计', store=True, readonly=True, compute='_amount_quo_all')
@@ -164,7 +165,7 @@ class AccSaleOrder(models.Model):
     @api.multi
     def check_eco_products(self):
         res_line = []
-        # products = {}
+        mrp_ecos = []
         # add_ids = []
         remove_ids = []
         if self.bom_line:
@@ -172,6 +173,7 @@ class AccSaleOrder(models.Model):
                 mrp_eco = self.env['mrp.eco'].search([('bom_id', '=', bom.mrp_bom_id.id),('state', '=', 'done')])
                 if mrp_eco:
                     mrp_eco.write({'is_use':'on'})
+                    mrp_ecos.append(mrp_eco.id)
                     for change in mrp_eco.bom_change_ids:
                         if change.change_type == 'add':
                             # add_ids.append(change.product_id.id)
@@ -225,12 +227,12 @@ class AccSaleOrder(models.Model):
 
         # products["add"] = res_line
         # products["remove"] = remove_ids
-        return res_line,remove_ids
+        return res_line,remove_ids,mrp_ecos
 
     @api.multi
     def add_new_bom(self):
         before_purchase = self.env['before.purchase'].search([('id', '=', self.before_purchase_id.id)])
-        res_line,remove_ids = self.check_eco_products()
+        res_line,remove_ids,mrp_ecos = self.check_eco_products()
         if remove_ids:
             remove_products = []
             for p in remove_ids:
@@ -246,12 +248,7 @@ class AccSaleOrder(models.Model):
         # self.check_res(res_line)
         if res_line:
             if before_purchase and before_purchase.state == 'draft':
-                for new_vals in res_line:
-                    self.env['before.purchase.line'].create(new_vals)
-                for remove_id in remove_ids:
-                    before_purchase_line = self.env['before.purchase.line'].search([('product_id', '=', remove_id),('order_id', '=', before_purchase.id)])
-                    if before_purchase_line:
-                        before_purchase_line.unlink()
+                raise ValidationError('该销售订单所关联待确认询价单尚未完成，请完成后再进行物料清单变动操作')
             if before_purchase and before_purchase.state == 'done':
                 new_res_line = []
                 for line in res_line:
@@ -272,6 +269,10 @@ class AccSaleOrder(models.Model):
                     'order_line':new_res_line
                 }
                 bp_obj = self.env['before.purchase'].create(vals)
+                if mrp_ecos:
+                    for ecoid in mrp_ecos:
+                        eco_obj = self.env['mrp.eco'].browse(ecoid)
+                        eco_obj.write({'before_purchase_id':bp_obj.id})
             # for remove_id in remove_ids:
             # 删除的东西怎么处理？
         self.change_bom_record()
