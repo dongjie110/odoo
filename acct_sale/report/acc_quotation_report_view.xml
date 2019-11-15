@@ -116,7 +116,7 @@
                         </tr>
                         <tr>
                             <td class="text-center">
-                                <span t-field="o.gen_date"/>
+                                <span t-field="o.last_date"/>
                             </td>
                             <td class="text-center">
                                 <span t-field="o.partner_id.name"/>

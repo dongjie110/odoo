@@ -526,6 +526,8 @@ class AccQuotation(models.Model):
     pricelist_id = fields.Many2one('product.pricelist',string='价格表',required=True)
     title = fields.Char(string=u'标题', required=True)
     gen_date = fields.Date(string=u'单据日期',default=lambda self: self._context.get('date', fields.Date.context_today(self)),readonly=True)
+    last_date = fields.Date(string="最后修改日期",readonly = True)
+    customer_state = fields.Selection([('nowcreate', '已创建'),('sent', '已发送'),('refuse', '已拒绝'),('cancel', '已取消')], '报价单状态', copy=False, default='nowcreate')
     user_id = fields.Many2one('res.users',string=u'负责人',default=lambda self: self.env.user.id,required=True)
     partner_id = fields.Many2one('res.partner',string='客户')
     contact_id = fields.Many2one('res.partner',string='联系人')
@@ -545,7 +547,7 @@ class AccQuotation(models.Model):
     # is_pay = fields.Boolean(string='是否收款',readonly=True)
     discount = fields.Float(string='折扣',default=0.00)
     ship_fee = fields.Float(string='运费',default=0.00)
-    state = fields.Selection([('draft', '草稿'),('done', '完成'),('cancel', '取消')], '状态', default='draft')
+    state = fields.Selection([('draft', '草稿'),('sent', '已发送'),('done', '完成'),('cancel', '取消')], '状态', default='draft')
     transaction_mode = fields.Many2one('transaction.rule',string='交易方式')
     transaction_rule = fields.Char(string='交易条款')
     # validity_date = fields.Date(string='有效期至')
@@ -554,7 +556,7 @@ class AccQuotation(models.Model):
     amount_untaxed = fields.Float(string='未含税金额', store=True, readonly=True, compute='_amount_all', track_visibility='always')
     amount_tax = fields.Float(string='税', store=True, readonly=True, compute='_amount_all')
     amount_total = fields.Float(string='总计', store=True, readonly=True, compute='_amount_all')
-    sale_order = fields.Many2one('sale.order',string='关联的销售单',readonly=True)
+    sale_order = fields.Many2one('sale.order',string='关联的销售单',copy=False,readonly=True)
     # before_purchase_id = fields.Many2one('before.purchase',string='待确认生成询价单')
     accquotation_line = fields.One2many('accquotation.line', 'accquotation_id', 'Quotation Lines',copy=True)
     log_line = fields.One2many('log.line', 'log_id', 'Log Lines',readonly=True)
@@ -606,15 +608,49 @@ class AccQuotation(models.Model):
 
     @api.multi
     def cancel(self):
-        self.filtered(lambda r: r.state == 'draft').write({'state': 'cancel'})
+        self.filtered(lambda r: r.state == 'draft').write({'state': 'cancel','customer_state': 'cancel'})
+        return True
+
+    @api.multi
+    def draft_sent(self):
+        self.filtered(lambda r: r.state == 'sent').write({'state': 'draft','customer_state': 'nowcreate'})
+        return True
+    @api.multi
+    def cancel_draft(self):
+        self.filtered(lambda r: r.state == 'cancel').write({'state': 'draft','customer_state': 'nowcreate'})
+        return True
+
+    @api.multi
+    def sent(self):
+        contact_name = self.contact_id.name
+        contact_mobile = self.contact_id.mobile
+        contact_title = self.contact_id.title.name
+        topic = self.title
+        if not contact_mobile:
+            raise ValidationError('联系人未填手机号，请填写联系人手机号')
+        if not contact_title:
+            raise ValidationError('联系人称呼未正确配置！')
+        ret = re.match(r"^1[35678]\d{9}$", contact_mobile)
+        if not ret:
+            raise ValidationError('联系人手机号填写格式不正确！')
+        text = contact_name + contact_title + '您好，' +'“' + topic + '”' + '报价单已发到您邮件，请注意查收，谢谢'
+        vals = {
+                'topic':topic,
+                'user_name':contact_name,
+                'phone':contact_mobile,
+                'name':text
+        }
+        message = self.env['acc.message.interface'].create(vals)
+        message.sms_send()
+        self.filtered(lambda r: r.state == 'draft').write({'state': 'sent','customer_state': 'sent'})
         return True
 
 
     @api.multi
     def write(self, vals):
-        # if self.purchase_type == 'office':
-        #     self.check_office_price(vals)  
+        vals['last_date'] = fields.Date.context_today(self)
         res = super(AccQuotation, self).write(vals)
+        # self.last_date = fields.Date.context_today(self)
         if vals.get('accquotation_line'):
             q_vals = {
                     'log_id':self.id,

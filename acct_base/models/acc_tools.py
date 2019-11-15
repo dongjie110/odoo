@@ -14,6 +14,7 @@ import time
 import requests
 import json
 import hashlib
+import urllib.parse
 _logger = logging.getLogger(__name__)
 
 
@@ -141,7 +142,8 @@ class AccMessageInterface(models.Model):
     def sms_send(self):
         # sms = self.read(['phone', 'name', 'topic', 'user_name'], context=context)
         for sms in self:
-            text = sms.name
+            text = sms.name.encode('GBK')
+            # text.encode(encoding='GBK')
             phones = sms.phone
             topic = sms.topic
             if not phones:
@@ -160,12 +162,13 @@ class AccMessageInterface(models.Model):
                 strs='300238' + 'Rk135802' + time_array
                 m.update(strs.encode("utf8"))
                 str_md5 = m.hexdigest()
-                # print(m.hexdigest())
                 args = {"CorpID": "300238", "LoginName": "Admin", "TimeStamp": time_array, "send_no": phones,
                         "msg": text, "Passwd": str_md5}
                 respons = requests.post(url, data=args)
-                # result = response.json()
-                result = json.loads(respons.text)
+                result = json.loads(str(respons.status_code))
+                print(result)
+                if result == 200:
+                    self.write({'state': 'done'})
             except Exception as e:
                 self.write({'state': 'error'})
                 continue

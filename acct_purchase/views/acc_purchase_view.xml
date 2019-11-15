@@ -27,12 +27,12 @@
                 <xpath expr="//button[@name='button_confirm'][2]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//button[@name='action_view_invoice'][1]" position="attributes">
+                <!-- <xpath expr="//button[@name='action_view_invoice'][1]" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@name='action_view_invoice'][2]" position="attributes">
                     <attribute name="invisible">1</attribute>
-                </xpath>
+                </xpath> -->
                 <xpath expr="//button[@name='action_view_invoice'][2]" position="after">
                     <!-- <button name="export_purchase_record" string="导出询价单信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/> -->
                     <button name="export_purchase_record" string="导出询价单信息" type="object" class="oe_highlight" groups="base.group_user"/>

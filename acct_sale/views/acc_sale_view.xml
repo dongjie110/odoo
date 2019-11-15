@@ -227,10 +227,13 @@
                 <form string="Acc Quotation" version="12.0">
                     <header>
                         <!-- <button name="draft_button" states="draft" string="提交审批" type="object" groups="purchase.group_purchase_user"/> -->
-                        <button name="create_so" confirm='是否确认生成销售单!' states="draft" string="确认" type="object"/>
-                        <button name="cancel" confirm='是否取消报价单!' states="draft" string="取消" type="object"/>
+                        <button name="create_so" confirm='是否确认生成销售单!' states="sent,draft" string="确认" type="object"/>
+                        <!-- <button name="draft_sent" states="sent" string="设为草稿" type="object"/> -->
+                        <button name="cancel_draft" states="cancel" string="设为草稿" type="object"/>
+                        <button name="sent" confirm='是否发送报价短信给客户!' states="draft" string="发送" type="object"/>
+                        <button name="cancel" confirm='是否取消报价单!' states="sent" string="取消" type="object"/>
                         <!-- <button name='make_acccode' type='object' string='test'/> -->
-                        <field name="state" widget="statusbar" statusbar_visible="draft,done,cancel" statusbar_colors='{"draft":"red"}'/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,sent,done,cancel" statusbar_colors='{"draft":"red"}'/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -240,12 +243,14 @@
                             <group>
                                 <field name="partner_id"/>
                                 <field name="contact_id" context="{'sale_choose_contact':'sale_choose_contact','partner_id':partner_id}"/>
+                                <field name="customer_state" />
                                 <field name="pricelist_id" />
                                 <field name="currency_id"/>
                                 <field name="tax_id"/>
                                 <!-- <field name="purchase_type" /> -->
                                 <field name="title"/>
                                 <field name="gen_date"/>
+                                <field name="last_date"/>
                                 <field name="user_id"/>
                                 <field name="transfer"/>
                                 <field name="delivery_time"/>
@@ -320,6 +325,7 @@
                     <field name="title" />
                     <field name="gen_date"/>
                     <field name="sale_order"/>
+                    <field name="customer_state"/>
                     <field name="state"/>
                 </tree>
             </field>

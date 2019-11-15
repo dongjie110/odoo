@@ -97,6 +97,7 @@
             <field name="arch" type="xml">
             <search string="Search before purchase">
                 <filter string="待确认" name="wait_confirm" domain="[('state','=','draft')]"/>
+                <field name="order_line" string="产品编码" filter_domain="[('order_line.product_id.acc_code', 'ilike', self)]"/>
                 <field name="sale_order_id"/>
                 <field name="demand_purchase_id"/>
                 <field name="charge_person"/>
