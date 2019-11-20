@@ -37,7 +37,7 @@
                     <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <!-- <button name="boss_accept" string="管理部审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_manage_info_group"/> -->
                     <button name="action_confirm" string="确认订单" type="object" class="oe_highlight" attrs="{'invisible': [('state', 'not in', ['confirm'])]}" groups="acct_base.acc_commerce_manager_group"/>
-                    <button name="add_new_bom" states="sale" string="物料清单变更" type="object" groups="acct_base.acc_commerce_manager_group"/>   
+                    <button name="add_new_bom" confirm='是否确认进行物料清单变更!' states="sale" string="物料清单变更" type="object" groups="acct_base.acc_commerce_manager_group"/>   
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
                     <attribute name="statusbar_visible">draft,confirm,sale</attribute>
