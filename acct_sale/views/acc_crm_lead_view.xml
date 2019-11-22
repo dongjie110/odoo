@@ -19,6 +19,9 @@
                 <xpath expr="//button[@name='action_set_won_rainbowman']" position="after">
                     <button string="查看报价单" name="acc_quotation_list" type="object" class="oe_highlight"
                         attrs="{'invisible': ['&amp;', ('probability', '=', 0), ('active', '=', False)]}"/>
+                </xpath>
+                <xpath expr="//field[@name='tag_ids']" position="after">
+                    <field name="last_contact"/>
                 </xpath>                      
             </field>
         </record>

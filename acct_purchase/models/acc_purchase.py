@@ -568,6 +568,14 @@ class CFTemplateCategory(models.Model):
                                 product_product
                             WHERE
                                 product_product. ID = purchase_order_line.product_id
+                        ),
+                            acc_code = (
+                            SELECT
+                                product_product.acc_code
+                            FROM
+                                product_product
+                            WHERE
+                                product_product. ID = purchase_order_line.product_id
                         )
                         where order_id = %s """%(self.id)
         cr.execute(sql)

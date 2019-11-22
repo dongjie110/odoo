@@ -150,6 +150,14 @@ class AccMrpBom(models.Model):
                                 product_product
                             WHERE
                                 product_product. ID = mrp_bom_line.product_id
+                        ),
+                            acc_code = (
+                            SELECT
+                                product_product.acc_code
+                            FROM
+                                product_product
+                            WHERE
+                                product_product. ID = mrp_bom_line.product_id
                         )
                         where bom_id = %s """%(self.id)
         cr.execute(sql)

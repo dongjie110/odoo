@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="recreate_before_purchase_form_view" model="ir.ui.view">
+            <field name="name">重新生成</field>
+            <field name="model">recreate.before.purchase</field>
+            <field name="arch" type="xml">
+                <form string="import">
+                     <sheet>
+                        <group>
+                            <!-- <label string = "批量导入后请刷新页面"/> -->
+                            <field name='charge_person'/>
+                            <!-- <field name='partner_id'/> -->
+                        </group>
+                        <footer name="codes" >
+                            <button class="oe_stat_button" name="create_bill" string="确认生成" type="object"/>
+                            <button string="取消" class="btn-secondary" special="cancel"/>
+                        </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="recreate_before_purchase_wizard" model="ir.actions.act_window">
+            <field name="name">重新生成</field>
+            <field name="res_model">recreate.before.purchase</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <!-- <field name="context">{"type":"vmc_watergodcard"}</field> -->
+            <field name="view_id" ref="recreate_before_purchase_form_view"/>
+            <field name="target">new</field>
+        </record>
+
+        <!-- <menuitem id="import_bom_data" name="供应商数据导入" parent="acct_data_import_menu" sequence="1" action="import_partner_data_wizard"/> -->
+    </data>
+</odoo>

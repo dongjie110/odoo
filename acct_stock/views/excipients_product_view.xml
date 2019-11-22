@@ -28,6 +28,7 @@
                                 <field name="now_qty"/>
                                 <field name="min_qty" />
                                 <field name="max_qty"/>
+                                <field name="before_purchase_id"/>
                                 <field name="is_active"/>
                             </group>
                         </group>

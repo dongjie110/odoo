@@ -27,6 +27,7 @@
                 <form string="短信接口">
                      <header>
                         <button name="sms_send" states="draft" type="object" string="发送"/>
+                        <button name="make_acccode" type="object" string="编码"/>
                         <field name="state"  widget="statusbar" statusbar_visible="draft,done,error"/>
                     </header>
                     <group>

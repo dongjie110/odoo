@@ -80,23 +80,22 @@ class AccTools(models.Model):
 
     @api.multi
     def make_acccode(self):
-        pt = self.env['product.template'].search([])
-        n = 1
+        pt = self.env['product.template'].search([('acc_code','like','-'),('active','=',True)])
+        # n = 1
         for i in pt:  
-            s = "%05d" % n
-            code = 'ACC-PRO-' + s 
-            i.write({'acc_code':code})
-            n += 1
-            print (i.name)
+            # s = "%05d" % n
+            # code = 'ACC-PRO-' + s 
+            # i.write({'acc_code':code})
+            # n += 1
+            # print (i.name)
             _logger.debug('===========%s===============', i.name)
-        i.write({'active': False})
 
-    @api.multi
-    def make_acccode(self):
-        pt = self.env['product.template'].search(['name', 'like', 'ACC-PRO-'])
-        for i in pt:
-            i.write({'acc_code':code})
-            _logger.debug('===========%s===============', i.name)
+    # @api.multi
+    # def make_acccode(self):
+    #     pt = self.env['product.template'].search(['name', 'like', 'ACC-PRO-'])
+    #     for i in pt:
+    #         i.write({'acc_code':code})
+    #         _logger.debug('===========%s===============', i.name)
 
 class AccMessageInterface(models.Model):
     _name = 'acc.message.interface'
@@ -137,6 +136,24 @@ class AccMessageInterface(models.Model):
         #         self.write(cr, uid, sms.id, {'state': 'error'}, context=context)
         #         continue
         # return True
+        # 
+    @api.multi
+    def make_acccode(self):
+        pt = self.env['product.template'].search([('acc_code','like','-'),('active','=',True)])
+        # pt = self.env['product.template'].search([('acc_code','=','JX-BJ00508'),('active','=',True)])
+        n = 4248
+        count = 0
+        for i in pt:  
+            s = "%05d" % n
+            code = 'PRO' + s 
+            i.write({'acc_code':code})
+            n += 1
+            count +=1
+            # print (i.name)
+            _logger.debug('===========%s========%s=======', i.name,i.acc_code)
+        _logger.debug('===========下一号码%s===============', n)
+        _logger.debug('===========总数%s===============', count)
+
   
     @api.multi
     def sms_send(self):

@@ -527,7 +527,7 @@ class AccQuotation(models.Model):
     pricelist_id = fields.Many2one('product.pricelist',string='价格表',required=True)
     title = fields.Char(string=u'标题', required=True)
     gen_date = fields.Date(string=u'单据日期',default=lambda self: self._context.get('date', fields.Date.context_today(self)),readonly=True)
-    last_date = fields.Date(string="最后修改日期",readonly = True)
+    last_date = fields.Date(string="最后修改日期",default=lambda self: self._context.get('date', fields.Date.context_today(self)),readonly = True)
     customer_state = fields.Selection([('nowcreate', '已创建'),('sent', '已发送'),('refuse', '已拒绝'),('cancel', '已取消')], '报价单状态', copy=False, default='nowcreate')
     user_id = fields.Many2one('res.users',string=u'负责人',default=lambda self: self.env.user.id,required=True)
     partner_id = fields.Many2one('res.partner',string='客户')

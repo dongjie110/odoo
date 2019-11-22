@@ -188,7 +188,7 @@ class ExcipientsProduct(models.Model):
     brand = fields.Char(string='品牌')
     internal_des = fields.Char(string='内部描述')
     # product_describe_cn = fields.Text(string='产品中文描述')
-    # product_describe_en = fields.Text(string='产品英文描述')
+    before_purchase_id = fields.Many2one('before.purchase',string='最新关联待确认询价单',readonly=True)
     product_model = fields.Char(string='产品型号')
     location_id = fields.Many2one('stock.location',string='位置')
     acc_code = fields.Char(string='产品编码')
@@ -234,6 +234,33 @@ class ExcipientsProduct(models.Model):
         self.write({'now_qty':now_qty})
         return now_qty
 
+    @api.multi
+    def compute_now_purchase(self):
+        before_purchase_id = self.before_purchase_id
+        if not before_purchase_id:
+            return 'needpurchase'
+        if before_purchase_id.state == 'draft':
+            return 'nopurchase'
+        if before_purchase_id.state == 'cancel':
+            return 'needpurchase'
+        product_id = self.product_id.id
+        purchase_models = self.env['purchase.order'].search([('before_purchase_id','=',before_purchase_id.id),('state','!=','cancel'),('is_excipients','=',True)])
+        po_ids = [tmp.id for tmp in purchase_models]
+        po_line = self.env['purchase.order.line'].search([('order_id', 'in', po_ids),('product_id', '=', product_id)])
+        if po_line:
+            qty_r = 0.0
+            q_qty = 0.0
+            for line in po_line:
+                qty_r += line.qty_received
+                q_qty += line.product_qty
+            # if po_line.qty_received < po_line.product_qty:
+            if qty_r < q_qty:
+                return 'nopurchase'
+            else:
+                return 'needpurchase'
+        else:
+            return 'needpurchase'
+
 
 
     # @api.multi
@@ -250,40 +277,51 @@ class ExcipientsProduct(models.Model):
     def _check_need_purchase(self):
         excipients = self.env['excipients.product'].search([('is_active', '=', True)])
         res_line = []
+        excipient_ids = []
         for ex in excipients:
-            now_qty = ex.compute_now_qty()
-            if now_qty < ex.min_qty:
-                line_vals = {
-                  # 'order_id':self.before_purchase_id.id,
-                  'product_id':ex.product_id.id,
-                  'product_model':ex.product_id.product_tmpl_id.product_model,
-                  'qty':ex.max_qty - now_qty,
-                  'acc_purchase_price':ex.product_id.product_tmpl_id.acc_purchase_price,
-                  'brand':ex.product_id.product_tmpl_id.brand,
-                  'acc_code':ex.product_id.product_tmpl_id.acc_code,
-                  'partner_code':ex.product_id.product_tmpl_id.partner_code
+            purchase_state = ex.compute_now_purchase()
+            _logger.debug('===========%s===============%s', purchase_state, ex.product_id)
+            if purchase_state == 'needpurchase':
+                now_qty = ex.compute_now_qty()
+                if now_qty < ex.min_qty:
+                    line_vals = {
+                      # 'order_id':self.before_purchase_id.id,
+                      'product_id':ex.product_id.id,
+                      'product_model':ex.product_id.product_tmpl_id.product_model,
+                      'qty':ex.max_qty - now_qty,
+                      'acc_purchase_price':ex.product_id.product_tmpl_id.acc_purchase_price,
+                      'brand':ex.product_id.product_tmpl_id.brand,
+                      'acc_code':ex.product_id.product_tmpl_id.acc_code,
+                      'partner_code':ex.product_id.product_tmpl_id.partner_code
+                    }
+                    res_line.append(line_vals)
+                    excipient_ids.append(ex.id)
+        if res_line:
+            new_res_line = []
+            for line in res_line:
+                new_line_vals = {
+                            'product_id':line['product_id'],
+                            'product_model':line['product_model'],
+                            'qty':line['qty'],
+                            'acc_purchase_price':line['acc_purchase_price'],
+                            'brand':line['brand'],
+                            'acc_code':line['acc_code'],
+                            'partner_code':line['partner_code'],
                 }
-                res_line.append(line_vals)
-        new_res_line = []
-        for line in res_line:
-            new_line_vals = {
-                        'product_id':line['product_id'],
-                        'product_model':line['product_model'],
-                        'qty':line['qty'],
-                        'acc_purchase_price':line['acc_purchase_price'],
-                        'brand':line['brand'],
-                        'acc_code':line['acc_code'],
-                        'partner_code':line['partner_code'],
+                new_res_line.append((0,0,new_line_vals))
+            vals = {
+                # 'demand_purchase_id':self.id,
+                'purchase_company':2,
+                'is_excipients':True,
+                'charge_person':10,
+                'order_line':new_res_line
             }
-            new_res_line.append((0,0,new_line_vals))
-        vals = {
-            # 'demand_purchase_id':self.id,
-            'purchase_company':2,
-            'is_excipients':True,
-            'charge_person':10,
-            'order_line':new_res_line
-        }
-        bp_obj = self.env['before.purchase'].create(vals)
+            bp_obj = self.env['before.purchase'].create(vals)
+            if excipient_ids:
+                for excipient_id in excipient_ids:
+                    excipient_model=self.env['excipients.product'].search([('id', '=', excipient_id)])
+                    excipient_model.write({'before_purchase_id':bp_obj.id})
+
 
 
 

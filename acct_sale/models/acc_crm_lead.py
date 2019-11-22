@@ -15,6 +15,7 @@ class AccCrmLead(models.Model):
 
     contact_id = fields.Many2one('res.partner',string='联系人')
     acc_quotation_id = fields.Many2one('acc.quotation',string='挚锦报价单',readonly=True)
+    last_contact = fields.Char(string='最终用户')
 
 
     def search(self, args, offset=0, limit=None, order=None, count=False):

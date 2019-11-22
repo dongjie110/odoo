@@ -39,6 +39,7 @@ class product_templ_acc(models.Model):
     product_describe_en = fields.Text(string='产品英文描述')
     product_model = fields.Char(string='产品型号',required=True)
     acc_code = fields.Char(string='产品编码',readonly=True)
+    # acc_code = fields.Char(string='产品编码')
     template_currency_id = fields.Many2one('res.currency',string='币种')
     acc_purchase_price = fields.Float(string='采购价格',default=0.0)
     partner_id = fields.Many2one('res.partner',string='供应商')
