@@ -49,6 +49,7 @@
                 <!-- <tree decoration-danger="state=='draft'" decoration-success="state=='done'" string="Before Purchase" create="0"> -->
                 <tree string="excipients_product">
                     <field name="product_id"/>
+                    <field name="gen_datetime"/>
                     <field name="acc_code"/>
                     <field name="product_model"/>
                     <field name="now_qty"/>
@@ -102,5 +103,22 @@
         </record>
         </data>
 
+        <!-- 刷新库存定时任务 -->
+        <data noupdate="1">
+        <record id="ir_cron_acc_refresh_qty" model="ir.cron">
+            <field name="name">fresh qty</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="model_id" ref="model_excipients_product"/>
+            <field name="code">model._fresh_now_qty()</field>
+            <field name="state">code</field>
+            <field eval="True" name="doall"/>
+            <!-- <field eval="'excipients.product'" name="model"/> -->
+            <!-- <field eval="'_check_need_purchase'" name="function"/> -->
+            <field eval="0" name="priority"/>
+            <field name="active" eval="True"/>
+        </record>
+        </data>
     </data>
 </openerp>

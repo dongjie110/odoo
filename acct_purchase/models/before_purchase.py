@@ -34,6 +34,7 @@ class BeforePurchase(models.Model):
     delivery_address = fields.Many2one('delivery.address',string='交货地址')
     state = fields.Selection([('draft', '待确认'), ('done', '已确认'),('cancel', '已取消')], '状态', default='draft',track_visibility='onchange')
     order_line = fields.One2many('before.purchase.line', 'order_id', 'Order Lines')
+    recreate_line = fields.One2many('recreate.purchase.line', 'before_id', 'recreate Lines')
 
 
     @api.multi
@@ -194,6 +195,22 @@ class BeforePurchaseLine(models.Model):
 
     order_id = fields.Many2one('before.purchase', 'Order Reference')
     product_id = fields.Many2one('product.product',u'物料名称', required=True)
+    product_model = fields.Char(string='规格描述')
+    brand = fields.Char(string='品牌')
+    acc_code = fields.Char(string='产品编码')
+    partner_code = fields.Char(string='供应商编码')
+    acc_purchase_price= fields.Char(string='采购价格')
+    qty = fields.Float(string='数量')
+    partner_id = fields.Many2one('res.partner',string='供应商',domain=[('supplier', '=', True)])
+
+class RecreatePurchaseLine(models.Model):
+    _name = 'recreate.purchase.line'
+    _description = " 重新生成待确认明细"
+    _order = 'create_date desc, id desc'
+
+    before_id = fields.Many2one('before.purchase', 'Order Reference')
+    product_id = fields.Many2one('product.product',u'物料名称', required=True)
+    partner_id = fields.Many2one('res.partner',string='供应商')
     product_model = fields.Char(string='规格描述')
     brand = fields.Char(string='品牌')
     acc_code = fields.Char(string='产品编码')

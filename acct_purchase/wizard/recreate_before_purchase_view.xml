@@ -9,11 +9,28 @@
                      <sheet>
                         <group>
                             <!-- <label string = "批量导入后请刷新页面"/> -->
-                            <field name='charge_person'/>
-                            <!-- <field name='partner_id'/> -->
+                            <!-- <field name='charge_person'/> -->
+                            <!-- <field name='product_id'/> -->
+                            <field name='partner_id'/>
                         </group>
+                        <notebook colspan="4">
+                            <page string="重新生成明细行">
+                                <field name="order_line">
+                                    <tree string="重新生成明细行" editable="bottom">
+                                        <field name="product_id"/>
+                                        <field name="product_model"/>
+                                        <field name="brand"/>
+                                        <field name="acc_code"/>
+                                        <field name="partner_code"/>
+                                        <!-- <field name="partner_id" readonly="1"/> -->
+                                        <!-- <field name="acc_purchase_price" readonly="1"/> -->
+                                        <field name="qty"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
                         <footer name="codes" >
-                            <button class="oe_stat_button" name="create_bill" string="确认生成" type="object"/>
+                            <button class="oe_stat_button" name="re_create" string="确认生成" type="object"/>
                             <button string="取消" class="btn-secondary" special="cancel"/>
                         </footer>
                     </sheet>

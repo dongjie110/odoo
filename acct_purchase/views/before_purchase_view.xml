@@ -50,7 +50,38 @@
                                     </tree>
                                 </field>
                             </page>
+                            <page string="重新生成明细行">
+                                <field name="recreate_line">
+                                    <tree string="重新生成明细行" editable="bottom">
+                                        <field name="product_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                        <field name="product_model" readonly="1"/>
+                                        <field name="brand" readonly="1"/>
+                                        <field name="acc_code" readonly="1"/>
+                                        <field name="partner_code" readonly="1"/>
+                                        <field name="partner_id" readonly="1"/>
+                                        <!-- <field name="partner_id" readonly="1"/> -->
+                                        <!-- <field name="acc_purchase_price" readonly="1"/> -->
+                                        <field name="qty" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </page>
                         </notebook>
+                        <!-- <notebook colspan="4">
+                            <page string="重新生成明细行">
+                                <field name="recreate_line">
+                                    <tree string="重新生成明细行" editable="bottom">
+                                        <field name="product_id" options="{'no_create': True, 'no_open': True}" readonly="1"/>
+                                        <field name="product_model" readonly="1"/>          
+                                        <field name="brand" readonly="1"/>
+                                        <field name="acc_code" readonly="1"/>
+                                        <field name="partner_code" readonly="1"/>
+                                        <field name="partner_id" readonly="1"/>
+                                        <field name="acc_purchase_price" readonly="1"/>
+                                        <field name="qty" readonly="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook> -->
                     </sheet>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
@@ -69,6 +100,9 @@
                     <field name="name"/>
                     <field name="sale_order_id"/>
                     <field name="demand_purchase_id"/>
+                    <field name="charge_person"/>
+                    <field name="gen_datetime"/>
+                    <field name="is_excipients"/>
                     <field name="state"/>
                 </tree>
             </field>

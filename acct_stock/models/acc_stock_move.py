@@ -263,15 +263,30 @@ class ExcipientsProduct(models.Model):
 
 
 
-    # @api.multi
-    # def get_location_ids(self):
-    #     cr = self.env.cr
-    #     # location_ids = []
-    #     all_location = """ SELECT * from stock_location where location_id = 53 """
-    #     # cr.execute(all_total)
-    #     result = cr.execute(all_location)
-    #     location_ids = [m['id'] for m in result]
-    #     return location_ids
+    @api.multi
+    def _fresh_now_qty(self):
+        excipients = self.env['excipients.product'].search([('is_active', '=', True)])
+        for line in excipients:
+            p_id = line.product_id.id
+            location_id = line.location_id.id
+            cr = self.env.cr
+            # location_ids = []
+            now_qty_sql = """ SELECT
+                                SUM (quantity-reserved_quantity) AS theory_qty
+                            FROM
+                                stock_quant
+                            WHERE
+                                location_id = %s
+                            AND product_id = %s """%(location_id, p_id)
+            # now_qty = cr.execute(now_qty_sql, (location_id,p_id))
+            cr.execute(now_qty_sql)
+            result = request.cr.dictfetchall()
+            if result[0]['theory_qty']:
+                now_qty = result[0]['theory_qty']
+            else:
+                now_qty = 0.00
+            line.write({'now_qty':now_qty})
+        return True
 
     @api.model
     def _check_need_purchase(self):
