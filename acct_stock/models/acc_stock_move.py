@@ -157,13 +157,6 @@ class AccStockInventoryLine(models.Model):
 
 
 
-# # -*- coding: utf-8 -*-
-# from datetime import datetime
-# from odoo import fields, models, api, http, _
-# from odoo.addons import decimal_precision as dp
-# from odoo.http import request
-# from odoo.exceptions import UserError, ValidationError
-
 class ExcipientsProduct(models.Model):
     """
     辅料清单
@@ -172,14 +165,6 @@ class ExcipientsProduct(models.Model):
     _inherit = ['mail.thread', 'mail.activity.mixin', 'portal.mixin']
     _description = "辅料清单"
     _order = 'gen_datetime desc'
-
-    # @api.model
-    # def create(self,vals):
-    #     if not vals.get('name',''):
-    #         last_name = self.env['ir.sequence'].get('before.purchase') or ''
-    #         vals['name'] = "%s"%(last_name)
-    #     result = super(BeforePurchase,self).create(vals)
-    #     return result
 
 
     product_id = fields.Many2one('product.product',string='物料产品')
@@ -193,6 +178,7 @@ class ExcipientsProduct(models.Model):
     location_id = fields.Many2one('stock.location',string='位置')
     acc_code = fields.Char(string='产品编码')
     uom_id = fields.Many2one('uom.uom',string='单位')
+    purchase_qty = fields.Float(string='在途数量')
     now_qty = fields.Float(string='当前数量')
     min_qty = fields.Float(string='最低库存')
     max_qty = fields.Float(string='最大库存')
@@ -285,8 +271,35 @@ class ExcipientsProduct(models.Model):
                 now_qty = result[0]['theory_qty']
             else:
                 now_qty = 0.00
-            line.write({'now_qty':now_qty})
+            onway_qty = line.onway_qty()
+            line.write({'now_qty':now_qty,'purchase_qty':onway_qty})
         return True
+
+    @api.multi
+    def onway_qty(self):
+        onway_qty = 0.0
+        before_purchase_id = self.before_purchase_id
+        if not before_purchase_id:
+            return onway_qty
+        if before_purchase_id.state == 'draft' or before_purchase_id.state == 'cancel':
+            return onway_qty
+        # if before_purchase_id.state == 'cancel':
+        #     return onway_qty
+        product_id = self.product_id.id
+        purchase_models = self.env['purchase.order'].search([('before_purchase_id','=',before_purchase_id.id),('state','!=','cancel'),('is_excipients','=',True)])
+        po_ids = [tmp.id for tmp in purchase_models]
+        po_line = self.env['purchase.order.line'].search([('order_id', 'in', po_ids),('product_id', '=', product_id)])
+        if po_line:
+            qty_r = 0.0
+            q_qty = 0.0
+            for line in po_line:
+                qty_r += line.qty_received
+                q_qty += line.product_qty
+            onway_qty = q_qty - qty_r
+            return onway_qty
+        else:
+            return onway_qty
+
 
     @api.model
     def _check_need_purchase(self):

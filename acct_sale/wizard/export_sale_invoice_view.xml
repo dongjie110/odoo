@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--导出数据-->
+        <record id="export_purchase_form_view" model="ir.ui.view">
+            <field name="name">导出采购数据</field>
+            <field name="model">export.purchase.wizard</field>
+            <field name="arch" type="xml">
+                <form string="export">
+                     <sheet>
+                        <div style="font-size:20px">
+                            采购数据导出筛选条件
+                        </div>
+                        <group>
+                            <field name="product_state"/>
+                            <field name="payment_state"/>
+                            <field name="date_start" required="1"/>
+                            <field name="date_end" required="1"/>
+                        </group>
+                        <group name="codes" >
+                            <button class="oe_stat_button" name="export_purchase_record" string="导出" type="object"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_export_purchase_wizard" model="ir.actions.act_window">
+            <field name="name">导出数据</field>
+            <field name="res_model">export.purchase.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="export_purchase_form_view"/>
+            <field name="target">inline</field>
+        </record>
+
+        <act_window id='export_purchase_wizard'
+                    name='导出采购数据'
+                    res_model='export.purchase.wizard'
+                    view_id="export_purchase_form_view"
+                    view_mode='form'
+                    target="inline"
+        />
+
+
+    </data>
+</odoo>

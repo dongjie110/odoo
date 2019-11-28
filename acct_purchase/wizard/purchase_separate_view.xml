@@ -10,10 +10,11 @@
                      <sheet>
                         <group>
                             <!-- <label string = "批量导入后请刷新页面"/> -->
+                            <field name='pay_amount'/>
                             <field name='pay_rate'/>
                             <!-- <field name='partner_id'/> -->
                         </group>
-                        <footer name="codes" >
+                        <footer name="codes">
                             <button class="oe_stat_button" name="create_bill" string="创建账单" type="object"/>
                             <button string="取消" class="btn-secondary" special="cancel"/>
                         </footer>

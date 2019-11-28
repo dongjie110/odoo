@@ -25,6 +25,7 @@
                             <group>
                                 <field name="gen_datetime"/>
                                 <field name="location_id"/>
+                                <field name="purchase_qty"/>
                                 <field name="now_qty"/>
                                 <field name="min_qty" />
                                 <field name="max_qty"/>
@@ -52,6 +53,7 @@
                     <field name="gen_datetime"/>
                     <field name="acc_code"/>
                     <field name="product_model"/>
+                    <field name="purchase_qty"/>
                     <field name="now_qty"/>
                     <field name="min_qty"/>
                     <field name="max_qty"/>

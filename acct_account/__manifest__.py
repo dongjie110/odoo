@@ -27,10 +27,9 @@
     'data': [
         'security/ir.model.access.csv',
         'views/acc_account_view.xml',
-        'views/acc_account_asset_view.xml',
-
-        # 'report/accstock_report_views.xml',
-
-        # 'views/report_menu.xml',
+        # 'views/acc_account_asset_view.xml',
+        
+        'report/purchase_invoice_report_views.xml',
+        'views/report_menu.xml',
     ],
 }

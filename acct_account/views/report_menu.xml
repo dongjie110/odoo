@@ -2,12 +2,12 @@
 <openerp>
     <data>
         <report
-                string="挚锦科技出货单"
-                id="acc_report_stock"
-                model="stock.picking"
+                string="供应商账单打印"
+                id="acc_report_invoice_purchase1"
+                model="account.invoice"
                 report_type="qweb-html"
-                file="acct_stock.acct_report_stock"
-                name="acct_stock.acct_report_stock"
+                file="acct_account.acct_report_purchase_invoice"
+                name="acct_account.acct_report_purchase_invoice"
         />
     </data>
 </openerp>

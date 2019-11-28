@@ -13,7 +13,7 @@
                         <button name="draft_cancel" states="draft" string="拒绝" type="object" groups="purchase.group_purchase_user"/>
                         <button name="merge_before_line" states="draft" string="合并重复产品" type="object" groups="purchase.group_purchase_user"/>
                         <button name="%(add_partner_wizard)d" states="draft" type="action" string="批量添加供应商" class="oe_highlight" groups="purchase.group_purchase_user"/>
-                        <button name="%(recreate_before_purchase_wizard)d" states="done" type="action" string="重新生成" class="oe_highlight" groups="acct_base.acc_manufacture_level_group"/>
+                        <button name="%(recreate_before_purchase_wizard)d" states="done" type="action" string="重新生成" class="oe_highlight" groups="purchase.group_purchase_user"/>
                         <!-- <button name='attachment_tree_view' type='object' string='附件'/> -->
                         <field name="state" widget="statusbar" statusbar_visible="draft,done" statusbar_colors='{"draft":"red"}'/>
                     </header>

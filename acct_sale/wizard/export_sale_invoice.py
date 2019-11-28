@@ -5,7 +5,7 @@ import xlwt
 from datetime import datetime,timedelta
 # import pandas as pd
 import sys,os
-file_url = 'my_addons/acct_sale'
+file_url = 'my_addons/acct_purchase'
 from odoo.http import request
 file_url = os.path.join(sys.path[0],file_url)
 import logging
