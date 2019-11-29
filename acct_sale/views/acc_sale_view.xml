@@ -56,6 +56,7 @@
                     <field name="transaction_rule"/>
                     <field name="delivery_time"/>
                     <field name="sale_company"/>
+                    <field name="discount"/>
                     <!-- <field name="unovo_project_id" attrs="{'invisible': [('order_type', '!=', 'returns')]}" on_change="onchange_unovo_project_id(unovo_project_id, order_type)" options="{'no_create': True}"/> -->
                 </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="after">
@@ -98,12 +99,17 @@
                         <group class="oe_subtotal_footer oe_right" groups="purchase.group_purchase_user">
                             <field name="quo_amount_untaxed" />
                             <field name="quo_amount_tax" />
+                            <field name="discount"/>
                             <div class="oe_subtotal_footer_separator oe_inline">
                                 <label for="quo_amount_total"/>
                             </div>
                             <field name="quo_amount_total" nolabel="1" class="oe_subtotal_footer_separator" />
                         </group>
                     </page>
+                </xpath>
+                <xpath expr="//field[@name='amount_tax']" position="after" >
+                    <!-- <field name="discount" widget="monetary" options="{'currency_field': 'currency_id'}"/> -->
+                    <field name="discount"/>
                 </xpath>
                 <xpath expr="/form/sheet/notebook/page[@name='order_lines']" position="after">
                     <page string="英文合同相关信息" name="acc_information">
@@ -287,12 +293,13 @@
                                 </field>
 
                                 <group class="oe_subtotal_footer oe_right" groups="purchase.group_purchase_user">
-                                    <field name="amount_untaxed" />
-                                    <field name="amount_tax" />
+                                    <field name="amount_untaxed" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="amount_tax" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                    <field name="discount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
                                     <div class="oe_subtotal_footer_separator oe_inline">
                                         <label for="amount_total"/>
                                     </div>
-                                    <field name="amount_total" nolabel="1" class="oe_subtotal_footer_separator" />
+                                    <field name="amount_total" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator" />
                                 </group>
 
                             </page>

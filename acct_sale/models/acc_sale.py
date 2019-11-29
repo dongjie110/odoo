@@ -25,7 +25,7 @@ class AccSaleOrder(models.Model):
     """
     _inherit = "sale.order"
 
-    @api.depends('quotation_line.price_subtotal')
+    @api.depends('quotation_line.price_subtotal','discount')
     def _amount_quo_all(self):
         for order in self:
             if order.tax_id:
@@ -35,13 +35,14 @@ class AccSaleOrder(models.Model):
             quo_amount_total = 0.0
             quo_amount_untaxed = 0.0
             quo_amount_tax = 0.0
+            discount = self.discount
             for line in order.quotation_line:
                 quo_amount_untaxed += line.price_subtotal
                 quo_amount_tax += line.price_subtotal * tax_rate
             order.update({
                 'quo_amount_untaxed':quo_amount_untaxed,
                 'quo_amount_tax':quo_amount_tax,
-                'quo_amount_total': quo_amount_untaxed + quo_amount_tax,
+                'quo_amount_total': quo_amount_untaxed + quo_amount_tax - discount,
             })
 
     title = fields.Char(string=u'标题', required=True)
@@ -81,7 +82,7 @@ class AccSaleOrder(models.Model):
     transaction_mode = fields.Many2one('transaction.rule',string='交易方式')
     transaction_rule = fields.Char(string='交易条款')
     tax_id = fields.Many2one('account.tax', string='税', domain=['|', ('active', '=', False), ('active', '=', True)])
-    # validity_date = fields.Date(string='有效期至')
+    discount = fields.Float('折扣金额')
     sale_company = fields.Many2one('acc.company',string = '卖方公司')
     po_number = fields.Char(string='关联的采购单',readonly=True,copy=False)
     before_purchase_id = fields.Many2one('before.purchase',string='待确认生成询价单',copy=False)
@@ -127,6 +128,24 @@ class AccSaleOrder(models.Model):
             # if department_name in ['销售一部','销售二部','销售三部']:
             uids = self.make_sale_uid(department_ids,user_id)
             return uids
+
+    @api.depends('order_line.price_total')
+    def _amount_all(self):
+        res = super(AccSaleOrder, self)._amount_all()
+        self.amount_total = self.amount_untaxed + self.amount_tax - self.discount
+        return res
+
+    @api.multi
+    def write(self, vals):
+        # if self.purchase_type == 'office':
+        #     self.check_office_price(vals)
+        if vals.get('discount'):
+            amount = self.amount_untaxed + self.amount_tax - vals.get('discount', 0) 
+            vals.update({
+                    "amount_total": amount
+                }) 
+        res = super(AccSaleOrder, self).write(vals)
+        return res
 
 
     @api.multi
@@ -498,11 +517,15 @@ class AccQuotation(models.Model):
         if not vals.get('name',''):
             last_name = self.env['ir.sequence'].get('acc.quotation') or ''
             vals['name'] = "%s"%(last_name)
+        #     amount = vals.get('amount_total',0) - vals.get('discount',0)
+        # vals.update({
+        #         "amount_total": amount
+        #     })
         result = super(AccQuotation,self).create(vals)
         return result
 
 
-    @api.depends('accquotation_line.price_subtotal')
+    @api.depends('accquotation_line.price_subtotal','discount')
     def _amount_all(self):
         for order in self:
             if order.tax_id:
@@ -512,13 +535,14 @@ class AccQuotation(models.Model):
             amount_total = 0.0
             amount_untaxed = 0.0
             amount_tax = 0.0
+            discount = self.discount
             for line in order.accquotation_line:
                 amount_untaxed += line.price_subtotal
                 amount_tax += line.price_subtotal * tax_rate
             order.update({
                 'amount_untaxed':amount_untaxed,
                 'amount_tax':amount_tax,
-                'amount_total': amount_untaxed + amount_tax,
+                'amount_total': amount_untaxed + amount_tax - discount,
             })
 
 
@@ -548,7 +572,7 @@ class AccQuotation(models.Model):
     # is_pay = fields.Boolean(string='是否收款',readonly=True)
     discount = fields.Float(string='折扣',default=0.00)
     ship_fee = fields.Float(string='运费',default=0.00)
-    state = fields.Selection([('draft', '草稿'),('sent', '已发送'),('done', '完成'),('cancel', '取消')], '状态', default='draft')
+    state = fields.Selection([('draft', '草稿'),('sent', '已发送'),('done', '完成'),('cancel', '取消')], '状态', default='draft',track_visibility='always')
     transaction_mode = fields.Many2one('transaction.rule',string='交易方式')
     transaction_rule = fields.Char(string='交易条款')
     # validity_date = fields.Date(string='有效期至')
@@ -592,7 +616,7 @@ class AccQuotation(models.Model):
             'transaction_rule':self.transaction_rule,
             'sale_company':self.sale_company.id,
             'tax_id':self.tax_id.id,
-            # 'quo_amount_tax':self.amount_tax,
+            'discount':self.discount,
             # 'quo_amount_untaxed':self.amount_untaxed,
             # 'quo_amount_total':self.amount_total,
             'quotation_line':res_line

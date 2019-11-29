@@ -293,7 +293,6 @@ class CFTemplateCategory(models.Model):
         # if self.purchase_type == 'office':
         #     self.check_office_price(vals)
         if vals.get('minus_amount'):
-        # if self.discount_type != 'nodiscount':
             amount = self.amount_untaxed + self.amount_tax - vals.get('minus_amount', 0)
             vals.update({
                     "amount_total": amount
