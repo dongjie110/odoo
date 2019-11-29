@@ -324,6 +324,21 @@
             </field>
         </record>
 
+        <!-- 产品product.product -->
+        <record id="acc_product_product_action_all" model="ir.actions.act_window">
+            <field name="name">acc Products</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.product</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="context">{}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new product
+                </p>
+            </field>
+        </record>
+
         <!-- <menuitem id="menu_purchase_acc_product_template2" name="产品test" parent="purchase.menu_procurement_management" action="vmc_product_template_action" groups="purchase.group_purchase_user" sequence="100"/> -->
     </data>
 </odoo>
