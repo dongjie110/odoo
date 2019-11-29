@@ -16,5 +16,9 @@
 
         <menuitem id="acct_message_base_menu" name="短信记录" parent="acct_baseconfig" sequence="100"/>
         <menuitem id="acct_message" name="短信记录" parent="acct_message_base_menu" sequence="1" action="action_acc_message_interface"/>
+        <!-- 产品模块 -->
+        <menuitem id="acct_product" name="产品管理" groups="acc_product_level1_group"/>
+        <menuitem id="acct_product_base_menu" name="产品管理" parent="acct_product" sequence="10"/>
+        <menuitem id="menu_product_acct_product_templates" name="产品" parent="acct_product_base_menu" action="vmc_product_template_action" groups="base.group_user" sequence="10"/>
     </data>
 </openerp>

@@ -41,17 +41,38 @@
         </record>
         <!-- 产品模板list视图增加型号字段 -->
         <record model="ir.ui.view" id="product_template_acc_tree_view">
-        <field name="name">product.template.acc.tree</field>
-        <field name="model">product.template</field>
-        <field name="inherit_id" ref="product.product_template_tree_view"/>
-        <field name="arch" type="xml">
-            <field name="name" position="after">
-                <field name="internal_des"/>
-                <field name="partner_code"/>
-                <field name="product_model"/>
+            <field name="name">product.template.acc.tree</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="internal_des"/>
+                    <field name="partner_code"/>
+                    <field name="product_model"/>
+                </field>
             </field>
-        </field>
         </record>
+
+        <!-- 产品模板kanban视图继承 -->
+        <!-- <record model="ir.ui.view" id="acc_product_template_kanban_view_extened">
+            <field name="name">acc.product.template.kanban.view.extened</field>
+            <field name="inherit_id" ref="product.product_template_kanban_view"/>
+            <field name="model">product.template</field>
+            <field name="arch" type="xml">
+                <xpath expr="//kanban/field[@name='lst_price']" position="after">
+                    <field name="acc_code"/>
+                    <field name="brand"/>
+                    <field name="product_model"/>
+                </xpath>
+                <xpath expr="//field[@name='product_variant_count']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_variant_ids']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record> -->
+
         <!-- 产品模板增加供应商筛选功能 -->
         <!-- <record id="partner_product_template_search_view" model="ir.ui.view">
             <field name="name">partner.product.template.search</field>
@@ -258,5 +279,51 @@
         </record>
 
         <menuitem id="menu_purchase_acc_product_template" name="产品" parent="purchase.menu_procurement_management" action="product_acc_action_puchased" groups="purchase.group_purchase_user" sequence="100"/>
+
+        <!-- 产品模块tree视图 -->
+        <record id="vmc_product_template_tree_view" model="ir.ui.view">
+            <field name="name">product.template.product.tree</field>
+            <field name="model">product.template</field>
+            <field name="priority" eval="20" />
+            <field name="arch" type="xml">
+                <tree string="Product">
+                    <!--<field name="sequence" widget="handle"/>-->
+                    <field name="name"/>
+                    <field name="internal_des"/>
+                    <field name="partner_code"/>
+                    <field name="product_model"/>
+                    <field name="categ_id"/>
+                    <field name="type"/>
+                    <field name="qty_available"/>
+                    <field name="uom_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="vmc_product_template_action" model="ir.actions.act_window">
+            <field name="name">产品</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">product.template</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_type">form</field>
+            <field name="view_id" eval="False"/>
+            <field name="view_ids" eval="[(5, 0, 0),
+                    (0, 0, {'view_mode': 'tree', 'view_id': ref('vmc_product_template_tree_view')})
+                    ]"/>
+            <!--<field name="context">{"search_default_filter_to_sell":1}</field>-->
+            <field name="search_view_id" ref="acc_product_template_search_view"/>
+            <!-- <field name="context">{'import_product_add':1}</field> -->
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                Create a new product
+                  </p>
+                <p>
+                    You must define a product for everything you purchase,
+                    whether it's a physical product, a consumable or services.
+                </p>
+            </field>
+        </record>
+
+        <!-- <menuitem id="menu_purchase_acc_product_template2" name="产品test" parent="purchase.menu_procurement_management" action="vmc_product_template_action" groups="purchase.group_purchase_user" sequence="100"/> -->
     </data>
 </odoo>

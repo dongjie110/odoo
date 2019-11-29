@@ -30,6 +30,7 @@
         'views/acc_product_view.xml',
         'views/res_groups.xml',
         'views/info_read_group.xml',
+        'views/info_read_group_add.xml',
         'views/acc_contact_view.xml',
         'views/message_interface_view.xml',
         'views/ir_sequence.xml',
