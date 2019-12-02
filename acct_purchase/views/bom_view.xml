@@ -115,10 +115,10 @@
             </field>
         </record>
 
-        <menuitem id="menu_acc_bom_management" name="物料清单信息"
+        <!-- <menuitem id="menu_acc_bom_management" name="物料清单信息"
             parent="purchase.menu_purchase_root" sequence="3" />
 
-        <menuitem id="menu_acct_all_bom" name="物料清单" parent="menu_acc_bom_management" action="acct_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="5"/>
+        <menuitem id="menu_acct_all_bom" name="物料清单" parent="menu_acc_bom_management" action="acct_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="5"/> -->
         <!-- <menuitem id="menu_acct_standard_bom" name="标准物料清单" parent="menu_acc_bom_management" action="acct_standard_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="1"/>
         <menuitem id="menu_acct_base_bom" name="基础物料清单" parent="menu_acc_bom_management" action="acct_base_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="2"/>
         <menuitem id="menu_acct_change_bom" name="可变物料清单" parent="menu_acc_bom_management" action="acct_change_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="3"/> -->

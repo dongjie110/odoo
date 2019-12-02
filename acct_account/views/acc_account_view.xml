@@ -80,5 +80,19 @@
                 </xpath> -->                      
             </field>
         </record>
+
+        <!-- account.invoice tree视图 -->
+        <!-- <record model="ir.ui.view" id="account_invoice_acc_tree_view">
+            <field name="name">account.invoice.acc.tree</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="product.product_template_tree_view"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="internal_des"/>
+                    <field name="partner_code"/>
+                    <field name="product_model"/>
+                </field>
+            </field>
+        </record> -->
     </data>
 </openerp>

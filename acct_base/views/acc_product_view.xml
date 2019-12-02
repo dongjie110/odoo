@@ -237,9 +237,9 @@
                 </p>
             </field>
         </record>
-
-        <menuitem id="menu_product_template_stock" name="产品" action="acc_product_template_stock_action_product"
-        parent="stock.menu_stock_inventory_control" sequence="1"/>
+<!-- 库存产品菜单 -->
+        <!-- <menuitem id="menu_product_template_stock" name="产品" action="acc_product_template_stock_action_product"
+        parent="stock.menu_stock_inventory_control" sequence="1"/> -->
 
         <!-- 采购product.template搜索视图 -->
         <record id="acc_product_template_search_view" model="ir.ui.view">
@@ -277,8 +277,8 @@
               </p>
             </field>
         </record>
-
-        <menuitem id="menu_purchase_acc_product_template" name="产品" parent="purchase.menu_procurement_management" action="product_acc_action_puchased" groups="purchase.group_purchase_user" sequence="100"/>
+<!-- 采购产品菜单 -->
+        <!-- <menuitem id="menu_purchase_acc_product_template" name="产品" parent="purchase.menu_procurement_management" action="product_acc_action_puchased" groups="purchase.group_purchase_user" sequence="100"/> -->
 
         <!-- 产品模块tree视图 -->
         <record id="vmc_product_template_tree_view" model="ir.ui.view">

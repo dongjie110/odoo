@@ -17,9 +17,12 @@
         <menuitem id="acct_message_base_menu" name="短信记录" parent="acct_baseconfig" sequence="100"/>
         <menuitem id="acct_message" name="短信记录" parent="acct_message_base_menu" sequence="1" action="action_acc_message_interface"/>
         <!-- 产品模块 -->
-        <menuitem id="acct_product" name="产品管理" groups="acc_product_level1_group"/>
-        <menuitem id="acct_product_base_menu" name="产品管理" parent="acct_product" sequence="10"/>
-        <menuitem id="menu_product_acct_product_templates" name="产品" parent="acct_product_base_menu" action="vmc_product_template_action" groups="base.group_user" sequence="10"/>
+        <menuitem id="acct_product" name="产品管理"/>
+        <menuitem id="acct_product_base_menu" name="产品管理" parent="acct_product" sequence="10" groups="acc_product_level1_group"/>
+        <menuitem id="menu_product_acct_product_templates_normal" name="产品查询" parent="acct_product_base_menu" action="product_acc_action_puchased" groups="acc_product_level1_group" sequence="5"/>
+
+        
+        <menuitem id="menu_product_acct_product_templates" name="产品创建" parent="acct_product_base_menu" action="vmc_product_template_action" groups="acc_product_manage_group" sequence="10"/>
 
         <!-- <menuitem id="menu_product_acct_product_products" name="产品va" parent="acct_product_base_menu" action="acc_product_product_action_all" groups="acc_it_manager_group" sequence="20"/> -->
     </data>
