@@ -81,6 +81,7 @@ class AccSaleOrder(models.Model):
     send_status = fields.Selection([('no', '未发货'), ('yes', '已发货'), ('part', '部分发货')], '发货情况')
     transaction_mode = fields.Many2one('transaction.rule',string='交易方式')
     transaction_rule = fields.Char(string='交易条款')
+    delivery_address = fields.Many2one('delivery.address',string='采购交货地址')
     tax_id = fields.Many2one('account.tax', string='税', domain=['|', ('active', '=', False), ('active', '=', True)])
     discount = fields.Float('折扣金额')
     sale_company = fields.Many2one('acc.company',string = '卖方公司')
@@ -284,7 +285,7 @@ class AccSaleOrder(models.Model):
                 vals = {
                     'sale_order_id':self.id,
                     'purchase_company':self.sale_company.id,
-                    # 'delivery_address':self.delivery_address.id,
+                    'delivery_address':self.delivery_address.id,
                     'order_line':new_res_line
                 }
                 bp_obj = self.env['before.purchase'].create(vals)
@@ -380,6 +381,7 @@ class AccSaleOrder(models.Model):
         vals = {
             'sale_order_id':self.id,
             'charge_person':self.purchase_charge_person.id,
+            'delivery_address':self.delivery_address.id,
             'purchase_company':self.sale_company.id,
             'order_line':res_line
         }

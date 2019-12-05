@@ -1,11 +1,11 @@
 #coding=utf-8
 from odoo import models,fields,api
-import datetime
+import datetime,time
 import xlwt
 from datetime import datetime,timedelta
 # import pandas as pd
 import sys,os
-file_url = 'my_addons/acct_purchase'
+file_url = 'my_addons/acct_sale'
 from odoo.http import request
 file_url = os.path.join(sys.path[0],file_url)
 import logging
@@ -42,13 +42,12 @@ def zip_dir(dirname, zipfilename):
         zf.write(tar, arcname)
     zf.close()
 
-class ExportPurchaseWizard(models.TransientModel):
-    _name = "export.purchase.wizard"
+class ExportSaleWizard(models.TransientModel):
+    _name = "export.sale.wizard"
 
-    date_start = fields.Datetime(string='起始日期',default=lambda self:fields.Datetime.now())
-    date_end = fields.Datetime(string='结束日期')
-    product_state = fields.Selection([('new', '未到货'), ('part', '部分到货'), ('all', '全部到货'), ('cancel', '取消订单')], '产品到货状态')
-    payment_state = fields.Selection([('partpay', '部分已付'), ('nopay', '未付'), ('allpay', '全部付清')], '付款状态')
+    # date_start = fields.Datetime(string='起始日期',default=lambda self:fields.Datetime.now())
+    # date_end = fields.Datetime(string='结束日期')
+    charge_person = fields.Many2one('res.users',string=u'负责人',required=True)
 
 
 
@@ -56,7 +55,7 @@ class ExportPurchaseWizard(models.TransientModel):
         wbk = xlwt.Workbook(encoding='utf-8', style_compression=0)
         # wbk.write(codecs.BOM_UTF8)
         style1 = xlwt.easyxf('font: bold True;''alignment: horz center,vert center')
-        sheet = wbk.add_sheet('支付方式表', cell_overwrite_ok=True)
+        sheet = wbk.add_sheet('应收款账单', cell_overwrite_ok=True)
         # sheet.write(codecs.BOM_UTF8) 
 
         sheet.write(0, 0, 'some text')
@@ -73,7 +72,7 @@ class ExportPurchaseWizard(models.TransientModel):
 
     def export_record(self,file_name):
         """
-        导出采购单信息
+        导出应收款账单信息
         :return:
         """
         return {
@@ -81,153 +80,33 @@ class ExportPurchaseWizard(models.TransientModel):
             'url': '/download/work/files_export?file=%s' % (file_name),
             'target': 'self'
         }
-    def export_purchase_record(self):
+    def export_sale_record(self):
 
-        product_state = self.product_state
-        payment_state = self.payment_state
-        date_start = self.date_start
+        charge_person = self.charge_person.id
+        user_name = self.charge_person.partner_id.name
         cr = self.env.cr
-        if not product_state and not payment_state:
-            all_total = """ SELECT
-                                po.create_date::timestamp + '8 hour' AS create_date,
-                                ru.login AS apply_person,
-                                po. NAME AS apply_code,
-                                po.title AS project_name,
-                                pt.brand AS brand,
-                                pt. NAME AS product_name,
-                                pt.product_model AS product_model,
-                                pol.product_qty AS qty,
-                                rp. NAME AS supplier,
-                                pol.price_unit AS price,
-                                pol.price_subtotal AS amount,
-                                po.forcast_date AS forcast_date,
-                                po.forcast_date AS actual_date,
-                                CASE po.product_state
-                                  WHEN 'new' THEN '未到货'
-                                    WHEN 'part' THEN '部分到货'
-                                    WHEN 'all'  THEN '全部到货'
-                                    ELSE '取消订单' END AS product_state,
-                                CASE po.payment_state
-                                  WHEN 'partpay' THEN '部分已付'
-                                    WHEN 'nopay' THEN '未付'
-                                    ELSE '全部付清' END AS payment_state
+        # if not product_state and not payment_state:
+        invoice_sql = """  SELECT
+                                A .date_invoice,
+                                A ."type",
+                                a.acct_note,
+                                d. NAME AS sname,
+                                d.partner_ponumber,
+                                b. NAME AS rname,
+                                e."name" as cname,
+                                e.symbol as symbol,
+                                A .amount_total,
+                                A .residual
                             FROM
-                                purchase_order_line pol
-                            LEFT JOIN purchase_order po ON po. ID = pol.order_id
-                            LEFT JOIN product_product pp ON pp. ID = pol.product_id
-                            LEFT JOIN res_partner rp ON rp. ID = po.partner_id
-                            LEFT JOIN product_template pt ON pt. ID = pp.product_tmpl_id
-                            LEFT JOIN res_users ru on ru.id = po.charge_person
+                                account_invoice A
+                            INNER JOIN res_partner b ON b. ID = A .partner_id
+                            INNER JOIN sale_order d ON d."name" = A .origin
+                            INNER JOIN res_currency e ON e.id = a.currency_id
                             WHERE
-                                po.create_date >= '%s'
-                            AND po.create_date <= '%s' """%(self.date_start,self.date_end)
-        if not product_state and payment_state:
-            all_total = """ SELECT
-                                po.create_date::timestamp + '8 hour' AS create_date,
-                                ru.login AS apply_person,
-                                po. NAME AS apply_code,
-                                po.title AS project_name,
-                                pt.brand AS brand,
-                                pt. NAME AS product_name,
-                                pt.product_model AS product_model,
-                                pol.product_qty AS qty,
-                                rp. NAME AS supplier,
-                                pol.price_unit AS price,
-                                pol.price_subtotal AS amount,
-                                po.forcast_date AS forcast_date,
-                                po.forcast_date AS actual_date,
-                                CASE po.product_state
-                                  WHEN 'new' THEN '未到货'
-                                    WHEN 'part' THEN '部分到货'
-                                    WHEN 'all'  THEN '全部到货'
-                                    ELSE '取消订单' END AS product_state,
-                                CASE po.payment_state
-                                  WHEN 'partpay' THEN '部分已付'
-                                    WHEN 'nopay' THEN '未付'
-                                    ELSE '全部付清' END AS payment_state
-                            FROM
-                                purchase_order_line pol
-                            LEFT JOIN purchase_order po ON po. ID = pol.order_id
-                            LEFT JOIN product_product pp ON pp. ID = pol.product_id
-                            LEFT JOIN res_partner rp ON rp. ID = po.partner_id
-                            LEFT JOIN product_template pt ON pt. ID = pp.product_tmpl_id
-                            LEFT JOIN res_users ru on ru.id = po.charge_person
-                            WHERE
-                                po.create_date >= '%s'
-                            AND po.create_date <= '%s'
-                            AND PO.payment_state = '%s' """%(self.date_start,self.date_end,payment_state)
-        if product_state and not payment_state:
-            all_total = """ SELECT
-                                po.create_date::timestamp + '8 hour' AS create_date,
-                                ru.login AS apply_person,
-                                po. NAME AS apply_code,
-                                po.title AS project_name,
-                                pt.brand AS brand,
-                                pt. NAME AS product_name,
-                                pt.product_model AS product_model,
-                                pol.product_qty AS qty,
-                                rp. NAME AS supplier,
-                                pol.price_unit AS price,
-                                pol.price_subtotal AS amount,
-                                po.forcast_date AS forcast_date,
-                                po.forcast_date AS actual_date,
-                                CASE po.product_state
-                                  WHEN 'new' THEN '未到货'
-                                    WHEN 'part' THEN '部分到货'
-                                    WHEN 'all'  THEN '全部到货'
-                                    ELSE '取消订单' END AS product_state,
-                                CASE po.payment_state
-                                  WHEN 'partpay' THEN '部分已付'
-                                    WHEN 'nopay' THEN '未付'
-                                    ELSE '全部付清' END AS payment_state
-                            FROM
-                                purchase_order_line pol
-                            LEFT JOIN purchase_order po ON po. ID = pol.order_id
-                            LEFT JOIN product_product pp ON pp. ID = pol.product_id
-                            LEFT JOIN res_partner rp ON rp. ID = po.partner_id
-                            LEFT JOIN product_template pt ON pt. ID = pp.product_tmpl_id
-                            LEFT JOIN res_users ru on ru.id = po.charge_person
-                            WHERE
-                                po.create_date >= '%s'
-                            AND po.create_date <= '%s'
-                            AND PO.product_state = '%s' """%(self.date_start,self.date_end,product_state)
-        if product_state and payment_state:
-            all_total = """ SELECT
-                                po.create_date::timestamp + '8 hour' AS create_date,
-                                ru.login AS apply_person,
-                                po. NAME AS apply_code,
-                                po.title AS project_name,
-                                pt.brand AS brand,
-                                pt. NAME AS product_name,
-                                pt.product_model AS product_model,
-                                pol.product_qty AS qty,
-                                rp. NAME AS supplier,
-                                pol.price_unit AS price,
-                                pol.price_subtotal AS amount,
-                                po.forcast_date AS forcast_date,
-                                po.forcast_date AS actual_date,
-                                CASE po.product_state
-                                  WHEN 'new' THEN '未到货'
-                                    WHEN 'part' THEN '部分到货'
-                                    WHEN 'all'  THEN '全部到货'
-                                    ELSE '取消订单' END AS product_state,
-                                CASE po.payment_state
-                                  WHEN 'partpay' THEN '部分已付'
-                                    WHEN 'nopay' THEN '未付'
-                                    ELSE '全部付清' END AS payment_state
-                            FROM
-                                purchase_order_line pol
-                            LEFT JOIN purchase_order po ON po. ID = pol.order_id
-                            LEFT JOIN product_product pp ON pp. ID = pol.product_id
-                            LEFT JOIN res_partner rp ON rp. ID = po.partner_id
-                            LEFT JOIN product_template pt ON pt. ID = pp.product_tmpl_id
-                            LEFT JOIN res_users ru on ru.id = po.charge_person
-                            WHERE
-                                po.create_date >= '%s'
-                            AND po.create_date <= '%s'
-                            AND PO.product_state = '%s'
-                            AND PO.payment_state = '%s' """%(self.date_start,self.date_end,product_state,payment_state)
-        cr.execute(all_total)
+                                A ."type" = 'out_invoice'
+                            and a."state" = 'open'
+                            and a.user_id = %s """%(charge_person)
+        cr.execute(invoice_sql)
         result = cr.dictfetchall()
         detail_list_all=[]
 
@@ -239,41 +118,31 @@ class ExportPurchaseWizard(models.TransientModel):
             i += 1
             # print ((line.get('create_date').strftime("%Y-%m-%d %H:%M:%S"))[0:11])
             detail_list_first.append(i)
-            detail_list_first.append((line.get('create_date').strftime("%Y-%m-%d %H:%M:%S"))[0:11])
-            detail_list_first.append(line.get('apply_person'))
-            detail_list_first.append(line.get('apply_code'))
-            detail_list_first.append(line.get('project_name'))
-            detail_list_first.append(line.get('brand'))
-            detail_list_first.append(line.get('product_name'))
-            detail_list_first.append(line.get('product_model'))
-            detail_list_first.append(line.get('qty'))
-            detail_list_first.append(line.get('supplier'))
-            detail_list_first.append(line.get('price'))
-            detail_list_first.append(line.get('amount'))
-            if line.get('forcast_date'):
-                detail_list_first.append(line.get('forcast_date').strftime("%Y-%m-%d"))
-            else:
-                detail_list_first.append(line.get('forcast_date'))
-            if line.get('actual_date'):
-                detail_list_first.append(line.get('actual_date').strftime("%Y-%m-%d"))
-            else:
-                detail_list_first.append(line.get('actual_date'))
-            detail_list_first.append(line.get('product_state'))
-            detail_list_first.append(line.get('payment_state'))
-
-
+            detail_list_first.append((line.get('date_invoice').strftime("%Y-%m-%d")))
+            # detail_list_first.append(line.get('date_invoice'))
+            detail_list_first.append(user_name)
+            detail_list_first.append(line.get('sname'))
+            detail_list_first.append(line.get('partner_ponumber'))
+            detail_list_first.append(line.get('rname'))
+            detail_list_first.append(line.get('symbol')+str(line.get('amount_total')))
+            detail_list_first.append(line.get('symbol')+str(line.get('residual')))
+            detail_list_first.append(line.get('cname'))
+            # detail_list_first.append(line.get('symbol'))
+            detail_list_first.append(line.get('acct_note'))
             detail_list_all.append(detail_list_first)
 
         dir_path = os.path.join(file_url, 'Administrator')
-        filename = "{}.xls".format('orderout')
+        today = time.strftime("%Y-%m-%d")
+        file_name_str = user_name + '-' + '应收款账单' + today
+        filename = "{}.xls".format(file_name_str)
         file_path = os.path.join(dir_path, filename)
         check_path(file_path)
         # encode('utf-8')
 
-        head = ['序号', '申请日期', '申请人','申请编号','项目','品牌','申请名称','申请型号','数量','供应商','单价','总金额','预计到货时间','实际到货时间','是否到货','是否付款']
+        head = ['序号','日期', '负责人', '合同号', '客户订单号','客户名称','总计','到期金额','币种','备注']
         self.save_exel(head, detail_list_all, file_path)
-        return self.export_record(file_path)
 
+        return self.export_record(file_path)
 
 
 

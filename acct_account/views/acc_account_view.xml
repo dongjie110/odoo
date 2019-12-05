@@ -63,6 +63,7 @@
                     <field name="invoice_company"/>
                     <field name="sale_invoice_number"/>
                     <field name="sale_invoice_date"/>
+                    <field name="acct_note"/>
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
                     <attribute name="statusbar_visible">draft,teller,open,paid</attribute>

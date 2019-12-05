@@ -61,7 +61,8 @@
                 </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="after">
                     <field name="is_makepo"/>
-                    <field name="purchase_charge_person"/>          
+                    <field name="purchase_charge_person"/>
+                    <field name="delivery_address"/>         
                     <field name="is_invoice"/>
                     <field name="is_purchasing"/>
                     <field name="purchase_date"/>
@@ -112,9 +113,9 @@
                     <field name="discount"/>
                 </xpath>
                 <xpath expr="/form/sheet/notebook/page[@name='order_lines']" position="after">
-                    <page string="英文合同相关信息" name="acc_information">
+                    <page string="合同相关信息" name="acc_information">
                             <group>
-                                <group string="英文合同相关信息" name="acc_information">
+                                <group string="合同相关信息" name="acc_information">
                                     <field name="origin_country"/>
                                     <field name="port_shipment"/>
                                     <field name="destination_port"/>

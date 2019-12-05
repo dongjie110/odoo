@@ -132,13 +132,13 @@ class AccStockInventory(models.Model):
 
     process_state = fields.Selection([('accept', '已审批'), ('noaccept', '未审批')], default='noaccept',string='审批状态',readonly=True)
 
-    @api.multi
-    def action_validate(self):
-        res = super(AccStockInventory,self).action_validate()
-        process_state = self.process_state
-        if process_state == 'noaccept':
-            raise ValidationError("需由领导审批后才可进行验证库存操作")
-        return res
+    # @api.multi
+    # def action_validate(self):
+    #     res = super(AccStockInventory,self).action_validate()
+    #     process_state = self.process_state
+    #     if process_state == 'noaccept':
+    #         raise ValidationError("需由领导审批后才可进行验证库存操作")
+    #     return res
 
     @api.multi
     def draft_accept(self):

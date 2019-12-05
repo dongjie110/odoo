@@ -1,17 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <menuitem id="acct_baseconfig" name="基础配置"/>
-
-
-        <menuitem id="acct_vendor_customer_import_menu" name="供应商客户数据" parent="acct_baseconfig" sequence="10"/>
-        <menuitem id="acct_vendor_data" name="供应商" parent="acct_vendor_customer_import_menu" sequence="1" action="base.action_partner_supplier_form"/>
-        <menuitem id="acct_customer_data" name="客户" parent="acct_vendor_customer_import_menu" sequence="1" action="base.action_partner_customer_form"/>
-        <menuitem id="acct_data_import_menu" name="基础数据导入" parent="acct_baseconfig" sequence="20"/>
-        <menuitem id="import_partner_data" name="供应商数据导入" parent="acct_data_import_menu" sequence="1" action="import_partner_data_wizard"/>
-        <menuitem id="import_contact_data" name="联系人数据导入" parent="acct_data_import_menu" sequence="1" action="import_contact_data_wizard"/>
-        <menuitem id="import_product_data" name="产品数据导入" parent="acct_data_import_menu" sequence="1" action="import_product_data_wizard"/>
-        <menuitem id="import_purchase_data" name="采购单表头数据导入" parent="acct_data_import_menu" sequence="10" action="import_purchase_data_wizard"/>
-        <menuitem id="import_purchase_line_data" name="采购单明细数据导入" parent="acct_data_import_menu" sequence="15" action="import_purchase_line_data_wizard"/>
+        <!-- <menuitem id="menu_export_account_invoice_data_root" name="导出数据" parent="account.menu_account_customer" sequence="50"/> -->
+        <menuitem id="menu_export_account_invoice_form_action" name="应收账单数据导出" parent="account.menu_account_customer" groups="account.group_account_user" action="acct_sale.export_sale_wizard" sequence="10"/>
     </data>
 </openerp>

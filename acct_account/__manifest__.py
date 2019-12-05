@@ -21,7 +21,7 @@
     'version': '1.0.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','acct_base','acct_purchase','web','account'],
+    'depends': ['base','acct_base','acct_purchase','acct_sale','web','account'],
 
     # always loaded
     'data': [
@@ -30,6 +30,7 @@
         'views/acc_account_asset_view.xml',
         
         'report/purchase_invoice_report_views.xml',
+        'views/base_menu.xml',
         'views/report_menu.xml',
     ],
 }

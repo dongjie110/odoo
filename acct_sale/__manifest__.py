@@ -36,8 +36,13 @@
         'report/accen_contract_report_view.xml',
         'report/accall_quotation_report_view.xml',
         'report/accenall_quotation_report_view.xml',
+
+        'wizard/export_sale_invoice_view.xml',
+        'report/accenall_quotation_report_view.xml',
         'views/ir_sequence.xml',
 
+
+        'views/base_menu.xml',
         'views/report_menu.xml',
     ],
 }

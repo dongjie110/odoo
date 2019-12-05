@@ -30,6 +30,7 @@ class AccAccountInvoice(models.Model):
     payment_rule = fields.Char(string=u'支付条款',readonly=True)
     pay_rate = fields.Float(string='付款比例(%)',readonly=True)
     minus_amount = fields.Float('折扣总额',readonly=True)
+    acct_note = fields.Char('备注')
     payrecord_line = fields.One2many('payrecord.line', 'payrecord_id','Payrecord line')
     state = fields.Selection([
             ('draft','Draft'),
