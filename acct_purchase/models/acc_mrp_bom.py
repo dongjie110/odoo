@@ -410,6 +410,7 @@ class AccMrpEco(models.Model):
 
     is_use = fields.Selection([('on', '已应用'), ('off', '未应用')], '应用状态', default='off')
     before_purchase_id = fields.Many2one('before.purchase',string='关联待确认询价单',readonly=True)
+    change_reason = fields.Char(string='变更原因')
 
     @api.model
     def create(self,vals):

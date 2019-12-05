@@ -111,9 +111,24 @@
                 <xpath expr="//field[@name='user_id']" position="after">
                     <field name="is_use"/>
                     <field name="before_purchase_id"/>
+                    <field name="change_reason"/>
                 </xpath>
             </field>
         </record>
+
+        <!-- mrp.eco列表视图继承 -->
+        <!-- <record id="mrp_eco_acc_tree_view" model="ir.ui.view">
+            <field name="name">mrp.eco.acc.tree</field>
+            <field name="model">mrp.eco</field>
+            <field name="inherit_id" ref="mrp_plm.mrp_eco_view_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="is_use"/>
+                    <field name="before_purchase_id"/>
+                    <field name="change_reason"/>
+                </xpath>
+            </field>
+        </record> -->
 
         <!-- <menuitem id="menu_acc_bom_management" name="物料清单信息"
             parent="purchase.menu_purchase_root" sequence="3" />

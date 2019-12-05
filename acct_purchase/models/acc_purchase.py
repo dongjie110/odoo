@@ -185,41 +185,39 @@ class CFTemplateCategory(models.Model):
                 'discount_amount': discount_amount,
             })
 
-    @api.onchange('delivery_time')
-    def onchange_delivery_time(self):
-        if self.delivery_time:
-            delivery_time = self.delivery_time
-            length = len(str(delivery_time))
-            if length == 4:
-                delivery_num = int(delivery_time[2])
-                unit = delivery_time[3]
-                if unit == '周':
-                    days = delivery_num * 7
-                elif unit == '天':
-                    days = delivery_num
-                else:
-                    raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
-            elif length == 8:
-                delivery_num = int(delivery_time[2])
-                unit = delivery_time[3:]
-                if unit == 'weeks':
-                    days = delivery_num * 7
-                else:
-                    raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
-            elif length == 7:
-                delivery_num = int(delivery_time[2])
-                unit = delivery_time[3:]
-                if unit == 'days':
-                    days = delivery_num
-                else:
-                    raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
-            else:
-                raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
-            forcast_date = datetime.now().date()
-            date = forcast_date + dt.timedelta(days=days)
-            # current_time = str(datetime.utcnow() + timedelta(hours=8))[0:19]
-            # if self.internal_type == 'liquidity':
-            self.forcast_date = date
+    # @api.onchange('delivery_time')
+    # def onchange_delivery_time(self):
+    #     if self.delivery_time:
+    #         delivery_time = self.delivery_time
+    #         length = len(str(delivery_time))
+    #         if length == 4:
+    #             delivery_num = int(delivery_time[2])
+    #             unit = delivery_time[3]
+    #             if unit == '周':
+    #                 days = delivery_num * 7
+    #             elif unit == '天':
+    #                 days = delivery_num
+    #             else:
+    #                 raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
+    #         elif length == 8:
+    #             delivery_num = int(delivery_time[2])
+    #             unit = delivery_time[3:]
+    #             if unit == 'weeks':
+    #                 days = delivery_num * 7
+    #             else:
+    #                 raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
+    #         elif length == 7:
+    #             delivery_num = int(delivery_time[2])
+    #             unit = delivery_time[3:]
+    #             if unit == 'days':
+    #                 days = delivery_num
+    #             else:
+    #                 raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
+    #         else:
+    #             raise ValidationError("请填写格式正确的货期,如(1-2周,1-2weeks,1-2天，1-2days)")
+    #         forcast_date = datetime.now().date()
+    #         date = forcast_date + dt.timedelta(days=days)
+    #         self.forcast_date = date
 
     @api.onchange('charge_person')
     def onchange_en_name(self):
