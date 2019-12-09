@@ -15,6 +15,8 @@ import base64
 import logging
 import codecs
 
+_logger = logging.getLogger(__name__)
+
 
 def check_path(image_path):
     try:
@@ -46,8 +48,8 @@ class ExportSaleWizard(models.TransientModel):
     _name = "export.sale.wizard"
 
     # date_start = fields.Datetime(string='起始日期',default=lambda self:fields.Datetime.now())
-    # date_end = fields.Datetime(string='结束日期')
-    charge_person = fields.Many2one('res.users',string=u'负责人',required=True)
+    sale_company = fields.Many2one('acc.company',string='关联公司')
+    charge_person = fields.Many2one('res.users',string=u'负责人')
 
 
 
@@ -84,28 +86,100 @@ class ExportSaleWizard(models.TransientModel):
 
         charge_person = self.charge_person.id
         user_name = self.charge_person.partner_id.name
+        company_name = self.sale_company.name
+        today = time.strftime("%Y-%m-%d")
         cr = self.env.cr
-        # if not product_state and not payment_state:
-        invoice_sql = """  SELECT
-                                A .date_invoice,
-                                A ."type",
-                                a.acct_note,
-                                d. NAME AS sname,
-                                d.partner_ponumber,
-                                b. NAME AS rname,
-                                e."name" as cname,
-                                e.symbol as symbol,
-                                A .amount_total,
-                                A .residual
-                            FROM
-                                account_invoice A
-                            INNER JOIN res_partner b ON b. ID = A .partner_id
-                            INNER JOIN sale_order d ON d."name" = A .origin
-                            INNER JOIN res_currency e ON e.id = a.currency_id
-                            WHERE
-                                A ."type" = 'out_invoice'
-                            and a."state" = 'open'
-                            and a.user_id = %s """%(charge_person)
+        if self.charge_person and not self.sale_company:
+            file_name_str = user_name + '-' + '应收款账单' + today
+            invoice_sql = """  SELECT
+                                    A .date_invoice,
+                                    A ."type",
+                                    a.acct_note,
+                                    d. NAME AS sname,
+                                    d.partner_ponumber,
+                                    b. NAME AS rname,
+                                    e."name" as cname,
+                                    e.symbol as symbol,
+                                    A .amount_total,
+                                    A .residual
+                                FROM
+                                    account_invoice A
+                                INNER JOIN res_partner b ON b. ID = A .partner_id
+                                INNER JOIN sale_order d ON d."name" = A .origin
+                                INNER JOIN res_currency e ON e.id = a.currency_id
+                                WHERE
+                                    A ."type" = 'out_invoice'
+                                and a."state" = 'open'
+                                and a.user_id = %s """%(charge_person)
+
+        if self.sale_company and not self.charge_person:
+            file_name_str = company_name + '-' + '应收款账单' + today
+            invoice_sql = """  SELECT
+                                    A .date_invoice,
+                                    A ."type",
+                                    a.acct_note,
+                                    d. NAME AS sname,
+                                    d.partner_ponumber,
+                                    b. NAME AS rname,
+                                    e."name" as cname,
+                                    e.symbol as symbol,
+                                    A .amount_total,
+                                    A .residual,
+                                    a.user_id as auid
+                                FROM
+                                    account_invoice A
+                                INNER JOIN res_partner b ON b. ID = A .partner_id
+                                INNER JOIN sale_order d ON d."name" = A .origin and d.sale_company = %s
+                                INNER JOIN res_currency e ON e.id = a.currency_id
+                                WHERE
+                                    A ."type" = 'out_invoice'
+                                and a."state" = 'open' """%(self.sale_company.id)
+
+        if not self.sale_company and not self.charge_person:
+            file_name_str = '全部应收款账单' + today
+            invoice_sql = """  SELECT
+                                    A .date_invoice,
+                                    A ."type",
+                                    a.acct_note,
+                                    d. NAME AS sname,
+                                    d.partner_ponumber,
+                                    b. NAME AS rname,
+                                    e."name" as cname,
+                                    e.symbol as symbol,
+                                    A .amount_total,
+                                    A .residual,
+                                    a.user_id as auid
+                                FROM
+                                    account_invoice A
+                                INNER JOIN res_partner b ON b. ID = A .partner_id
+                                INNER JOIN sale_order d ON d."name" = A .origin
+                                INNER JOIN res_currency e ON e.id = a.currency_id
+                                WHERE
+                                    A ."type" = 'out_invoice'
+                                and a."state" = 'open' """
+
+        if self.sale_company and self.charge_person:
+            file_name_str = company_name + '-' + user_name + '-' + '应收款账单' + today
+            invoice_sql = """  SELECT
+                                    A .date_invoice,
+                                    A ."type",
+                                    a.acct_note,
+                                    d. NAME AS sname,
+                                    d.partner_ponumber,
+                                    b. NAME AS rname,
+                                    e."name" as cname,
+                                    e.symbol as symbol,
+                                    A .amount_total,
+                                    A .residual
+                                FROM
+                                    account_invoice A
+                                INNER JOIN res_partner b ON b. ID = A .partner_id
+                                INNER JOIN sale_order d ON d."name" = A .origin and d.sale_company = %s
+                                INNER JOIN res_currency e ON e.id = a.currency_id
+                                WHERE
+                                    A ."type" = 'out_invoice'
+                                and a."state" = 'open'
+                                and a.user_id = %s"""%(self.sale_company.id,charge_person)
         cr.execute(invoice_sql)
         result = cr.dictfetchall()
         detail_list_all=[]
@@ -120,7 +194,15 @@ class ExportSaleWizard(models.TransientModel):
             detail_list_first.append(i)
             detail_list_first.append((line.get('date_invoice').strftime("%Y-%m-%d")))
             # detail_list_first.append(line.get('date_invoice'))
-            detail_list_first.append(user_name)
+            # _logger.debug('=============%s=============', line.get('auid'))
+            if not user_name:
+                user_obj = self.env['res.users'].search([('id', '=', int(line.get('auid')))])
+                # _logger.debug('==========================%s', user_obj)
+                ruser_name = user_obj.partner_id.name
+                detail_list_first.append(ruser_name)
+            else:
+                detail_list_first.append(user_name)
+            # detail_list_first.append(user_name)
             detail_list_first.append(line.get('sname'))
             detail_list_first.append(line.get('partner_ponumber'))
             detail_list_first.append(line.get('rname'))
@@ -132,8 +214,6 @@ class ExportSaleWizard(models.TransientModel):
             detail_list_all.append(detail_list_first)
 
         dir_path = os.path.join(file_url, 'Administrator')
-        today = time.strftime("%Y-%m-%d")
-        file_name_str = user_name + '-' + '应收款账单' + today
         filename = "{}.xls".format(file_name_str)
         file_path = os.path.join(dir_path, filename)
         check_path(file_path)

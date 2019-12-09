@@ -75,7 +75,7 @@ class CFTemplateCategory(models.Model):
     discount_amount = fields.Monetary('折扣总额',store=True, readonly=True, compute='_amount_discount')
     contact_id = fields.Many2one('res.partner',string='联系人')
     en_name = fields.Char(string='负责人英文名')
-    purchase_type = fields.Selection([('trade', '贸易'), ('office', '办公用品'), ('manufacture', '生产'),('accessories', '辅料')],'采购类型',default='trade')
+    purchase_type = fields.Selection([('trade', '贸易'), ('office', '办公用品'), ('manufacture', '生产'),('accessories', '辅料'),('boss', '需管理部审核')],'采购类型',default='trade')
     merge_info = fields.Char(string='合并信息',readonly=True)
     origin_order = fields.Many2one('sale.order',string='关联销售订单',readonly=True)
     purchase_payrecord_line = fields.One2many('purchase.payrecord.line', 'purchase_payrecord_id','Payrecord line')
