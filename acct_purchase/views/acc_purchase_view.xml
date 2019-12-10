@@ -35,16 +35,16 @@
                 </xpath> -->
                 <xpath expr="//button[@name='action_view_invoice'][2]" position="after">
                     <!-- <button name="export_purchase_record" string="导出询价单信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/> -->
-                    <button name="export_purchase_record" string="导出询价单信息" type="object" class="oe_highlight" groups="base.group_user"/>
-                    <button name="%(purchase_separate_wizard)d" type="action" string="分批账单" class="oe_highlight" groups="purchase.group_purchase_user"/>
+                    <button name="export_purchase_record" string="导出询价单信息" type="object" class="oe_highlight" states="draft,confirm" groups="base.group_user"/>
+                    <button name="%(purchase_separate_wizard)d" type="action" states="purchase" string="分批账单" class="oe_highlight" groups="purchase.group_purchase_user"/>
                     <button name="update_newinfo" string="更新产品信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <button name="pomanager" string="采购经理审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_commerce_manager_group"/>
-                    <button name="button_draft" string="取消" type="object" states="confirm,pomanager" class="oe_highlight" groups="base.group_user"/>
                     <button name="boss_accept" string="管理部审批" type="object" states="pomanager" class="oe_highlight" groups="acct_base.acc_manage_info_group"/>
 
                     <button name="button_draft" string="拒绝" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_commerce_manager_group"/>
                     <button name="button_draft" string="拒绝" type="object" states="pomanager" class="oe_highlight" groups="acct_base.acc_manage_info_group"/>
+                    <button name="button_draft" string="取消" type="object" states="confirm,pomanager" class="oe_highlight" groups="base.group_user"/>
                     <button name="button_approve" string="确认订单" type="object" class="oe_highlight" attrs="{'invisible': [('state', 'not in', ['boss'])]}" groups="acct_base.acc_commerce_manager_group"/>   
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">

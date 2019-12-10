@@ -158,14 +158,23 @@ class CFTemplateCategory(models.Model):
 
     @api.multi
     def pomanager(self):
-        self.filtered(lambda r: r.state == 'confirm').write({'state': 'pomanager'})
-        # toaddrs = []
-        # toaddrs.append(self.manage_user.login)
-        toaddrs = ['al@neotel-technology.com','luna.zhang@acctronics.cn']
-        # toaddrs = ['jie.dong@acctronics.cn']
-        subjects = "采购单{}需要您审批,请及时处理".format(self.name)
-        message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>需要您审批,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
-        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        if self.purchase_type == 'boss':
+            self.filtered(lambda r: r.state == 'confirm').write({'state': 'pomanager'})
+            # toaddrs = []
+            # toaddrs.append(self.manage_user.login)
+            toaddrs = ['al@neotel-technology.com','luna.zhang@acctronics.cn']
+            # toaddrs = ['jie.dong@acctronics.cn']
+            subjects = "采购单{}需要您审批,请及时处理".format(self.name)
+            message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>需要您审批,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
+            self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        else:
+            self.write({'state': 'boss'})
+            toaddrs = ['yuanyuan.lu@neotel-technology.com']
+            toaddrs.append(self.charge_person.login)
+            # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
+            subjects = "采购单{}已审批完成,请及时确认".format(self.name)
+            message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>管理部审批完成,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
+            self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
         return True
 
     @api.depends('order_line.price_total','discount_type','discount_rate','minus_amount')

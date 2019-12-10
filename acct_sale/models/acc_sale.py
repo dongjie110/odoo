@@ -259,7 +259,7 @@ class AccSaleOrder(models.Model):
                 po_name = self.get_poname(p)
                 p_str = '物料名称:' + p['product_id'] + '  ' + '型号:' + p['product_model'] + '  ' + '品牌:' + p['brand'] + '  ' + '编码:' +  p['acc_code'] + ' ' + '移除数量:' + str(p['qty']) + '采购单号:' + po_name + '<br>'
                 remove_products.append(p_str)
-            toaddrs = []
+            toaddrs = ['yuanyuan.lu@neotel-technology.com','coco@neotel-technology.com']
             toaddrs.append(self.purchase_charge_person.login)
             # toaddrs = ['jie.dong@acctronics.cn']
             subjects = "源单据{}所申请物料清单有变动,请及时处理".format(self.name)
@@ -289,6 +289,11 @@ class AccSaleOrder(models.Model):
                     'order_line':new_res_line
                 }
                 bp_obj = self.env['before.purchase'].create(vals)
+                toaddrs = ['yuanyuan.lu@neotel-technology.com','coco@neotel-technology.com']
+                toaddrs.append(bp_obj.charge_person.login)
+                subjects = "待确认询价单{}".format(bp_obj.name)
+                message = "待确认询价单{}已生成,请及时处理".format(bp_obj.name)
+                self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
                 if mrp_ecos:
                     for ecoid in mrp_ecos:
                         eco_obj = self.env['mrp.eco'].browse(ecoid)
