@@ -10,6 +10,9 @@
                 <!-- <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-bars">
                                 <field name="active" widget="boolean_button" options="{&quot;terminology&quot;: &quot;archive&quot;}"/>
                             </button> -->
+                <xpath expr="//field[@name='product_tmpl_id']" position="attributes" >
+                    <attribute name="string">物料清单名称</attribute>
+                </xpath>
                 <xpath expr="//field[@name='code']" position="after">
                     <button name="%(import_bom_data_wizard)d" type="action" string="导入物料清单" class="oe_highlight" groups="acct_base.acc_manufacture_level_group"/>
                     <button name="export_bom_record" string="导出明细行" type="object" class="oe_highlight" groups="acct_base.acc_manufacture_level_group"/>
@@ -35,6 +38,9 @@
             <field name="model">mrp.bom</field>
             <field name="inherit_id" ref="mrp.mrp_bom_tree_view"/>
             <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_tmpl_id']" position="attributes" >
+                    <attribute name="string">物料清单名称</attribute>
+                </xpath>
                 <xpath expr="//field[@name='product_tmpl_id']" position="after">
                     <field name="version_date"/>  
                 </xpath>

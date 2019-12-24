@@ -50,7 +50,5 @@
             <field name="context">{}</field>
         </record>
 
-        <menuitem id="menu_delivery_address" name="收货地址" parent="menu_purchase_other_management" action="action_delivery_address" groups="purchase.group_purchase_user" sequence="50"/>
-
     </data>
 </openerp>

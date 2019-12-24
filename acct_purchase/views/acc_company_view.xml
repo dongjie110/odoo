@@ -54,7 +54,5 @@
             <field name="context">{}</field>
         </record>
 
-        <menuitem id="menu_acc_company" name="公司配置" parent="menu_purchase_other_management" action="action_acc_company" groups="purchase.group_purchase_user" sequence="60"/>
-
     </data>
 </openerp>

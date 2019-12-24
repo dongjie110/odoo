@@ -20,25 +20,30 @@
                 </xpath>
                 <xpath expr="//field[@name='reference']" position="after">
                     <field name="invoice_company"/>
-                    <field name="invoice_number"/>
+                    <!-- <field name="invoice_number"/> -->
                     <field name="payment_rule"/>
                     <field name="pay_rate"/>
                     <field name="minus_amount"/>
+                    <field name="invoice_acc_total"/>
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
                     <attribute name="statusbar_visible">draft,teller,open,paid</attribute>
                 </xpath>
-                <!-- <xpath expr="/form/sheet/notebook/page[@name='other_info']" position="after">
-                    <page string="付款记录">
+                <xpath expr="/form/sheet/notebook/page[@name='other_info']" position="after">
+                    <page string="发票记录">
                         <field name="payrecord_line">
-                            <tree string="付款记录" editable="bottom">
+                            <tree string="发票记录" editable="bottom">
+                                <field name="invoice_number"/>
                                 <field name="pay_amount"/>
                                 <field name="pay_datetime"/>                           
                                 <field name="pay_user"/>
                             </tree>
                         </field>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="invoice_acc_total" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator" />
+                        </group>
                     </page>
-                </xpath> -->                      
+                </xpath>                      
             </field>
         </record>
 <!-- sale invoice -->
@@ -61,24 +66,29 @@
                 </xpath>
                 <xpath expr="//field[@name='payment_term_id']" position="after">
                     <field name="invoice_company"/>
-                    <field name="sale_invoice_number"/>
+                    <!-- <field name="sale_invoice_number"/> -->
                     <field name="sale_invoice_date"/>
                     <field name="acct_note"/>
+                    <field name="invoice_acc_total"/>
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
                     <attribute name="statusbar_visible">draft,teller,open,paid</attribute>
                 </xpath>
-                <!-- <xpath expr="/form/sheet/notebook/page[@name='other_info']" position="after">
-                    <page string="付款记录">
+                <xpath expr="/form/sheet/notebook/page[@name='other_info']" position="after">
+                    <page string="发票记录">
                         <field name="payrecord_line">
-                            <tree string="付款记录" editable="bottom">
+                            <tree string="发票记录" editable="bottom">
+                                <field name="invoice_number"/>
                                 <field name="pay_amount"/>
                                 <field name="pay_datetime"/>                           
                                 <field name="pay_user"/>
                             </tree>
                         </field>
+                        <group class="oe_subtotal_footer oe_right">
+                            <field name="invoice_acc_total" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator" />
+                        </group>
                     </page>
-                </xpath> -->                      
+                </xpath>                      
             </field>
         </record>
 

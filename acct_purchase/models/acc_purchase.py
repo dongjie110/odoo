@@ -115,21 +115,35 @@ class CFTemplateCategory(models.Model):
         self.amount_total = self.amount_untaxed + self.amount_tax - self.discount_amount
         return res
 
+
+    @api.multi
+    def pre_userids(self,logins):
+        user_ids = []
+        for login in logins:
+            login_user = self.env['res.users'].search([('login', '=', login)])
+            user_ids.append(login_user.id)
+        return user_ids
+
     
     @api.multi
     def boss_accept(self):
         self.filtered(lambda r: r.state == 'pomanager').write({'state': 'boss'})
+        activity_addrs = ['yuanyuan.lu@neotel-technology.com','cissy.shen@neotel-technology.com']
         toaddrs = ['yuanyuan.lu@neotel-technology.com']
         toaddrs.append(self.charge_person.login)
         # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
         subjects = "采购单{}管理部已审批完成,请及时确认".format(self.name)
         message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>管理部审批完成,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
         self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        self.activity_unlink()
+        user_ids = self.pre_userids(activity_addrs)
+        self.send_mailactivity(user_ids)
         return True
 
     @api.multi
     def button_approve(self):
         res = super(CFTemplateCategory, self).button_approve()
+        self.activity_unlink()
         return res
 
     @api.multi
@@ -142,6 +156,9 @@ class CFTemplateCategory(models.Model):
         subjects = "采购单{}已被拒绝,请修改后重新提交".format(self.name)
         message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>已被拒绝,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
         self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        self.activity_unlink()
+        user_ids = self.pre_userids(toaddrs)
+        self.send_mailactivity(user_ids)
         return res
 
     @api.multi
@@ -154,6 +171,12 @@ class CFTemplateCategory(models.Model):
         subjects = "采购单{}需要您审批,请及时处理".format(self.name)
         message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>需要您审批,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
         self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        # self.activity_update()
+        # ms = '测试消息'
+        # self.send_notification(ms)
+        self.activity_unlink()
+        user_ids = self.pre_userids(toaddrs)
+        self.send_mailactivity(user_ids)
         return True
 
     @api.multi
@@ -162,19 +185,27 @@ class CFTemplateCategory(models.Model):
             self.filtered(lambda r: r.state == 'confirm').write({'state': 'pomanager'})
             # toaddrs = []
             # toaddrs.append(self.manage_user.login)
-            toaddrs = ['al@neotel-technology.com','luna.zhang@acctronics.cn']
+            # toaddrs = ['al@neotel-technology.com','luna.zhang@acctronics.cn']
+            toaddrs = ['al@neotel-technology.com']
             # toaddrs = ['jie.dong@acctronics.cn']
             subjects = "采购单{}需要您审批,请及时处理".format(self.name)
             message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>需要您审批,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
             self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+            self.activity_unlink()
+            user_ids = self.pre_userids(toaddrs)
+            self.send_mailactivity(user_ids)
         else:
             self.write({'state': 'boss'})
+            activity_addrs = ['yuanyuan.lu@neotel-technology.com','cissy.shen@neotel-technology.com']
             toaddrs = ['yuanyuan.lu@neotel-technology.com']
             toaddrs.append(self.charge_person.login)
             # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
             subjects = "采购单{}已审批完成,请及时确认".format(self.name)
             message = "采购单{}<br><br>标题：{}<br><br>供应商：{}<br><br>支付条款：{}<br><br>总价：{}<br><br><br>管理部审批完成,请及时处理<br><br><br>谢谢".format(self.name,self.title,self.partner_id.name,self.payment_rule,self.amount_total)
             self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+            self.activity_unlink()
+            user_ids = self.pre_userids(activity_addrs)
+            self.send_mailactivity(user_ids)
         return True
 
     @api.depends('order_line.price_total','discount_type','discount_rate','minus_amount')
@@ -242,6 +273,55 @@ class CFTemplateCategory(models.Model):
         if self.forcast_date:
             for line in self.order_line:
                 line.update({'forcast_date':self.forcast_date})
+
+
+    @api.multi
+    def _fresh_po_state(self):
+        # purchase_orders = self.env['purchase.order'].search([('state', '=', 'purchase'),('payment_state', '!=', 'allpay'),('product_state', '!=', 'all')])
+        purchase_orders = self.env['purchase.order'].search([('state', '=', 'purchase'),('date_order', '>', '2018-12-20 00:00:00')])
+        for order in purchase_orders:
+            invoices = order.mapped('invoice_ids')
+            if not invoices:
+                order.write({'payment_state':'nopay'})
+            else:
+                invoices_total = 0.0
+                for invoice in invoices:
+                    if invoice.state == 'paid':
+                        invoices_total += invoice.amount_total
+                if invoices_total == 0:
+                    order.write({'payment_state':'nopay'})
+                if invoices_total < order.amount_total:
+                    order.write({'payment_state':'partpay'})
+                if invoices_total == order.amount_total:
+                    order.write({'payment_state':'allpay'})
+            cr = self.env.cr
+            # location_ids = []
+            receive_qty_sql = """ SELECT
+                                SUM (product_qty) AS product_qty,
+                                sum (qty_received) as qty_received,
+                                sum (product_qty-qty_received) as compare
+                            FROM
+                                purchase_order_line
+                            WHERE
+                                order_id = %s"""%(order.id)
+            # now_qty = cr.execute(now_qty_sql, (location_id,p_id))
+            cr.execute(receive_qty_sql)
+            result = request.cr.dictfetchall()
+            if not result[0]['qty_received']:
+                order.write({'product_state':'new'})
+            if result[0]['qty_received'] and result[0]['compare'] > 0:
+                order.write({'product_state':'part'})
+            if result[0]['compare'] == 0:
+                order.write({'product_state':'all'})
+            # if result[0]['qty_received'] == 0 and result[0]['compare'] > 0:
+            #     order.write({'product_state':'new'})
+            # if result[0]['qty_received'] != 0 and not result[0]['compare']:
+            #     order.write({'product_state':'all'})
+            # if result[0]['qty_received'] != 0 and result[0]['compare'] > 0:
+            #     order.write({'product_state':'part'})
+            # onway_qty = line.onway_qty()
+            # line.write({'now_qty':now_qty,'purchase_qty':onway_qty})
+        return True
 
 
     # @api.onchange('charge_person')
@@ -587,6 +667,78 @@ class CFTemplateCategory(models.Model):
         cr.execute(sql)
         for p in self.order_line:
             p._compute_amount()
+
+    # def _get_responsible_for_approval(self):
+    #     if self.user_id:
+    #         return self.user_id
+    #     elif self.employee_id.parent_id.user_id:
+    #         return self.employee_id.parent_id.user_id
+    #     elif self.employee_id.department_id.manager_id.user_id:
+    #         return self.employee_id.department_id.manager_id.user_id
+    #     return self.env.user
+
+
+    # def activity_update(self):
+    #     self.activity_schedule(
+    #         'acct_purchase.mail_act_purchase_order_approve',
+    #         user_id=10)
+
+    def send_notification(self, message,activity):
+        # self.env['mail.message'].create({'message_type': "notification",
+        #                                  "subtype": self.env.ref("mail.mt_comment").id,
+        #                                  # "model":self._name,
+        #                                  # "res_id":self.id, 
+        #                                  'body': message,
+        #                                  'subject': "采购单通知",
+        #                                  'needaction_partner_ids': [(4,38650)],
+        #                                  # partner to whom you send notification
+        #                                  })
+        self.message_post(
+            subject='PO',
+            body=message,
+            partner_ids=activity.user_id.partner_id.ids
+        )
+
+    def send_mailactivity(self,user_ids):
+        date_deadline = fields.Date.context_today(self)
+        model_id = self.env['ir.model']._get(self._name).id
+        message = '采购审批通知'
+        for user_id in user_ids:
+            create_vals = {
+                'activity_type_id': 15,
+                'summary': '采购审批',
+                'automated': True,
+                'note': '<p>采购审批</p>',
+                'date_deadline': date_deadline,
+                'res_model_id': model_id,
+                'res_id': self.id,
+                'user_id':user_id,
+                'res_name':self.name,
+            }
+            activities = self.env['mail.activity'].create(create_vals)
+            self.send_notification(message,activities)
+        return True
+
+    def activity_unlink(self):
+        """ Unlink activities, limiting to some activity types and optionally
+        to a given user. """
+        # if self.env.context.get('mail_activity_automation_skip'):
+        #     return False
+
+        # Data = self.env['ir.model.data'].sudo()
+        # activity_types_ids = [Data.xmlid_to_res_id(xmlid) for xmlid in act_type_xmlids]
+        domain = [
+            '&', '&', '&',
+            ('res_model', '=', self._name),
+            ('res_id', '=', self.id),
+            ('automated', '=', True),
+            ('activity_type_id', '=', 15)
+            # ('user_id', '=', unlinkuser_id)
+        ]
+        # if user_id:
+        #     domain = ['&'] + domain + [('user_id', '=', user_id)]
+        self.env['mail.activity'].search(domain).unlink()
+        return True
 
 
 class AccPurchaseLine(models.Model):

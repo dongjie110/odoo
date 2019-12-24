@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <!-- <menuitem id="acct_baseconfig" name="基础配置"/>
+
+
+        <menuitem id="acct_vendor_customer_import_menu" name="供应商客户数据" parent="acct_baseconfig" sequence="10"/>
+        <menuitem id="acct_vendor_data" name="供应商" parent="acct_vendor_customer_import_menu" sequence="1" action="base.action_partner_supplier_form"/>
+        <menuitem id="acct_customer_data" name="客户" parent="acct_vendor_customer_import_menu" sequence="1" action="base.action_partner_customer_form"/> -->
+    </data>
+</openerp>

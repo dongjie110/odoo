@@ -35,13 +35,15 @@
         'views/acc_purchase_view.xml',
         'wizard/merge_purchase_view.xml',
         'wizard/merge_bom_view.xml',
-        'views/demand_purchase_view.xml',
         'views/delivery_address_view.xml',
         'views/acc_company_view.xml',
         'views/before_purchase_view.xml',
+        'views/demand_purchase_view.xml',
         'views/ir_sequence.xml',
 
         'wizard/export_purchase_view.xml',
+
+        'views/mail_data.xml',
 
         'views/acc_purchase_report_view.xml',
         'views/en_purchase_report_view.xml',

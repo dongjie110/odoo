@@ -53,24 +53,24 @@ class AccStockPicking(models.Model):
     title = fields.Char(string='项目号')
     # actual_location_id = fields.Many2one('stock.location',string='实际存放库位')
 
-    @api.multi
-    def button_validate(self):
-        res = super(AccStockPicking,self).button_validate()
-        po_name = self.origin
-        po_obj = self.env['purchase.order'].search([('name', '=', po_name)])
-        qty_received = []
-        product_qty = []
-        if po_obj:
-            for line in po_obj.order_line:
-                qty_received.append(line.qty_received)
-                product_qty.append(line.product_qty)
-            if sum(qty_received) == 0:
-                po_obj.write({'product_state':'new'})
-            elif sum(qty_received) < sum(product_qty) and sum(qty_received) != 0:
-                po_obj.write({'product_state':'part'})
-            else:
-                po_obj.write({'product_state':'all'})
-        return res
+    # @api.multi
+    # def button_validate(self):
+    #     res = super(AccStockPicking,self).button_validate()
+    #     po_name = self.origin
+    #     po_obj = self.env['purchase.order'].search([('name', '=', po_name)])
+    #     qty_received = []
+    #     product_qty = []
+    #     if po_obj:
+    #         for line in po_obj.order_line:
+    #             qty_received.append(line.qty_received)
+    #             product_qty.append(line.product_qty)
+    #         if sum(qty_received) == 0:
+    #             po_obj.write({'product_state':'new'})
+    #         elif sum(qty_received) < sum(product_qty) and sum(qty_received) != 0:
+    #             po_obj.write({'product_state':'part'})
+    #         else:
+    #             po_obj.write({'product_state':'all'})
+    #     return res
 
     @api.one
     @api.depends('move_lines.date_expected')

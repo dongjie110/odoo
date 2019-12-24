@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "acct_stock",
+    'name': "acct_project",
 
     'summary': """
-        锐驰仓库模块。
+        锐驰项目模块。
         """,
 
     'description': """
-        锐驰仓库模块
+        锐驰项目模块
 
     """,
 
@@ -21,18 +21,18 @@
     'version': '1.0.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','acct_base','web','stock'],
+    'depends': ['base','acct_base','web','project'],
 
     # always loaded
     'data': [
-        'security/ir.model.access.csv',
-        'views/acc_stock_move_view.xml',
-        'views/excipients_product_view.xml',
+        # 'security/ir.model.access.csv',
+        'views/acc_project_view.xml',
+        # 'views/excipients_product_view.xml',
 
-        'report/accstock_report_views.xml',
+        # 'report/accstock_report_views.xml',
 
-        'wizard/choose_move_view.xml',
+        # 'wizard/choose_move_view.xml',
 
-        'views/report_menu.xml',
+        # 'views/report_menu.xml',
     ],
 }

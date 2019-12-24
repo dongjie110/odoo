@@ -11,7 +11,7 @@
                 <button name="teller_accept" string="出纳审核" type="object" states="approve" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   
             </xpath>
             <xpath expr="//button[@name='action_sheet_move_create']" position="before">
-                <button name="boss_accept" string="财务经理审核" type="object" states="teller" class="oe_highlight" groups="account.group_account_manager"/>   
+                <button name="boss_accept" string="管理部审核" type="object" states="teller" class="oe_highlight" groups="acct_base.acc_manage_info_group"/>   
             </xpath>
             <xpath expr="//button[@name='action_sheet_move_create']" position="before">
                 <button name="export_expense_record" string="导出明细行" type="object" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   

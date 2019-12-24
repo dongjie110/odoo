@@ -3,5 +3,9 @@
     <data>
         <menuitem id="menu_export_invoice_data_root" name="导出数据" parent="sale.sale_menu_root" sequence="50"/>
         <menuitem id="menu_export_invoice_form_action" name="应收账单数据导出" parent="menu_export_invoice_data_root" groups="sales_team.group_sale_salesman" action="export_sale_wizard" sequence="10"/>
+
+        <menuitem id="menu_customer_data_root" name="客户" parent="sale.sale_menu_root" sequence="20"/>
+        <menuitem id="menu_acc_partner1" name="客户" parent="menu_customer_data_root" groups="acct_base.unovo_it_operation_group" action="acct_base.action_acc_partner_form" sequence='10'/>
+        <menuitem id="menu_acc_all_partner1" name="所有客户" parent="menu_customer_data_root" groups="acct_base.acc_manage_level1_group" action="acct_base.action_acc_all_partner_form" sequence='10'/>
     </data>
 </openerp>

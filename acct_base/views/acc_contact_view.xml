@@ -54,8 +54,8 @@
             <field name="filter" eval="True"/>
         </record>
 
-        <menuitem id="menu_acc_partner" name="我的客户" parent="sale.sale_order_menu" groups="unovo_it_operation_group" action="action_acc_partner_form" sequence='10'/>
-        <menuitem id="menu_acc_all_partner" name="所有客户" parent="sale.sale_order_menu" groups="acc_manage_level1_group" action="action_acc_all_partner_form" sequence='10'/>
+        <!-- <menuitem id="menu_acc_partner" name="我的客户" parent="sale.sale_order_menu" groups="unovo_it_operation_group" action="action_acc_partner_form" sequence='10'/>
+        <menuitem id="menu_acc_all_partner" name="所有客户" parent="sale.sale_order_menu" groups="acc_manage_level1_group" action="action_acc_all_partner_form" sequence='10'/> -->
         <menuitem id="menu_acc_contact" name="联系人" groups="unovo_it_operation_group"/>
         <menuitem id="acc_customer_menu" name="客户联系人" parent="menu_acc_contact" sequence="10"/>
         <menuitem id="acct_contact_data" name="我的联系人" parent="acc_customer_menu" sequence="1" groups="unovo_it_operation_group" action="action_acc_contact_form"/>

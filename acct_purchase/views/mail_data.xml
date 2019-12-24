@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <record id="mail_act_purchase_order_approve" model="mail.activity.type">
+            <field name="name">采购单待办事项</field>
+            <field name="icon">fa-dollar</field>
+            <field name="res_model_id" ref="purchase.model_purchase_order"/>
+        </record>
+
+    </data>
+</odoo>

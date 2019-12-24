@@ -131,16 +131,20 @@
         </record> -->
 
 
-        <menuitem id="menu_demand_purchase_management" name="请购信息"
+        <menuitem id="menu_demand_purchase_management" name="杂项/基础信息"
             parent="purchase.menu_purchase_root" sequence="1" />
 
         <menuitem id="menu_demand_purchase" name="请购单" parent="menu_demand_purchase_management" action="action_demand_purchase" groups="purchase.group_purchase_user" sequence="1"/>
 
+        <menuitem id="menu_delivery_address" name="收货地址" parent="menu_demand_purchase_management" action="action_delivery_address" groups="purchase.group_purchase_user" sequence="2"/>
+
+        <menuitem id="menu_acc_company" name="公司配置" parent="menu_demand_purchase_management" action="action_acc_company" groups="purchase.group_purchase_user" sequence="3"/>
+
         <!-- <menuitem id="menu_acct_bom" name="物料清单" parent="menu_demand_purchase_management" action="acct_mrp_bom_form_action" groups="purchase.group_purchase_user" sequence="1"/> -->
 
-        <menuitem id="menu_merge_purchase_form_action" name="询价单合并" parent="menu_demand_purchase_management" action="merge_purchase_wizard" groups="purchase.group_purchase_user" sequence="10"/>
+        <menuitem id="menu_merge_purchase_form_action" name="询价单合并" parent="menu_demand_purchase_management" action="merge_purchase_wizard" groups="purchase.group_purchase_user" sequence="4"/>
 
-        <menuitem id="menu_merge_bom_form_action" name="物料清单合并" parent="menu_demand_purchase_management" action="merge_bom_wizard" groups="purchase.group_purchase_user" sequence="10"/>
+        <menuitem id="menu_merge_bom_form_action" name="物料清单合并" parent="menu_demand_purchase_management" action="merge_bom_wizard" groups="purchase.group_purchase_user" sequence="5"/>
 
     </data>
 </openerp>

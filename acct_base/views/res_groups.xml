@@ -55,7 +55,18 @@
                 action="action_quotations_with_onboarding"
                 parent="sale_order_menu"
                 sequence="1" groups="sales_team.group_sale_salesman"/> -->
-
+        <!-- 屏蔽销售模块中的待开票 -->
+        <record id="sale.menu_sale_invoicing" model="ir.ui.menu">  
+            <field name="groups_id" eval="[(6, 0, [ref('wb_less_important')])]"/>   
+        </record>
+        <!-- 屏蔽销售模块中的配置 -->
+        <record id="sale.menu_sale_config" model="ir.ui.menu">  
+            <field name="groups_id" eval="[(6, 0, [ref('wb_less_important')])]"/>   
+        </record>
+        <!-- 屏蔽销售模块中的销售团队菜单 -->
+        <record id="sale.report_sales_team" model="ir.ui.menu">  
+            <field name="groups_id" eval="[(6, 0, [ref('wb_less_important')])]"/>   
+        </record>
         <!-- 屏蔽主菜单中的日历 -->
         <record id="calendar.mail_menu_calendar" model="ir.ui.menu">  
             <field name="groups_id" eval="[(6, 0, [ref('wb_less_important')])]"/>   

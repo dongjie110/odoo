@@ -34,13 +34,14 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@name='preview_sale_order']" position="after">
-                    <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+                    <button name="certain" string="确认合同" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+                    <button name="confirm" string="提交审批" type="object" states="certain" class="oe_highlight" groups="base.group_user"/>
                     <!-- <button name="boss_accept" string="管理部审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_manage_info_group"/> -->
                     <button name="action_confirm" string="确认订单" type="object" class="oe_highlight" attrs="{'invisible': [('state', 'not in', ['confirm'])]}" groups="acct_base.acc_commerce_manager_group"/>
                     <button name="add_new_bom" confirm='是否确认进行物料清单变更!' states="sale" string="物料清单变更" type="object" groups="acct_base.acc_commerce_manager_group"/>   
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
-                    <attribute name="statusbar_visible">draft,confirm,sale</attribute>
+                    <attribute name="statusbar_visible">draft,certain,confirm,sale</attribute>
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="after" >
                     <field name="contact_id" context="{'sale_choose_contact':'sale_choose_contact','partner_id':partner_id}"/>
@@ -70,7 +71,7 @@
                     <field name="before_purchase_id" readonly="1"/>
                     <field name="acc_quotation_id" readonly="1"/>
                     <field name="origin_sale_order_id"/>
-                    <field name="is_send"/>
+                    <!-- <field name="is_send"/> -->
                     <field name="send_date"/>
                     <field name="is_pay"/>
                     <field name="send_status"/>
@@ -139,6 +140,22 @@
                 </xpath>                       
             </field>
         </record>
+
+        <record id="acc_sale_order_tree_inherit" model="ir.ui.view">
+            <field name="name">sale.order.tree.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='amount_total']" position="after">
+                    <field name="is_invoice"/>
+                    <field name="send_status"/>   
+                </xpath>
+                <xpath expr="//field[@name='invoice_status']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
         <record id="action_sale_partner_other_form" model="ir.actions.act_window">
             <field name="name">contacts</field>
             <field name="type">ir.actions.act_window</field>
@@ -177,8 +194,8 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">sale.order</field>
             <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
-            <field name="search_view_id" ref="acc_sale_order_view_search_inherit_quotation"/>
-            <field name="context">{'search_default_my_quotation': 1}</field>
+            <!-- <field name="search_view_id" ref="acc_sale_order_view_search_inherit_quotation"/> -->
+            <!-- <field name="context">{'search_default_my_quotation': 1}</field> -->
             <field name="help" type="html">
               <p class="o_view_nocontent_smiling_face">
                 Create a new quotation, the first step of a new sale!
@@ -201,7 +218,7 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">sale.order</field>
             <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
-            <field name="domain">[('state','=','confirm')]</field>
+            <field name="domain">[('state','=','draft')]</field>
             <!-- <field name="search_view_id" ref="acc_sale_order_view_search_inherit_quotation"/> -->
             <!-- <field name="context">{'search_default_my_quotation': 1}</field> -->
         </record>
@@ -214,18 +231,34 @@
         <menuitem id="menu_acc_manager_sale_order"
                 action="action_acc_manager_order"
                 parent="sale.sale_order_menu"
-                sequence="2" name="待确认销售单"/>
+                sequence="0" name="待确认销售单"/>
 
-       <!--  <record id="view_crm_lead_form_inherit" model="ir.ui.view">
-            <field name="name">crm.lead.inherit</field>
-            <field name="model">crm.lead</field>
-            <field name="inherit_id" ref="crm.crm_case_form_view_oppor"/>
-            <field name="arch" type="xml">
-                <xpath expr="//field[@name='partner_id']" position="after" >
-                    <field name="contact_id" context="{'crm_choose_contact':'crm_choose_contact','partner_id':partner_id}"/>
-                </xpath>                       
-            </field>
-        </record> -->
+        <record id="action_acc_certain_order" model="ir.actions.act_window">
+            <field name="name">已确认销售单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="domain">[('state','=','certain')]</field>
+        </record>
+
+        <menuitem id="menu_acc_certain_sale_order"
+                action="action_acc_certain_order"
+                parent="sale.sale_order_menu"
+                sequence="0" name="已确认销售单"/>
+
+        <record id="action_acc_confirm_order" model="ir.actions.act_window">
+            <field name="name">已提交销售单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+            <field name="domain">[('state','=','confirm')]</field>
+        </record>
+
+        <menuitem id="menu_acc_confirm_sale_order"
+                action="action_acc_confirm_order"
+                parent="sale.sale_order_menu"
+                sequence="0" name="已提交销售单"/>
+
 
         <!-- 挚锦报价单 -->
         <record model="ir.ui.view" id="acc_quotation_form">
@@ -359,6 +392,24 @@
             <field name="context">{'search_default_crm_lead_id': active_id, 'default_crm_lead_id': active_id}</field>
         </record>
 
+        <!-- 刷新销售单到货状态定时任务 -->
+        <data noupdate="1">
+            <record id="ir_cron_acc_fresh_so_state" model="ir.cron">
+                <field name="name">更新销售单发货状态</field>
+                <field name="interval_number">1</field>
+                <field name="interval_type">days</field>
+                <field name="numbercall">-1</field>
+                <field name="model_id" ref="model_sale_order"/>
+                <field name="code">model._fresh_so_state()</field>
+                <field name="state">code</field>
+                <field eval="True" name="doall"/>
+                <!-- <field eval="'excipients.product'" name="model"/> -->
+                <!-- <field eval="'_check_need_purchase'" name="function"/> -->
+                <field eval="0" name="priority"/>
+                <field name="active" eval="True"/>
+            </record>
+        </data>
+
         <menuitem id="menu_acc_sale_quotations"
                 action="action_acc_quotations"
                 parent="sale.sale_order_menu"
@@ -376,7 +427,7 @@
         <menuitem id="menu_zhijing_acc_sale_quotation"
                 action="action_acc_quotation1"
                 parent="sale.sale_order_menu"
-                sequence="1" name="报价单" groups="acct_base.acc_commerce_level_group"/>
+                sequence="0" name="报价单" groups="acct_base.acc_commerce_level_group"/>
 
         <menuitem id="menu_sale_other_management" name="其他信息"
             parent="sale.sale_menu_root" sequence="60" />

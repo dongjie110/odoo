@@ -101,7 +101,15 @@ class ExportSaleWizard(models.TransientModel):
                                     e."name" as cname,
                                     e.symbol as symbol,
                                     A .amount_total,
-                                    A .residual
+                                    A .residual,
+                                    CASE d.is_invoice
+                                    WHEN 'part' THEN '部分开票'
+                                    WHEN 'all' THEN '全部开票'
+                                    ELSE '未开票' END AS is_invoice,
+                                    CASE d.send_status
+                                    WHEN 'yes' THEN '全部发货'
+                                    WHEN 'no' THEN '未发货'
+                                    ELSE '部分发货' END AS is_send
                                 FROM
                                     account_invoice A
                                 INNER JOIN res_partner b ON b. ID = A .partner_id
@@ -125,7 +133,15 @@ class ExportSaleWizard(models.TransientModel):
                                     e.symbol as symbol,
                                     A .amount_total,
                                     A .residual,
-                                    a.user_id as auid
+                                    a.user_id as auid,
+                                    CASE d.is_invoice
+                                    WHEN 'part' THEN '部分开票'
+                                    WHEN 'all' THEN '全部开票'
+                                    ELSE '未开票' END AS is_invoice,
+                                    CASE d.send_status
+                                    WHEN 'yes' THEN '全部发货'
+                                    WHEN 'no' THEN '未发货'
+                                    ELSE '部分发货' END AS is_send
                                 FROM
                                     account_invoice A
                                 INNER JOIN res_partner b ON b. ID = A .partner_id
@@ -148,7 +164,15 @@ class ExportSaleWizard(models.TransientModel):
                                     e.symbol as symbol,
                                     A .amount_total,
                                     A .residual,
-                                    a.user_id as auid
+                                    a.user_id as auid,
+                                    CASE d.is_invoice
+                                    WHEN 'part' THEN '部分开票'
+                                    WHEN 'all' THEN '全部开票'
+                                    ELSE '未开票' END AS is_invoice,
+                                    CASE d.send_status
+                                    WHEN 'yes' THEN '全部发货'
+                                    WHEN 'no' THEN '未发货'
+                                    ELSE '部分发货' END AS is_send
                                 FROM
                                     account_invoice A
                                 INNER JOIN res_partner b ON b. ID = A .partner_id
@@ -170,7 +194,15 @@ class ExportSaleWizard(models.TransientModel):
                                     e."name" as cname,
                                     e.symbol as symbol,
                                     A .amount_total,
-                                    A .residual
+                                    A .residual,
+                                    CASE d.is_invoice
+                                    WHEN 'part' THEN '部分开票'
+                                    WHEN 'all' THEN '全部开票'
+                                    ELSE '未开票' END AS is_invoice,
+                                    CASE d.send_status
+                                    WHEN 'yes' THEN '全部发货'
+                                    WHEN 'no' THEN '未发货'
+                                    ELSE '部分发货' END AS is_send
                                 FROM
                                     account_invoice A
                                 INNER JOIN res_partner b ON b. ID = A .partner_id
@@ -209,7 +241,8 @@ class ExportSaleWizard(models.TransientModel):
             detail_list_first.append(line.get('symbol')+str(line.get('amount_total')))
             detail_list_first.append(line.get('symbol')+str(line.get('residual')))
             detail_list_first.append(line.get('cname'))
-            # detail_list_first.append(line.get('symbol'))
+            detail_list_first.append(line.get('is_invoice'))
+            detail_list_first.append(line.get('is_send'))
             detail_list_first.append(line.get('acct_note'))
             detail_list_all.append(detail_list_first)
 
@@ -219,7 +252,7 @@ class ExportSaleWizard(models.TransientModel):
         check_path(file_path)
         # encode('utf-8')
 
-        head = ['序号','日期', '负责人', '合同号', '客户订单号','客户名称','总计','到期金额','币种','备注']
+        head = ['序号','日期', '负责人', '合同号', '客户订单号','客户名称','总计','到期金额','币种','是否开票','是否发货','备注']
         self.save_exel(head, detail_list_all, file_path)
 
         return self.export_record(file_path)

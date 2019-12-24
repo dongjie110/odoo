@@ -23,6 +23,19 @@ class AccAccountInvoice(models.Model):
     """
     _inherit = "account.invoice"
 
+    @api.depends('payrecord_line.pay_amount')
+    def _invoice_all(self):
+        invoice_amount = 0.0
+        for order in self:
+            for line in order.payrecord_line:
+                invoice_amount += line.pay_amount
+            if invoice_amount > self.amount_total:
+                raise ValidationError('所开发票总额已超过账单总额，请核对后重新输入')
+            # self.rewrite_info(invoice_amount)
+            order.update({
+                'invoice_acc_total': invoice_amount
+            })
+
     invoice_company = fields.Many2one('acc.company',string = '关联公司')
     invoice_number = fields.Char(string = '发票号')
     sale_invoice_number = fields.Char(string = '发票号')
@@ -32,6 +45,9 @@ class AccAccountInvoice(models.Model):
     minus_amount = fields.Float('折扣总额',readonly=True)
     acct_note = fields.Char('备注')
     payrecord_line = fields.One2many('payrecord.line', 'payrecord_id','Payrecord line')
+    invoice_acc_total = fields.Float(string='已开票金额', store=True, readonly=True, compute='_invoice_all')
+    # acc_total = fields.Float(string='acc已开票金额')
+    # invoice_acc_total = fields.Float(string='已开票金额')
     state = fields.Selection([
             ('draft','Draft'),
             ('teller', '出纳已审核'),
@@ -47,6 +63,53 @@ class AccAccountInvoice(models.Model):
              " * The 'In Payment' status is used when payments have been registered for the entirety of the invoice in a journal configured to post entries at bank reconciliation only, and some of them haven't been reconciled with a bank statement line yet.\n"
              " * The 'Paid' status is set automatically when the invoice is paid. Its related journal entries may or may not be reconciled.\n"
              " * The 'Cancelled' status is used when user cancel invoice.")
+
+
+    # @api.onchange('payrecord_line')
+    # def onchange_payrecord_line(self):
+    #     for line in self.
+    #     if self.forcast_date:
+    #         for line in self.order_line:
+    #             line.update({'forcast_date':self.forcast_date})
+
+    # @api.multi
+    # def write(self, vals):
+    #     _logger.debug('=============%s=============',vals)
+    #     if vals.get('payrecord_line'):
+    #         _logger.debug('=============11=============')
+    #         if self.type == 'out_invoice':
+    #             _logger.debug('=============22=============')
+    #             sale_obj = self.env['sale.order'].search([('name', '=', self.origin)])
+    #             invoices = sale_obj.mapped('invoice_ids')
+    #             invoices_total = 0.0
+    #             for invoice in invoices:
+    #                 invoices_total += invoice.invoice_acc_total
+    #             _logger.debug('=============%s=======%s======',self.invoice_acc_total,invoices_total)
+    #             if invoices_total < sale_obj.amount_total:
+    #                 sale_obj.write({'is_invoice':'part'})
+    #             if invoices_total == sale_obj.amount_total:
+    #                 sale_obj.write({'is_invoice':'all'})
+    #             if invoices_total == 0:
+    #                 sale_obj.write({'is_invoice':'noinvoice'})
+    #     res = super(AccAccountInvoice, self).write(vals)
+    #     return res
+
+    # @api.multi
+    # def rewrite_info(self,invoice_amount):
+    #     if self.type == 'out_invoice':
+    #         sale_obj = self.env['sale.order'].search([('name', '=', self.origin)])
+    #         invoices = sale_obj.mapped('invoice_ids')
+    #         invoices_total = 0.0
+    #         for invoice in invoices:
+    #             if invoice.id != self.id:
+    #                 invoices_total += invoice.invoice_acc_total
+    #         if invoices_total + invoice_amount < sale_obj.amount_total:
+    #             sale_obj.write({'is_invoice':'part'})
+    #         elif invoices_total + invoice_amount == sale_obj.amount_total:
+    #             sale_obj.write({'is_invoice':'all'})
+    #         else:
+    #             sale_obj.write({'is_invoice':'noinvoice'})
+    #     return True         
 
 
 
@@ -180,8 +243,10 @@ class PayrecordLine(models.Model):
     _description = "付款记录"
 
     payrecord_id = fields.Many2one('account.invoice', 'Order Reference')
-    pay_amount = fields.Float(u'金额')
-    pay_datetime = fields.Datetime(string='时间')
-    pay_user = fields.Many2one('res.users',string='操作人')
+    pay_amount = fields.Float(u'发票金额')
+    pay_datetime = fields.Datetime(string='时间',default=lambda self: fields.Datetime.now(),readonly=True)
+    pay_user = fields.Many2one('res.users',string='操作人',default=lambda self: self.env.user.id,readonly=True)
+    invoice_number = fields.Char(string='发票号')
+    
 
 

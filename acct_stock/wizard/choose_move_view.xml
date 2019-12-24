@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="view_choose_move_form" model="ir.ui.view">
+        <field name="name">choose.move.form</field>
+        <field name="model">choose.move</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Choose Move">
+                <sheet>
+                    <group string="选择明细">
+                        <field name="stock_moves"/>
+                    </group>
+                    <footer>
+                        <button name="select_products" string="添加" type="object" class="oe_highlight"/>
+                        <button string="取消" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- <record model="ir.actions.act_window" id="act_open_choose_move_view">
+        <field name="name">Choose Move</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">choose.move</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record model="ir.actions.act_window.view" id="act_open_choose_move_view_form">
+        <field name="act_window_id" ref="act_open_choose_move_view" />
+        <field name="sequence" eval="10"/>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_choose_move_form" />
+    </record> -->
+
+    <record id="action_choose_move" model="ir.actions.act_window">
+            <field name="name">选择明细</field>
+            <field name="res_model">choose.move</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_choose_move_form"/>
+            <field name="target">inline</field>
+        </record>
+
+        <act_window id='choose_move_wizard'
+                    name='选择收货明细'
+                    res_model='choose.move'
+                    view_id="view_choose_move_form"
+                    view_mode='form'
+                    target="inline"
+        />
+</odoo>

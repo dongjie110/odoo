@@ -25,13 +25,13 @@ class AccSaleOrder(models.Model):
     """
     _inherit = "sale.order"
 
-    @api.depends('quotation_line.price_subtotal','discount')
+    @api.depends('quotation_line.price_subtotal','discount','tax_id')
     def _amount_quo_all(self):
         for order in self:
             if order.tax_id:
                 tax_rate = order.tax_id.amount/100
             else:
-                tax_rate = 1
+                tax_rate = 0
             quo_amount_total = 0.0
             quo_amount_untaxed = 0.0
             quo_amount_tax = 0.0
@@ -47,7 +47,8 @@ class AccSaleOrder(models.Model):
 
     title = fields.Char(string=u'标题', required=True)
     state = fields.Selection([
-        ('draft', 'Quotation'),
+        ('draft', '待确认'),
+        ('certain', '已确认'),
         ('confirm', '已提交审批'),
         ('sent', 'Quotation Sent'),
         # ('boss', '管理部已审核'),
@@ -69,12 +70,12 @@ class AccSaleOrder(models.Model):
     shipping_method = fields.Char(string="运输方式")
     sale_commission = fields.Float(string='销售佣金')
     in_country = fields.Boolean(string='是否为国内订单')
-    is_invoice = fields.Boolean(string='是否开票',readonly=True)
+    is_invoice = fields.Selection([('part', '部分开票'), ('all', '全部开票'), ('noinvoice', '未开票')], string='账单开票情况',readonly=True)
     is_makepo = fields.Boolean(string='是否生成采购单',default=True)
     purchase_charge_person = fields.Many2one('res.users',string='采购负责人',required=True)
     is_purchasing = fields.Boolean(string='是否开始采购',readonly=True)
     purchase_date = fields.Datetime(string='开始采购时间',readonly=True)
-    is_send = fields.Boolean(string='是否发货',readonly=True)
+    # is_send = fields.Boolean(string='是否发货',readonly=True)
     send_date = fields.Datetime(string='发货时间',readonly=True)
     is_pay = fields.Boolean(string='是否收款',readonly=True)
     wait_change = fields.Selection([('no', '需变更'), ('yes', '无需变更')],default='yes', string='物料变更',readonly=True)
@@ -147,6 +148,45 @@ class AccSaleOrder(models.Model):
                 }) 
         res = super(AccSaleOrder, self).write(vals)
         return res
+
+    @api.multi
+    def _fresh_so_state(self):
+        sale_orders = self.env['sale.order'].search([('state', '=', 'sale')])
+        # ('date_order', '>', my_date)  OR (('state', '=', 'done') AND ('id', '>', my_id))
+        for order in sale_orders:
+            _logger.debug('===========%s===============',order.name)
+            invoices = order.mapped('invoice_ids')
+            if not invoices:
+                order.write({'is_invoice':'noinvoice'})
+            else:
+                invoices_total = 0.0
+                for invoice in invoices:
+                    invoices_total += invoice.invoice_acc_total
+                if invoices_total == 0:
+                    order.write({'is_invoice':'noinvoice'})
+                if invoices_total < order.amount_total and invoices_total != 0:
+                    order.write({'is_invoice':'part'})
+                if invoices_total == order.amount_total:
+                    order.write({'is_invoice':'all'})
+        for order in sale_orders:
+            cr = self.env.cr
+            out_qty_sql = """ SELECT
+                                SUM (product_uom_qty) AS product_uom_qty,
+                                sum (qty_delivered) as qty_delivered,
+                                sum (product_uom_qty-qty_delivered) as compare
+                            FROM
+                                sale_order_line
+                            WHERE
+                                order_id = %s"""%(order.id)
+            cr.execute(out_qty_sql)
+            result = request.cr.dictfetchall()
+            if result[0]['qty_delivered'] == 0 and result[0]['compare'] > 0:
+                order.write({'send_status':'no'})
+            elif result[0]['qty_delivered'] !=0 and result[0]['compare'] > 0:
+                order.write({'send_status':'part'})
+            else:
+                order.write({'send_status':'yes'})
+        return True
 
 
     @api.multi
@@ -285,12 +325,13 @@ class AccSaleOrder(models.Model):
                 vals = {
                     'sale_order_id':self.id,
                     'purchase_company':self.sale_company.id,
+                    'charge_person':self.purchase_charge_person.id,
                     'delivery_address':self.delivery_address.id,
                     'order_line':new_res_line
                 }
                 bp_obj = self.env['before.purchase'].create(vals)
                 toaddrs = ['yuanyuan.lu@neotel-technology.com','coco@neotel-technology.com']
-                toaddrs.append(bp_obj.charge_person.login)
+                # toaddrs.append(bp_obj.charge_person.login)
                 subjects = "待确认询价单{}".format(bp_obj.name)
                 message = "待确认询价单{}已生成,请及时处理".format(bp_obj.name)
                 self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
@@ -323,6 +364,32 @@ class AccSaleOrder(models.Model):
         else:
             taget_poname = '无'
         return taget_poname
+
+    # @api.multi
+    # def _fresh_now_qty(self):
+    #     excipients = self.env['excipients.product'].search([('is_active', '=', True)])
+    #     for line in excipients:
+    #         p_id = line.product_id.id
+    #         location_id = line.location_id.id
+    #         cr = self.env.cr
+    #         # location_ids = []
+    #         now_qty_sql = """ SELECT
+    #                             SUM (quantity-reserved_quantity) AS theory_qty
+    #                         FROM
+    #                             stock_quant
+    #                         WHERE
+    #                             location_id = %s
+    #                         AND product_id = %s """%(location_id, p_id)
+    #         # now_qty = cr.execute(now_qty_sql, (location_id,p_id))
+    #         cr.execute(now_qty_sql)
+    #         result = request.cr.dictfetchall()
+    #         if result[0]['theory_qty']:
+    #             now_qty = result[0]['theory_qty']
+    #         else:
+    #             now_qty = 0.00
+    #         onway_qty = line.onway_qty()
+    #         line.write({'now_qty':now_qty,'purchase_qty':onway_qty})
+    #     return True
 
 
 
@@ -411,8 +478,20 @@ class AccSaleOrder(models.Model):
         return res
 
     @api.multi
+    def certain(self):
+        self.filtered(lambda r: r.state == 'draft').write({'state': 'certain'})
+        # toaddrs = []
+        # toaddrs.append(self.manage_user.login)
+        # toaddrs = ['yuanyuan.lu@neotel-technology.com']
+        # # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
+        # subjects = "销售单{}已提交需要您确认,请及时处理".format(self.name)
+        # message = "销售单{}已提交需要您确认,请及时处理".format(self.name)
+        # self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+        return True
+
+    @api.multi
     def confirm(self):
-        self.filtered(lambda r: r.state == 'draft').write({'state': 'confirm'})
+        self.filtered(lambda r: r.state == 'certain').write({'state': 'confirm'})
         # toaddrs = []
         # toaddrs.append(self.manage_user.login)
         toaddrs = ['yuanyuan.lu@neotel-technology.com']

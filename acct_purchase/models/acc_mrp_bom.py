@@ -36,7 +36,6 @@ class AccMrpBom(models.Model):
     # is_active = fields.Boolean(string='有效',default=True,readonly=True)
     # version_no = fields.Integer(string='版本号',readonly=True,default=1)
     version_date = fields.Datetime(string='创建时间',default=lambda self: fields.Datetime.now(),readonly=True)
-    
     @api.model
     def create(self,vals):
         # if vals.get('product_tmpl_id'):
