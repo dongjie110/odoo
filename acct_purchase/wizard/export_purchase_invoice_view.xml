@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--导出数据-->
+        <record id="export_accpurchase_form_view" model="ir.ui.view">
+            <field name="name">导出应付款账单</field>
+            <field name="model">export.accpurchase.wizard</field>
+            <field name="arch" type="xml">
+                <form string="export">
+                     <sheet>
+                        <div style="font-size:20px">
+                            应付账单导出筛选条件
+                        </div>
+                        <group>
+                            <field name="charge_person"/>
+                            <field name="purchase_company"/>
+                            <!-- <field name="date_end" required="1"/> -->
+                        </group>
+                        <group name="codes">
+                            <button class="oe_stat_button" name="export_purchase_invoice_record" string="导出" type="object"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_export_accpurchase_wizard" model="ir.actions.act_window">
+            <field name="name">导出应付账单数据</field>
+            <field name="res_model">export.accpurchase.wizard</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="export_accpurchase_form_view"/>
+            <field name="target">inline</field>
+        </record>
+
+        <act_window id='export_accpurchase_wizard'
+                    name='应付账单导出'
+                    res_model='export.accpurchase.wizard'
+                    view_id="export_accpurchase_form_view"
+                    view_mode='form'
+                    target="inline"
+        />
+
+
+    </data>
+</odoo>

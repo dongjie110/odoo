@@ -25,6 +25,7 @@
                     <field name="pay_rate"/>
                     <field name="minus_amount"/>
                     <field name="invoice_acc_total"/>
+                    <field name="invoice_state"/>
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
                     <attribute name="statusbar_visible">draft,teller,open,paid</attribute>
@@ -34,6 +35,7 @@
                         <field name="payrecord_line">
                             <tree string="发票记录" editable="bottom">
                                 <field name="invoice_number"/>
+                                <field name="invoice_datetime"/>
                                 <field name="pay_amount"/>
                                 <field name="pay_datetime"/>                           
                                 <field name="pay_user"/>

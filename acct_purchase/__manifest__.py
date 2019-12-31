@@ -31,6 +31,7 @@
         'wizard/add_partner_view.xml',
         'wizard/purchase_separate_view.xml',
         'wizard/recreate_before_purchase_view.xml',
+        'wizard/export_purchase_invoice_view.xml',
         'views/bom_view.xml',
         'views/acc_purchase_view.xml',
         'wizard/merge_purchase_view.xml',

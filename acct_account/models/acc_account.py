@@ -29,11 +29,17 @@ class AccAccountInvoice(models.Model):
         for order in self:
             for line in order.payrecord_line:
                 invoice_amount += line.pay_amount
-            if invoice_amount > self.amount_total:
+            if round(invoice_amount,2) > self.amount_total:
                 raise ValidationError('所开发票总额已超过账单总额，请核对后重新输入')
-            # self.rewrite_info(invoice_amount)
+            elif round(invoice_amount,2) < self.amount_total and round(invoice_amount,2) !=0:
+                invoice_state = 'part'
+            elif round(invoice_amount,2) == self.amount_total:
+                invoice_state = 'all'
+            else:
+                invoice_state = 'noinvoice'
             order.update({
-                'invoice_acc_total': invoice_amount
+                'invoice_acc_total': invoice_amount,
+                'invoice_state':invoice_state
             })
 
     invoice_company = fields.Many2one('acc.company',string = '关联公司')
@@ -46,6 +52,9 @@ class AccAccountInvoice(models.Model):
     acct_note = fields.Char('备注')
     payrecord_line = fields.One2many('payrecord.line', 'payrecord_id','Payrecord line')
     invoice_acc_total = fields.Float(string='已开票金额', store=True, readonly=True, compute='_invoice_all')
+    # invoice_acc_total = fields.Float(string='已开票金额', readonly=True)
+    invoice_state = fields.Selection([('part', '部分开票'), ('all', '全部开票'), ('noinvoice', '未开票')], string='账单开票情况',store=True,readonly=True,default='noinvoice',compute='_invoice_all')
+    # invoice_state = fields.Selection([('part', '部分开票'), ('all', '全部开票'), ('noinvoice', '未开票')], string='账单开票情况',readonly=True)
     # acc_total = fields.Float(string='acc已开票金额')
     # invoice_acc_total = fields.Float(string='已开票金额')
     state = fields.Selection([
@@ -67,8 +76,9 @@ class AccAccountInvoice(models.Model):
 
     # @api.onchange('payrecord_line')
     # def onchange_payrecord_line(self):
-    #     for line in self.
-    #     if self.forcast_date:
+    #     for line in self:
+    #         if line.invoice_acc_total:
+    #             if line.invoice_acc_total == 
     #         for line in self.order_line:
     #             line.update({'forcast_date':self.forcast_date})
 
@@ -244,7 +254,8 @@ class PayrecordLine(models.Model):
 
     payrecord_id = fields.Many2one('account.invoice', 'Order Reference')
     pay_amount = fields.Float(u'发票金额')
-    pay_datetime = fields.Datetime(string='时间',default=lambda self: fields.Datetime.now(),readonly=True)
+    invoice_datetime = fields.Date(string='发票日期')
+    pay_datetime = fields.Datetime(string='登记时间',default=lambda self: fields.Datetime.now(),readonly=True)
     pay_user = fields.Many2one('res.users',string='操作人',default=lambda self: self.env.user.id,readonly=True)
     invoice_number = fields.Char(string='发票号')
     

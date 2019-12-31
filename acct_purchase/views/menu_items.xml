@@ -4,5 +4,7 @@
 
         <menuitem id="menu_export_data_root" name="导出数据" parent="purchase.menu_purchase_root" sequence="50"/>
         <menuitem id="menu_export_purchase_form_action" name="采购单数据导出" parent="menu_export_data_root" action="export_purchase_wizard" groups="purchase.group_purchase_user" sequence="10"/>
+        <!-- <menuitem id="menu_export_invoice_data_root" name="导出数据" parent="sale.sale_menu_root" sequence="50"/> -->
+        <menuitem id="menu_export_purchaseinvoice_form_action" name="应付账单数据导出" parent="menu_export_data_root" groups="purchase.group_purchase_user" action="export_accpurchase_wizard" sequence="20"/>
     </data>
 </odoo>
