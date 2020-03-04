@@ -299,7 +299,7 @@ class AccSaleOrder(models.Model):
                 po_name = self.get_poname(p)
                 p_str = '物料名称:' + p['product_id'] + '  ' + '型号:' + p['product_model'] + '  ' + '品牌:' + p['brand'] + '  ' + '编码:' +  p['acc_code'] + ' ' + '移除数量:' + str(p['qty']) + '采购单号:' + po_name + '<br>'
                 remove_products.append(p_str)
-            toaddrs = ['yuanyuan.lu@neotel-technology.com','coco@neotel-technology.com']
+            toaddrs = ['luna.zhang@neotel-technology.com','coco.ma@neotel-technology.com','fiona.wu@neotel-technology.com']
             toaddrs.append(self.purchase_charge_person.login)
             # toaddrs = ['jie.dong@acctronics.cn']
             subjects = "源单据{}所申请物料清单有变动,请及时处理".format(self.name)
@@ -330,7 +330,7 @@ class AccSaleOrder(models.Model):
                     'order_line':new_res_line
                 }
                 bp_obj = self.env['before.purchase'].create(vals)
-                toaddrs = ['yuanyuan.lu@neotel-technology.com','coco@neotel-technology.com']
+                toaddrs = ['luna.zhang@neotel-technology.com','coco@neotel-technology.com']
                 # toaddrs.append(bp_obj.charge_person.login)
                 subjects = "待确认询价单{}".format(bp_obj.name)
                 message = "待确认询价单{}已生成,请及时处理".format(bp_obj.name)
@@ -480,21 +480,14 @@ class AccSaleOrder(models.Model):
     @api.multi
     def certain(self):
         self.filtered(lambda r: r.state == 'draft').write({'state': 'certain'})
-        # toaddrs = []
-        # toaddrs.append(self.manage_user.login)
-        # toaddrs = ['yuanyuan.lu@neotel-technology.com']
-        # # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
-        # subjects = "销售单{}已提交需要您确认,请及时处理".format(self.name)
-        # message = "销售单{}已提交需要您确认,请及时处理".format(self.name)
-        # self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
         return True
 
     @api.multi
     def confirm(self):
-        self.filtered(lambda r: r.state == 'certain').write({'state': 'confirm'})
+        self.filtered(lambda r: r.state == 'draft').write({'state': 'confirm'})
         # toaddrs = []
         # toaddrs.append(self.manage_user.login)
-        toaddrs = ['yuanyuan.lu@neotel-technology.com']
+        toaddrs = ['luna.zhang@neotel-technology.com']
         # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
         subjects = "销售单{}已提交需要您确认,请及时处理".format(self.name)
         message = "销售单{}已提交需要您确认,请及时处理".format(self.name)
@@ -643,6 +636,12 @@ class AccQuotation(models.Model):
     partner_id = fields.Many2one('res.partner',string='客户')
     contact_id = fields.Many2one('res.partner',string='联系人')
     transfer = fields.Char(string='承运人')
+    origin_country = fields.Char(string="货物原产国及厂家")
+    port_shipment = fields.Char(string="发货机场")
+    destination_port = fields.Char(string="目的机场")
+    destination_address = fields.Char(string="交货地址")
+    shipping_method = fields.Char(string="运输方式")
+    is_createso = fields.Boolean(string='是否已生成销售订单',copy=False,readonly=True)
     sale_commission = fields.Float(string='销售佣金')
     delivery_time = fields.Char(string=u'货期',placeholder="填写格式如(1周,1weeks,1天，1days)")
     in_country = fields.Boolean(string='是否为国内订单')
@@ -675,51 +674,53 @@ class AccQuotation(models.Model):
 
     @api.multi        
     def create_so(self):
-        res_line = []
-        for line in self.accquotation_line:
-            # mrp_bom = self.check_bom(line)
-            line_vals = {
-                      'product_id':line.product_id.id,
-                      'product_model':line.product_model,
-                      'acc_code':line.acc_code,
-                      'description':line.description,
-                      'product_uom':line.product_uom.id,
-                      'price_unit':line.price_unit,
-                      'product_qty':line.product_qty
+        if self.state == 'done':
+            res_line = []
+            for line in self.accquotation_line:
+                # mrp_bom = self.check_bom(line)
+                line_vals = {
+                          'product_id':line.product_id.id,
+                          'product_model':line.product_model,
+                          'acc_code':line.acc_code,
+                          'description':line.description,
+                          'product_uom':line.product_uom.id,
+                          'price_unit':line.price_unit,
+                          'product_qty':line.product_qty
+                }
+                res_line.append((0,0,line_vals))
+            vals = {
+                'partner_id':self.partner_id.id,
+                'acc_quotation_id':self.id,
+                'contact_id':self.contact_id.id,
+                'pricelist_id':self.pricelist_id.id,
+                'title':self.title,
+                'transfer':self.transfer,
+                'sale_commission':self.sale_commission,
+                'in_country':self.in_country,
+                'purchase_charge_person':self.purchase_charge_person.id,
+                'transaction_mode':self.transaction_mode.id,
+                'transaction_rule':self.transaction_rule,
+                'sale_company':self.sale_company.id,
+                'tax_id':self.tax_id.id,
+                'discount':self.discount,
+                # 'quo_amount_untaxed':self.amount_untaxed,
+                # 'quo_amount_total':self.amount_total,
+                'quotation_line':res_line
             }
-            res_line.append((0,0,line_vals))
-        vals = {
-            'partner_id':self.partner_id.id,
-            'acc_quotation_id':self.id,
-            'contact_id':self.contact_id.id,
-            'pricelist_id':self.pricelist_id.id,
-            'title':self.title,
-            'transfer':self.transfer,
-            'sale_commission':self.sale_commission,
-            'in_country':self.in_country,
-            'purchase_charge_person':self.purchase_charge_person.id,
-            'transaction_mode':self.transaction_mode.id,
-            'transaction_rule':self.transaction_rule,
-            'sale_company':self.sale_company.id,
-            'tax_id':self.tax_id.id,
-            'discount':self.discount,
-            # 'quo_amount_untaxed':self.amount_untaxed,
-            # 'quo_amount_total':self.amount_total,
-            'quotation_line':res_line
-        }
-        so_obj = self.env['sale.order'].create(vals)
-        self.write({'sale_order':so_obj.id,'state':'done'})
-        # toaddrs = ['jie.dong@acctronics.cn','cissy.shen@acctronics.cn']
-        # # toaddrs = []
-        # # toaddrs.append(bp_obj.charge_person.login)
-        # subjects = "待确认询价单{}".format(so_obj.name)
-        # message = "待确认询价单{}已生成,请及时处理".format(so_obj.name)
-        # self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+            so_obj = self.env['sale.order'].create(vals)
+            self.write({'sale_order':so_obj.id,'is_createso':True})
+        else:
+            raise ValidationError('该报价单未确认，请先确认后再创建销售单')
         return True
 
     @api.multi
     def cancel(self):
         self.filtered(lambda r: r.state == 'draft').write({'state': 'cancel','customer_state': 'cancel'})
+        return True
+
+    @api.multi
+    def certain(self):
+        self.write({'state':'done'})
         return True
 
     @api.multi

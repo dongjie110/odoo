@@ -36,6 +36,7 @@
         'report/accen_contract_report_view.xml',
         'report/accall_quotation_report_view.xml',
         'report/accenall_quotation_report_view.xml',
+        'report/neotel_contract_report_view.xml',
 
         'wizard/export_sale_invoice_view.xml',
         'report/accenall_quotation_report_view.xml',

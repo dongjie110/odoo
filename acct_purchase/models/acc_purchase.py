@@ -128,8 +128,9 @@ class CFTemplateCategory(models.Model):
     @api.multi
     def boss_accept(self):
         self.filtered(lambda r: r.state == 'pomanager').write({'state': 'boss'})
-        activity_addrs = ['yuanyuan.lu@neotel-technology.com','cissy.shen@neotel-technology.com']
-        toaddrs = ['yuanyuan.lu@neotel-technology.com']
+        activity_addrs = ['luna.zhang@neotel-technology.com','cissy.shen@neotel-technology.com']
+        # "张晓茹"<luna.zhang@neotel-technology.com>;
+        toaddrs = ['luna.zhang@neotel-technology.com']
         toaddrs.append(self.charge_person.login)
         # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
         subjects = "采购单{}管理部已审批完成,请及时确认".format(self.name)
@@ -196,8 +197,8 @@ class CFTemplateCategory(models.Model):
             self.send_mailactivity(user_ids)
         else:
             self.write({'state': 'boss'})
-            activity_addrs = ['yuanyuan.lu@neotel-technology.com','cissy.shen@neotel-technology.com']
-            toaddrs = ['yuanyuan.lu@neotel-technology.com']
+            activity_addrs = ['luna.zhang@neotel-technology.com','cissy.shen@neotel-technology.com']
+            toaddrs = ['luna.zhang@neotel-technology.com']
             toaddrs.append(self.charge_person.login)
             # toaddrs = ['jie.dong@acctronics.cn','yapeng.dai@acctronics.cn']
             subjects = "采购单{}已审批完成,请及时确认".format(self.name)

@@ -55,7 +55,8 @@
             <field name="inherit_id" ref="stock.view_inventory_form"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_validate']" position="before">
-                    <button name="draft_accept" string="审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_manage_level1_group"/>   
+                    <button name="draft_accept" string="审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_manage_level1_group"/>
+                    <button name="export_inventory_record" string="导出盘点明细" type="object" class="oe_highlight"/>   
                 </xpath>
                 <xpath expr="//field[@name='date']" position="after">
                     <field name="process_state"/>   
@@ -84,7 +85,6 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='origin']" position="after">
                 <field name="title"/>
-                <button name="%(choose_move_wizard)d" type="action" string="选择明细行" class="oe_highlight" groups="base.group_user"/>
             </xpath>
         </field>
     </record>

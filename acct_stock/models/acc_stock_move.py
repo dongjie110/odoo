@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 import logging
-from odoo import api, SUPERUSER_ID, fields, models, _
-from odoo.http import request
-import logging
 import xlrd
-from collections import Counter
-import re
-import datetime
-
+import xlwt
 import pytz
-
-from odoo.tools.misc import DEFAULT_SERVER_DATETIME_FORMAT
-# from datetime import datetime
-# from ..controllers.common import localizeStrTime
+import sys,os
+import datetime
+from odoo import fields, models, api, http, _
+from odoo.addons import decimal_precision as dp
+from odoo.http import request
 from odoo.exceptions import UserError, ValidationError
+file_url = 'my_addons/acct_stock'
+file_url = os.path.join(sys.path[0],file_url)
+
 
 _logger = logging.getLogger(__name__)
+
+def check_path(image_path):
+    try:
+        dir_path = os.path.dirname(image_path)
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path)
+    except OSError as e:
+        logging.debug("file cant be created!{}".format(e))
+    return True
 
 class AccStockMove(models.Model):
     """
@@ -144,6 +151,79 @@ class AccStockInventory(models.Model):
     def draft_accept(self):
         self.filtered(lambda r: r.process_state == 'noaccept').write({'process_state': 'accept'})
         return True
+
+    def save_exel(self, header, body, file_name):
+        wbk = xlwt.Workbook(encoding='utf-8', style_compression=0)
+        # wbk.write(codecs.BOM_UTF8)
+        style1 = xlwt.easyxf('font: bold True;''alignment: horz center,vert center')
+        sheet = wbk.add_sheet('sheet1', cell_overwrite_ok=True)
+        # sheet.write(codecs.BOM_UTF8) 
+
+        sheet.write(0, 0, 'some text')
+        sheet.write(0, 0, 'this should overwrite')  ##重新设置，需要cell_overwrite_ok=True
+        n = 0
+        for i in range(len(header)):
+            sheet.write(n, i, header[i])
+        for i in range(len(body)):
+            n += 1
+            for j in range(len(body[i])):
+                # sheet.write(n, j, body[i][j], self.set_style())
+                sheet.write(n, j, body[i][j])
+        wbk.save(file_name)  ##该文件名必须存在
+
+    def export_record(self,file_name):
+        """
+        导出采购单信息
+        :return:
+        """
+        return {
+            'type': 'ir.actions.act_url',
+            'url': '/download/work/files_export?file=%s' % (file_name),
+            'target': 'self'
+        }
+
+    def export_inventory_record(self):
+        cr = self.env.cr
+        # if not product_state and not payment_state:
+        all_total = """ SELECT
+                            pt.name as product_name,
+                            sl.name as location_name,
+                            pt.product_model as product_model,
+                            pt.acc_code as acc_code,
+                            u."name" as u_name,
+                            a.theoretical_qty as theoretical_qty,
+                            a.product_qty as product_qty
+                        FROM
+                            stock_inventory_line A
+                        LEFT JOIN product_product pp ON pp. ID = A .product_id
+                        LEFT JOIN product_template pt on pt.id = pp.product_tmpl_id
+                        LEFT JOIN stock_location sl on sl.id = a.location_id
+                        left JOIN uom_uom u on u.id = a.product_uom_id
+                        WHERE inventory_id = %s """ %(self.id)
+        cr.execute(all_total)
+        result = cr.dictfetchall()
+        detail_list_all=[]
+        i= 0
+        for line in result:
+            detail_list_first = []
+            i += 1
+            detail_list_first.append(i)
+            detail_list_first.append(line.get('product_name'))
+            detail_list_first.append(line.get('location_name'))
+            detail_list_first.append(line.get('product_model'))
+            detail_list_first.append(line.get('acc_code'))
+            detail_list_first.append(line.get('u_name'))
+            detail_list_first.append(line.get('theoretical_qty'))
+            detail_list_first.append(line.get('product_qty'))
+            detail_list_all.append(detail_list_first)
+
+        dir_path = os.path.join(file_url, 'Administrator')
+        filename = "{}.xls".format('库存盘点表')
+        file_path = os.path.join(dir_path, filename)
+        check_path(file_path)
+        head = ['序号', '物料名称','库位','产品型号','产品编码','单位','理论数量','实际数量']
+        self.save_exel(head, detail_list_all, file_path)
+        return self.export_record(file_path)
 
 class AccStockInventoryLine(models.Model):
     """

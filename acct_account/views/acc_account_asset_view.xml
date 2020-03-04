@@ -2,23 +2,55 @@
 <openerp>
     <data>
 
-    <!-- <record model="ir.ui.view" id="view_account_asset_asset_acc_tree">
-        <field name="name">account.asset.asset.acc.tree</field>
+    <!-- 资产form视图继承 -->
+    <record id="asset_view_order_form_inherit" model="ir.ui.view">
+        <field name="name">acc.account.asset.asset</field>
         <field name="model">account.asset.asset</field>
+        <field name="inherit_id" ref="account_asset.view_account_asset_asset_form"/>
         <field name="arch" type="xml">
-            <tree string="资产" decoration-info="(state == 'draft')" decoration-muted="(state == 'close')">
-                <field name="name"/>
-                <field name="category_id" string="Asset Category"/>
-                <field name="date"/>
-                <field name="partner_id" string="Vendor"/>
-                <field name="value"/>
-                <field name="value_residual" widget="monetary"/>
-                <field name="currency_id" groups="base.group_multi_currency"/>
-                <field name="company_id" groups="base.group_multi_company"/>
-                <field name="state"/>
-            </tree>
+            <xpath expr="//field[@name='category_id']" position="before">
+                <field name="acc_type"/>
+            </xpath>
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="asset_sequence"/>
+                <field name="acc_asset_code"/>
+                <field name="user_id"/>
+                <!-- <field name="acc_type"/> -->
+                <!-- <field name="minus_amount"/>
+                <field name="invoice_acc_total"/>
+                <field name="invoice_state"/> -->
+            </xpath>
+            <!-- <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,teller,open,paid</attribute>
+            </xpath> -->
+            <!-- <xpath expr="/form/sheet/notebook/page[@string='Depreciation Board']" position="before">
+                <page string="使用记录">
+                    <field name="user_line" readonly="1">
+                        <tree string="使用记录" editable="bottom">
+                            <field name="start_datetime"/>
+                            <field name="end_datetime"/>
+                            <field name="user_id"/>
+                            <field name="use_state"/>                           
+                            <field name="pay_user"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>    -->                   
         </field>
-    </record> -->
+    </record>
+
+
+    <!-- 资产类型form视图继承 -->
+    <record id="asset_category_view_order_form_inherit" model="ir.ui.view">
+        <field name="name">acc.account.asset.category</field>
+        <field name="model">account.asset.category</field>
+        <field name="inherit_id" ref="account_asset.view_account_asset_category_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='journal_id']" position="after">
+                <field name="acc_type"/>
+            </xpath>                     
+        </field>
+    </record>
 
     <record model="ir.actions.act_window" id="action_acc_account_asset_asset_form">
         <field name="name">资产</field>

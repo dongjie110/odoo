@@ -96,14 +96,54 @@
             <field name="model">mrp.production</field>
             <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
             <field name="arch" type="xml">
+                <xpath expr="//field[@name='date_planned_start']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <xpath expr="//field[@name='origin']" position="after">
-                    <!-- <field name="location_src_id"/>
-                    <field name="location_dest_id"/> -->
+                    <field name="code"/>
+                    <field name="acc_start_date"/>
+                    <field name="plan_send_date"/>
                     <field name="plan_date"/>
                     <field name="date_finished"/>
                 </xpath>
-                <xpath expr="//field[@name='date_planned_start']" position="attributes">
+                <!-- <xpath expr="//field[@name='date_planned_start']" position="attributes">
                     <attribute name="string">开始生产日期</attribute>
+                </xpath> -->
+            </field>
+        </record>
+
+        <record id="mrp_production_acc_tree_inherit" model="ir.ui.view">
+            <field name="name">mrp.production.tree.inherit</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="attributes" >
+                    <attribute name="string">生产单号</attribute>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="attributes" >
+                    <attribute name="string">项目号(SO号)</attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="attributes" >
+                    <attribute name="string">设备名称</attribute>
+                </xpath>
+                <xpath expr="//field[@name='availability']" position="attributes" >
+                    <attribute name="string">物料状态</attribute>
+                </xpath>
+                <xpath expr="//field[@name='date_planned_start']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='routing_id']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="before">
+                    <field name="code"/>
+                </xpath>
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="acc_start_date"/>
+                    <field name="plan_date"/>
+                </xpath>
+                <xpath expr="//field[@name='state']" position="after">
+                    <field name="plan_send_date"/>  
                 </xpath>
             </field>
         </record>
@@ -118,6 +158,11 @@
                     <field name="is_use"/>
                     <field name="before_purchase_id"/>
                     <field name="change_reason"/>
+                </xpath>
+                <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="after">
+                    <field name="acc_code"/>
+                    <field name="product_model"/>
+                    <field name="brand"/>
                 </xpath>
             </field>
         </record>

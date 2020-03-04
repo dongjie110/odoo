@@ -43,6 +43,7 @@
         'views/ir_sequence.xml',
 
         'wizard/export_purchase_view.xml',
+        'wizard/export_info_view.xml',
 
         'views/mail_data.xml',
 

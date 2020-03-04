@@ -199,7 +199,7 @@
 
         <menuitem id="menu_wait_acc_purchase_pomanager1" name="已提交采购单" parent="purchase.menu_procurement_management" action="wait_acc_purchase_pomanger1" sequence="1"/>
 
-        <menuitem id="menu_wait_acc_purchase_boss1" name="已审批采购单" parent="purchase.menu_procurement_management" action="wait_acc_purchase_boss1" sequence="1"/>
+        <menuitem id="menu_wait_acc_purchase_boss1" name="需管理部审核采购单" parent="purchase.menu_procurement_management" action="wait_acc_purchase_boss1" sequence="1"/>
 
         <menuitem id="menu_wait_acc_purchase_queren1" name="待确认采购单" parent="purchase.menu_procurement_management" action="wait_acc_purchase_manager1" sequence="1"/>
 

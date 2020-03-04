@@ -74,72 +74,6 @@ class AccAccountInvoice(models.Model):
              " * The 'Cancelled' status is used when user cancel invoice.")
 
 
-    # @api.onchange('payrecord_line')
-    # def onchange_payrecord_line(self):
-    #     for line in self:
-    #         if line.invoice_acc_total:
-    #             if line.invoice_acc_total == 
-    #         for line in self.order_line:
-    #             line.update({'forcast_date':self.forcast_date})
-
-    # @api.multi
-    # def write(self, vals):
-    #     _logger.debug('=============%s=============',vals)
-    #     if vals.get('payrecord_line'):
-    #         _logger.debug('=============11=============')
-    #         if self.type == 'out_invoice':
-    #             _logger.debug('=============22=============')
-    #             sale_obj = self.env['sale.order'].search([('name', '=', self.origin)])
-    #             invoices = sale_obj.mapped('invoice_ids')
-    #             invoices_total = 0.0
-    #             for invoice in invoices:
-    #                 invoices_total += invoice.invoice_acc_total
-    #             _logger.debug('=============%s=======%s======',self.invoice_acc_total,invoices_total)
-    #             if invoices_total < sale_obj.amount_total:
-    #                 sale_obj.write({'is_invoice':'part'})
-    #             if invoices_total == sale_obj.amount_total:
-    #                 sale_obj.write({'is_invoice':'all'})
-    #             if invoices_total == 0:
-    #                 sale_obj.write({'is_invoice':'noinvoice'})
-    #     res = super(AccAccountInvoice, self).write(vals)
-    #     return res
-
-    # @api.multi
-    # def rewrite_info(self,invoice_amount):
-    #     if self.type == 'out_invoice':
-    #         sale_obj = self.env['sale.order'].search([('name', '=', self.origin)])
-    #         invoices = sale_obj.mapped('invoice_ids')
-    #         invoices_total = 0.0
-    #         for invoice in invoices:
-    #             if invoice.id != self.id:
-    #                 invoices_total += invoice.invoice_acc_total
-    #         if invoices_total + invoice_amount < sale_obj.amount_total:
-    #             sale_obj.write({'is_invoice':'part'})
-    #         elif invoices_total + invoice_amount == sale_obj.amount_total:
-    #             sale_obj.write({'is_invoice':'all'})
-    #         else:
-    #             sale_obj.write({'is_invoice':'noinvoice'})
-    #     return True         
-
-
-
-
-    # @api.one
-    # @api.depends('invoice_line_ids.price_subtotal', 'tax_line_ids.amount', 'tax_line_ids.amount_rounding',
-    #              'currency_id', 'company_id', 'date_invoice', 'type')
-    # def _compute_amount(self):
-    #     res = super(AccAccountInvoice, self)._compute_amount()
-    #     if self.type == 'in_invoice':
-    #         self.amount_untaxed = self.amount_untaxed * (self.pay_rate/100)
-    #         self.amount_tax = self.amount_tax * (self.pay_rate/100)
-    #         self.amount_total = (self.amount_untaxed + self.amount_tax - self.minus_amount)
-    #         amount_total_company_signed = self.amount_total
-    #         sign = self.type in ['in_refund', 'out_refund'] and -1 or 1
-    #         self.amount_total_company_signed = amount_total_company_signed * sign
-    #         self.amount_total_signed = self.amount_total * sign
-    #     return res
-
-
     @api.multi
     def get_poqty(self):
         for line in self.invoice_line_ids:
@@ -192,28 +126,7 @@ class AccAccountInvoice(models.Model):
     def boss_accept(self):
         self.filtered(lambda r: r.state == 'teller').write({'state': 'open'})
         return True
-
-    # @api.multi
-    # def action_invoice_paid(self):
-    #     res = super(AccAccountInvoice,self).action_invoice_paid()
-    #     po_name = self.origin
-    #     po_obj = self.env['purchase.order'].search([('name', '=', po_name)])
-    #     if po_obj:
-    #         if self.state == 'paid':
-    #             po_obj.write({'payment_state':'allpay'})
-    #         if self.state == 'open':
-    #             po_obj.write({'payment_state':'partpay'})
-    #     return res
-
-    # @api.multi
-    # def pay_and_reconcile(self, pay_journal, pay_amount=None, date=None, writeoff_acc=None):
-    #     res = super(AccAccountInvoice,self).pay_and_reconcile(pay_journal, pay_amount=None, date=None, writeoff_acc=None)
-    #     po_name = self.origin
-    #     po_obj = self.env['purchase.order'].search([('name', '=', po_name)])
-    #     if po_obj:
-    #         po_obj.write({'payment_state':'partpay'})
-    #     return res
-    #     
+    
     @api.onchange('invoice_number')
     def onchange_invoice_number(self):
         if self.invoice_number:
@@ -258,6 +171,46 @@ class PayrecordLine(models.Model):
     pay_datetime = fields.Datetime(string='登记时间',default=lambda self: fields.Datetime.now(),readonly=True)
     pay_user = fields.Many2one('res.users',string='操作人',default=lambda self: self.env.user.id,readonly=True)
     invoice_number = fields.Char(string='发票号')
+
+
+class AccAccountAssetAsset(models.Model):
+    """
+     account.asset.asset继承
+    """
+    _inherit = "account.asset.asset"
+
+    asset_sequence = fields.Char(string='序列号',copy=False)
+    user_id = fields.Many2one('res.users',string='使用人')
+    acc_asset_code = fields.Char(string='资产编号')
+    acc_type = fields.Selection([('consumable', '易耗品'), ('low', '低值'), ('fixed', '固定资产'), ('book', '图书')], string='资产类型', required=True)
+    user_line = fields.One2many('user.line', 'record_id','user line')
+
+
+class AccAccountAssetCategory(models.Model):
+    """
+     account.asset.asset继承
+    """
+    _inherit = "account.asset.category"
+
+    acc_type = fields.Selection([('consumable', '易耗品'), ('low', '低值'), ('fixed', '固定资产'), ('book', '图书')], string='类型', required=True)
+
+class UserLine(models.Model):
+    """
+    使用记录
+    """
+    _name = 'user.line'
+    # _inherit = ['mail.thread']
+    _description = "使用记录"
+
+    record_id = fields.Many2one('account.asset.asset', 'Order Reference')
+    start_datetime = fields.Datetime(string='开始日期')
+    end_datetime = fields.Datetime(string='结束日期')
+    # pay_datetime = fields.Datetime(string='登记时间',default=lambda self: fields.Datetime.now(),readonly=True)
+    user_id = fields.Many2one('res.users',string='使用人')
+    use_state = fields.Selection([('returned', '已归还'), ('using', '正在使用')], string='使用状态')
+    # invoice_number = fields.Char(string='发票号')
+
+
     
 
 

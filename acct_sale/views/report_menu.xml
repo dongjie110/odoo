@@ -10,6 +10,14 @@
                 name="acct_sale.acct_report_quotation"
         />
         <report
+                string="挚锦科技中文合同"
+                id="neotels_report_contract"
+                model="acc.quotation"
+                report_type="qweb-html"
+                file="acct_sale.neotel_report_contract"
+                name="acct_sale.neotel_report_contract"
+        />
+        <report
                 string="挚锦人民币销售合同"
                 id="acc_report_contract"
                 model="sale.order"

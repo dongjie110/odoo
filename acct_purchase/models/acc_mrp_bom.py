@@ -50,7 +50,9 @@ class AccMrpBom(models.Model):
         res = super(AccMrpBom, self).create(vals)
         # group_name = '商务部员工'
         # create_user_id = self._uid
-        toaddrs = ['jie.dong@acctronics.cn','yi.wang@acctronics.cn','cissy.shen@acctronics.cn']
+        # luna.zhang@neotel-technology.com
+        toaddrs = ['coco.ma@neotel-technology.com','jie.dong@neotel-technology.com','yi.wang@neotel-technology.com','cissy.shen@neotel-technology.com']
+        # toaddrs = ['jie.dong@neotel-technology.com']
         subjects = "物料清单{}{}已创建".format(res.product_tmpl_id.name,res.code)
         message = "物料清单{}{}已创建请及时查看".format(res.product_tmpl_id.name,res.code)
         self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
@@ -353,14 +355,17 @@ class AccMrpProduction(models.Model):
         return location and location.id or False
 
 
-    plan_date = fields.Date(string=u'预计完成日期')
+    acc_start_date = fields.Date(string=u'开始日期')
+    plan_date = fields.Date(string=u'预计结束日期')
     done_date = fields.Date(string=u'实际完成日期')
+    plan_send_date = fields.Date(string=u'计划发货日期')
+    code = fields.Char(related='bom_id.code',readonly=True, store=True,string='设备描述')
     location_src_id = fields.Many2one(
         'stock.location', '原料库位',
         default=_get_default_location_src_id,required=True,
         help="Location where the system will look for components.")
     location_dest_id = fields.Many2one(
-        'stock.location', '成品库位',
+        'stock.location', '成品库位',   
         default=_get_default_location_dest_id,required=True,
         help="Location where the system will stock the finished products.")
 
@@ -528,5 +533,15 @@ class AccMrpEco(models.Model):
         so = self.env['sale.order'].search([('name', '=', origin)])
         if so:
             so.write({'wait_change':'no'})
+
+class AccMrpEcoBomChange(models.Model):
+    """
+    plm继承
+    """
+    _inherit = "mrp.eco.bom.change"
+
+    acc_code = fields.Char(related='product_id.acc_code',readonly=True, store=True,string='物料编码')
+    product_model = fields.Char(related='product_id.product_model',readonly=True, store=True,string='型号')
+    brand = fields.Char(related='product_id.brand',readonly=True, store=True,string='品牌')
 
     

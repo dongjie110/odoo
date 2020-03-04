@@ -13,5 +13,106 @@
             </field>
     </record>
 
+    <record id="view_task_timeline" model="ir.ui.view">
+        <field name="model">project.task</field>
+        <field name="type">timeline</field>
+        <field name="arch" type="xml">
+            <timeline date_start="task_start"
+                      date_stop="date_deadline"
+                      string="Tasks"
+                      default_group_by="user_id"
+                      event_open_popup="true"
+                      zoomKey="ctrlKey"
+                      colors="#ec7063:user_id == false;#2ecb71:kanban_state=='done';"
+                      dependency_arrow="task_dependency_ids">
+                <field name="user_id"/>
+                <field name="project_id"/>
+                <templates>
+                    <div t-name="timeline-item">
+                        项目:
+                        <div t-esc="record.project_id[1]"/>
+                        负责人:
+                        <span t-esc="record.user_id[1]"/>
+                        具体任务描述:
+                        <div t-esc="record.display_name"/>
+                    </div>
+                </templates>
+            </timeline>
+        </field>
+    </record>
+
+    <record id="project.action_view_task" model="ir.actions.act_window">
+        <field name="view_mode">kanban,tree,form,calendar,timeline,graph</field>
+    </record>
+
+    <!-- 项目视图 -->
+    <!-- 项目tree视图继承 -->
+    <record id="acc_project_tree_inherit" model="ir.ui.view">
+        <field name="name">project.tree.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="project_code"/>
+                <field name="equipment"/>
+                <field name="delivery_time"/>
+                <field name="priority_level"/>
+                <field name="machine_design"/>
+                <field name="electrical_design"/>
+                <field name="software_design"/>
+                <field name="design_date"/>
+                <field name="purchase_date"/>
+                <field name="assembling_date"/>
+                <field name="send_date"/>
+                <field name="debugging_date"/>
+                <field name="note"/>   
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 项目form视图继承 -->
+    <record id="acc_project_form_inherit" model="ir.ui.view">
+        <field name="name">project.project</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//button[@name='action_quotation_send'][1]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath> -->
+            <xpath expr="/form/sheet/notebook/page[@name='settings']" position="before">
+                <page string="项目基础信息" name="project_information">
+                    <group>
+                        <group>
+                            <field name="project_code"/>
+                            <field name="equipment"/>
+                            <field name="delivery_time"/>
+                            <field name="priority_level"/>
+                            <field name="machine_design"/>
+                            <field name="electrical_design"/>
+                            <field name="software_design"/>  
+                        </group>
+                        <group>
+                            <field name="design_date"/>
+                            <field name="purchase_date"/>
+                            <field name="assembling_date"/>
+                            <field name="send_date"/>
+                            <field name="debugging_date"/>
+                            <field name="note"/>  
+                        </group>
+                    </group>
+                </page>
+            </xpath> 
+        </field>
+    </record>
+
+    <record id="action_acc_project" model="ir.actions.act_window">
+        <field name="name">项目</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">project.project</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem name="项目" id="menu_acc_project_management" parent="project.menu_main_pm"
+            action="action_acc_project" sequence="0" groups="base.group_no_one,project.group_project_user"/>
     </data>
 </openerp>

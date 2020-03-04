@@ -5,3 +5,4 @@ from . import accen_quotation_report
 from . import accen_contract_report
 from . import accall_quotation_report
 from . import accenall_quotation_report
+from . import neotel_contract_report

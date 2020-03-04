@@ -34,14 +34,14 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@name='preview_sale_order']" position="after">
-                    <button name="certain" string="确认合同" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
-                    <button name="confirm" string="提交审批" type="object" states="certain" class="oe_highlight" groups="base.group_user"/>
+                    <!-- <button name="certain" string="确认合同" type="object" states="draft" class="oe_highlight" groups="base.group_user"/> -->
+                    <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <!-- <button name="boss_accept" string="管理部审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_manage_info_group"/> -->
                     <button name="action_confirm" string="确认订单" type="object" class="oe_highlight" attrs="{'invisible': [('state', 'not in', ['confirm'])]}" groups="acct_base.acc_commerce_manager_group"/>
                     <button name="add_new_bom" confirm='是否确认进行物料清单变更!' states="sale" string="物料清单变更" type="object" groups="acct_base.acc_commerce_manager_group"/>   
                 </xpath>
                 <xpath expr="//field[@name='state']" position="attributes">
-                    <attribute name="statusbar_visible">draft,certain,confirm,sale</attribute>
+                    <attribute name="statusbar_visible">draft,confirm,sale</attribute>
                 </xpath>
                 <xpath expr="//field[@name='partner_id']" position="after" >
                     <field name="contact_id" context="{'sale_choose_contact':'sale_choose_contact','partner_id':partner_id}"/>
@@ -194,8 +194,6 @@
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">sale.order</field>
             <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
-            <!-- <field name="search_view_id" ref="acc_sale_order_view_search_inherit_quotation"/> -->
-            <!-- <field name="context">{'search_default_my_quotation': 1}</field> -->
             <field name="help" type="html">
               <p class="o_view_nocontent_smiling_face">
                 Create a new quotation, the first step of a new sale!
@@ -233,7 +231,7 @@
                 parent="sale.sale_order_menu"
                 sequence="0" name="待确认销售单"/>
 
-        <record id="action_acc_certain_order" model="ir.actions.act_window">
+        <!-- <record id="action_acc_certain_order" model="ir.actions.act_window">
             <field name="name">已确认销售单</field>
             <field name="type">ir.actions.act_window</field>
             <field name="res_model">sale.order</field>
@@ -244,7 +242,7 @@
         <menuitem id="menu_acc_certain_sale_order"
                 action="action_acc_certain_order"
                 parent="sale.sale_order_menu"
-                sequence="0" name="已确认销售单"/>
+                sequence="0" name="已确认销售单"/> -->
 
         <record id="action_acc_confirm_order" model="ir.actions.act_window">
             <field name="name">已提交销售单</field>
@@ -257,7 +255,24 @@
         <menuitem id="menu_acc_confirm_sale_order"
                 action="action_acc_confirm_order"
                 parent="sale.sale_order_menu"
-                sequence="0" name="已提交销售单"/>
+                sequence="1" name="已提交销售单"/>
+
+        <record id="action_acc_all_order" model="ir.actions.act_window">
+            <field name="name">所有销售单</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">sale.order</field>
+            <field name="view_mode">tree,kanban,form,calendar,pivot,graph,activity</field>
+        </record>
+
+        <menuitem id="menu_acc_all_sale_order"
+                action="action_acc_all_order"
+                parent="sale.sale_order_menu"
+                sequence="1" name="所有销售单"/>
+
+        <!-- <menuitem id="menu_acc_sale_quotations"
+                action="action_acc_quotations"
+                parent="sale.sale_order_menu"
+                sequence="2" name="所有销售单" groups="sales_team.group_sale_salesman"/> -->
 
 
         <!-- 挚锦报价单 -->
@@ -268,8 +283,9 @@
                 <form string="Acc Quotation" version="12.0">
                     <header>
                         <!-- <button name="draft_button" states="draft" string="提交审批" type="object" groups="purchase.group_purchase_user"/> -->
-                        <button name="create_so" confirm='是否确认生成销售单!' states="sent,draft" string="确认" type="object"/>
+                        <button name="create_so" confirm='是否确认生成销售单!' attrs="{'invisible': [('is_createso', '=', True)]}" string="创建销售单" type="object"/>
                         <!-- <button name="draft_sent" states="sent" string="设为草稿" type="object"/> -->
+                        <button name="certain" states="draft,sent" string="确认报价单" type="object"/>
                         <button name="cancel_draft" states="cancel" string="设为草稿" type="object"/>
                         <button name="sent" confirm='是否发送报价短信给客户!' states="draft" string="发送" type="object"/>
                         <button name="cancel" confirm='是否取消报价单!' states="sent" string="取消" type="object"/>
@@ -305,6 +321,7 @@
                                 <field name="transaction_rule"/>
                                 <field name="sale_company" />
                                 <field name="sale_order"/>
+                                <field name="is_createso"/>
                                 <field name="discount" />
                                 <field name="ship_fee"/>
                                 <!-- <field name="transaction_rule"/> -->
@@ -336,6 +353,17 @@
                                     <field name="amount_total" nolabel="1" widget="monetary" options="{'currency_field': 'currency_id'}" class="oe_subtotal_footer_separator" />
                                 </group>
 
+                            </page>
+                            <page string="合同相关信息" name="quo_information">
+                                <group>
+                                    <group string="合同相关信息" name="quo_information">
+                                        <field name="origin_country"/>
+                                        <field name="port_shipment"/>
+                                        <field name="destination_port"/>
+                                        <field name="destination_address"/>
+                                        <field name="shipping_method"/>
+                                    </group>
+                                </group>
                             </page>
                             <page string="挚锦报价单日志">
                                 <field name="log_line">
@@ -410,10 +438,10 @@
             </record>
         </data>
 
-        <menuitem id="menu_acc_sale_quotations"
+        <!-- <menuitem id="menu_acc_sale_quotations"
                 action="action_acc_quotations"
                 parent="sale.sale_order_menu"
-                sequence="2" name="所有销售单" groups="sales_team.group_sale_salesman"/>
+                sequence="2" name="所有销售单" groups="sales_team.group_sale_salesman"/> -->
         <!-- <menuitem id="menu_acc_boss_sale_order"
                 action="action_acc_quotations"
                 parent="sale.sale_order_menu"

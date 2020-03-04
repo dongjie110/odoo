@@ -62,13 +62,44 @@ class AccHrExpenseSheet(models.Model):
         return res
 
     @api.multi
+    def action_submit_sheet(self):
+        res = super(AccHrExpenseSheet,self).action_submit_sheet()
+        # toaddrs = ['jie.dong@acctronics.cn']
+        toaddrs = []
+        toaddrs.append(self.user_id.login)
+        # toaddrs = ['jie.dong@acctronics.cn']
+        subjects = "{}费用报销单{}审批".format(self.employee_id.name,self.name)
+        message = "{}的费用报销单{}需要您审批,请及时处理".format(self.employee_id.name,self.name)
+        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+
+    @api.multi
+    def approve_expense_sheets(self):
+        res = super(AccHrExpenseSheet,self).approve_expense_sheets()
+        toaddrs = ['mei.hong@neotel-technology.com']
+        # toaddrs.append(self.user_id.login)
+        # toaddrs = ['jie.dong@acctronics.cn']
+        subjects = "{}费用报销单{}审批".format(self.employee_id.name,self.name)
+        message = "{}的费用报销单{}部门经理已批准,请及时处理".format(self.employee_id.name,self.name)
+        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
+
+    @api.multi
     def teller_accept(self):
         self.filtered(lambda r: r.state == 'approve').write({'state': 'teller'})
+        # toaddrs = ['al@neotel-technology.com']
+        # subjects = "{}费用报销单{}审批".format(self.employee_id.name,self.name)
+        # message = "{}的费用报销单{}出纳已核准,请及时处理".format(self.employee_id.name,self.name)
+        # self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
         return True
 
     @api.multi
     def boss_accept(self):
         self.filtered(lambda r: r.state == 'teller').write({'state': 'boss'})
+        toaddrs = ['hongyan.chen@neotel-technology.com']
+        # toaddrs.append(self.user_id.login)
+        # toaddrs = ['jie.dong@acctronics.cn']
+        subjects = "{}费用报销单{}审批".format(self.employee_id.name,self.name)
+        message = "{}的费用报销单{}管理部已批准,请及时处理".format(self.employee_id.name,self.name)
+        self.env['acc.tools'].send_report_email(subjects,message,toaddrs)
         return True
 
     def save_exel(self, header, body, file_name):

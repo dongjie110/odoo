@@ -257,7 +257,7 @@
                             </td>
                             <td>
                                 <!-- <span t-esc="o.amount_total - o.discount_amount - o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/> -->
-                                <span t-esc="o.amount_total - o.discount + o.ship_fee" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                <span t-esc="o.amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                             </td>
                         </tr>
                         <tr>
