@@ -75,6 +75,7 @@
                     <field name="end_date"/>
                     <field name="forcast_date"/>
                     <field name="demand_purchase"/>
+                    <field name="before_purchase_id"/>
                     <field name="origin_order"/>
                     <field name="is_excipients"/>
                     <field name="en_name" invisible='1'/>
@@ -136,6 +137,8 @@
                     <separator/>
                     <field name="title" string="标题" filter_domain="[('title','ilike',self)]"/>
                     <field name="charge_person" string="负责人"/>
+                    <field name="origin_order" string="项目号(源销售单)"/>
+                    <field name="before_purchase_id" string="源待确认询价单"/>
                     <field name="order_line" string="产品编码" filter_domain="[('order_line.product_id.acc_code', 'ilike', self)]"/>
                     <separator/>
                     <filter name="product_state" string="未到货" domain="[('product_state','=', 'new')]"/>
