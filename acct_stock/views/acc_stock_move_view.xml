@@ -71,7 +71,7 @@
         <field name="view_type">form</field>
         <field name="view_id" ref="acc_view_location_tree"/>
         <!-- <field name="search_view_id" ref="view_location_search"/> -->
-        <field name="domain">[('usage','=','view')]</field>
+        <!-- <field name="domain">[('usage','=','view')]</field> -->
         <!-- <field name="context">{'search_default_in_location':1}</field> -->
     </record>
     <!-- <menuitem action="action_acc_location_form" name='库存数量查看' id="menu_action_acc_location_form"
@@ -116,6 +116,32 @@
             </xpath>
         </field>
     </record>
+
+    <!-- mrp.production视图继承 -->
+        <record id="mrp_production_accstock_form_view" model="ir.ui.view">
+            <field name="name">mrp.production.accstock.form</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <!-- <xpath expr="//field[@name='date_planned_start']" position="attributes" >
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="code"/>
+                    <field name="acc_start_date"/>
+                    <field name="plan_send_date"/>
+                    <field name="plan_date"/>
+                    <field name="date_finished"/>
+                </xpath> -->
+                <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="after">
+                    <field name="product_model"/>
+                    <field name="acc_code"/>
+                    <field name="brand"/>
+                    <field name="forcast_date"/>
+                    <!-- <field name="location_id"/> -->
+                </xpath>
+            </field>
+        </record>
 
     <menuitem id="menu_acc_stock_report" name="库存数量" parent="stock.menu_stock_root" sequence="2"/>
     <menuitem action="action_acc_location_form" name='库存数量查看' id="menu_action_acc_stock_location"

@@ -159,7 +159,19 @@
                 </xpath> -->
                 <xpath expr="//page[@name='sales_purchases']" position="after" >
                     <page string="营业执照">
-                        <field name="acc_image" widget="image" nolabel="1"  options='{"size":(380,200)}'/>
+                        <group>
+                            <field name="acc_image" widget="image" nolabel="1"  options='{"size":(380,200)}'/>
+                            <div>
+                                <label for="attachment" string="营业执照附件"/>
+                                <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label=" attachment" title="attachment"/>
+                            </div>
+                        </group>
+                        <!-- <group>
+                            <div>
+                                <label for="attachment" string="营业执照附件"/>
+                                <button name="action_see_attachments" type="object" icon="fa-files-o" aria-label=" attachment" title="attachment"/>
+                            </div>
+                        </group> -->
                     </page>
                 </xpath> 
             </field>

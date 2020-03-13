@@ -39,7 +39,7 @@ class AccTools(models.Model):
         toaddrs = toaddrs
         # subject = "最新消息"
         subject = subjects
-        password = "Acc@654321"
+        password = "Acc@65432"
         # msg = "测试"
         msg = message
         mail_msg = MIMEMultipart()

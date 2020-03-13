@@ -30,8 +30,10 @@ class AccStockMove(models.Model):
     """
     _inherit = "stock.move"
 
-    product_model = fields.Char(string=u'规格型号',related='product_id.product_model')
-    acc_code = fields.Char(string=u'产品编码',related='product_id.acc_code')
+    product_model = fields.Char(string=u'规格型号',related='product_id.product_model',store=True)
+    acc_code = fields.Char(string=u'产品编码',related='product_id.acc_code',store=True)
+    brand = fields.Char(string=u'品牌',related='product_id.brand',store=True)
+    forcast_date = fields.Date(string='预计到货日期',readonly=True)
 
 class AccStockQuant(models.Model):
     """
@@ -71,6 +73,8 @@ class AccStockPicking(models.Model):
     #         for line in po_obj.order_line:
     #             qty_received.append(line.qty_received)
     #             product_qty.append(line.product_qty)
+    #             _logger.debug('===========%s===============', qty_received)
+    #             _logger.debug('===========%s===============', product_qty)
     #         if sum(qty_received) == 0:
     #             po_obj.write({'product_state':'new'})
     #         elif sum(qty_received) < sum(product_qty) and sum(qty_received) != 0:

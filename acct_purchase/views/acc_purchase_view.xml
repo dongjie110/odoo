@@ -35,7 +35,7 @@
                 </xpath> -->
                 <xpath expr="//button[@name='action_view_invoice'][2]" position="after">
                     <!-- <button name="export_purchase_record" string="导出询价单信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/> -->
-                    <button name="export_purchase_record" string="导出询价单信息" type="object" class="oe_highlight" states="draft,confirm" groups="base.group_user"/>
+                    <button name="export_purchase_record" string="导出物料信息" type="object" class="oe_highlight" states="draft,confirm,purchase" groups="base.group_user"/>
                     <button name="%(purchase_separate_wizard)d" type="action" states="purchase" string="分批账单" class="oe_highlight" groups="purchase.group_purchase_user"/>
                     <button name="update_newinfo" string="更新产品信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
@@ -110,7 +110,8 @@
                 <xpath expr="//field[@name='name']" position="after" >
                     <field name="title"/>
                     <field name="product_state"/>
-                    <field name="payment_state"/>   
+                    <field name="payment_state"/>
+                    <field name="forcast_date"/>   
                 </xpath>
                 <xpath expr="//field[@name='date_planned']" position="attributes" >
                     <attribute name="invisible">1</attribute>

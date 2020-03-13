@@ -52,8 +52,8 @@ class CFTemplateCategory(models.Model):
     charge_person = fields.Many2one('res.users',string=u'负责人',default=lambda self: self.env.user.id,required=True)
     traffic_rule = fields.Char(string=u'运输条款',required=True)
     delivery_time = fields.Char(string=u'货期',placeholder="填写格式如(1-2周,1-2weeks,1-2天，1-2days)")
-    product_state = fields.Selection([('new', '未到货'), ('part', '部分到货'), ('all', '全部到货'), ('cancel', '取消订单')], '产品到货状态', default='new')
-    payment_state = fields.Selection([('partpay', '部分已付'), ('nopay', '未付'), ('allpay', '全部付清')], '付款状态', default='nopay')
+    product_state = fields.Selection([('new', '未到货'), ('part', '部分到货'), ('all', '全部到货'), ('cancel', '取消订单')], '产品到货状态', default='new',readonly=True)
+    payment_state = fields.Selection([('partpay', '部分已付'), ('nopay', '未付'), ('allpay', '全部付清')], '付款状态', default='nopay',readonly=True)
     purchase_way = fields.Char(string=u'采购用途')
     pay_rate = fields.Float(string=u'本次付款比例(%)')
     paid_rate = fields.Float(string=u'已付款比例(%)')
@@ -278,23 +278,22 @@ class CFTemplateCategory(models.Model):
 
     @api.multi
     def _fresh_po_state(self):
-        # purchase_orders = self.env['purchase.order'].search([('state', '=', 'purchase'),('payment_state', '!=', 'allpay'),('product_state', '!=', 'all')])
         purchase_orders = self.env['purchase.order'].search([('state', '=', 'purchase'),('date_order', '>', '2018-12-20 00:00:00')])
         for order in purchase_orders:
             invoices = order.mapped('invoice_ids')
             if not invoices:
-                order.write({'payment_state':'nopay'})
+                order.sudo().write({'payment_state':'nopay'})
             else:
                 invoices_total = 0.0
                 for invoice in invoices:
                     if invoice.state == 'paid':
                         invoices_total += invoice.amount_total
                 if invoices_total == 0:
-                    order.write({'payment_state':'nopay'})
+                    order.sudo().write({'payment_state':'nopay'})
                 if invoices_total < order.amount_total:
-                    order.write({'payment_state':'partpay'})
+                    order.sudo().write({'payment_state':'partpay'})
                 if invoices_total == order.amount_total:
-                    order.write({'payment_state':'allpay'})
+                    order.sudo().write({'payment_state':'allpay'})
             cr = self.env.cr
             # location_ids = []
             receive_qty_sql = """ SELECT
@@ -307,7 +306,7 @@ class CFTemplateCategory(models.Model):
                                 order_id = %s"""%(order.id)
             # now_qty = cr.execute(now_qty_sql, (location_id,p_id))
             cr.execute(receive_qty_sql)
-            result = request.cr.dictfetchall()
+            result = cr.dictfetchall()
             if not result[0]['qty_received']:
                 order.write({'product_state':'new'})
             if result[0]['qty_received'] and result[0]['compare'] > 0:
@@ -325,46 +324,93 @@ class CFTemplateCategory(models.Model):
         return True
 
 
-    # @api.onchange('charge_person')
-    # def onchange_en_name(self):
-    #     if self.charge_person:
-    #         login_en_name = 0
-    #         login = self.charge_person.login
-    #         login_index = login.index('@')
-    #         login_en_name = login[0:login_index]
-    #         self.en_name = login_en_name
-    #         
-    # @api.multi
-    # def check_office_price(self,vals):
-    #     raise_tips = ""
-    #     if vals.get('purchase_type') == 'office':
-    #         order_line = vals.get('order_line')
-    #         for line in order_line:
-    #             product_id = line[2]['product_id']
-    #             product_object = self.env['product.product'].search([('id', '=', product_id)])
-    #             product_tmpl_obj = self.env['product.template'].search([('id', '=', product_object.product_tmpl_id.id)])
-    #             product_price = product_tmpl_obj.acc_purchase_price
-    #             # product_price = line.product_id.product_tmpl_id.acc_purchase_price
-    #             product_name = product_tmpl_obj.name
-    #             actual_price = line[2]['price_unit']
-    #             if actual_price > product_price:
-    #                 raise_tips = "所填产品名称 {}，填写价格{} 产品采购定价{},所填价格高于定价，请检查".format(product_name, actual_price,product_price)
-    #                 # raise ValidationError("所填产品价格高于产品定价，请检查")
-    #                 raise ValidationError(raise_tips)
-        # if self.purchase_type == 'office' and vals.get('order_line'):
-        #     order_line = vals.get('order_line')
-        #     for line in order_line:
-        #         product_id = line[2]['product_id']
-        #         product_object = self.env['product.product'].search([('id', '=', product_id)])
-        #         product_tmpl_obj = self.env['product.template'].search([('id', '=', product_object.product_tmpl_id.id)])
-        #         product_price = product_tmpl_obj.acc_purchase_price
-        #         # product_price = line.product_id.product_tmpl_id.acc_purchase_price
-        #         product_name = product_tmpl_obj.name
-        #         actual_price = line[2]['price_unit']
-        #         if actual_price > product_price:
-        #             raise_tips = "所填产品名称 {}，填写价格{} 产品采购定价{},所填价格高于定价，请检查".format(product_name, actual_price,product_price)
-        #             # raise ValidationError("所填产品价格高于产品定价，请检查")
-        #             raise ValidationError(raise_tips)
+    @api.depends('picking_ids', 'picking_ids.state')
+    def _compute_is_shipped(self):
+        res = super(CFTemplateCategory, self)._compute_is_shipped()
+        # order.picking_ids = pickings
+        count = self.picking_count
+        # invoices = self.env['account.invoice']
+        # self.invoice_ids = invoices
+        # i_count = len(invoices)
+        cr = self.env.cr
+        for order in self:
+            if count > 0:
+                if order.picking_ids and all([x.state in ['done', 'cancel'] for x in order.picking_ids]):
+                    if order.product_state == 'all':
+                        pass
+                    else:
+                        sql = """ UPDATE purchase_order
+                                SET product_state = 'all'
+                                where id = %s """%(order.id)
+                        cr.execute(sql)
+                    _logger.debug('===========执行完成全部到货===============')
+                elif order.picking_ids and all([x.state in ['assigned'] for x in order.picking_ids]):
+                    if order.product_state == 'new':
+                        pass
+                    else:
+                        sql = """ UPDATE purchase_order
+                                SET product_state = 'new'
+                                where id = %s """%(order.id)
+                        cr.execute(sql)
+                    # _logger.debug('===========执行完成===============')
+                else:
+                    if order.product_state == 'part':
+                        pass
+                    else:
+                        sql = """ UPDATE purchase_order
+                                SET product_state = 'part'
+                                where id = %s """%(order.id)
+                        cr.execute(sql)
+                    # _logger.debug('===========执行完成===============')
+            self.update_payment_state(order)
+        return res
+
+    def update_payment_state(self,order):
+        _logger.debug('===========sssss===============')
+        _logger.debug('===========%s===============',order)
+        invoices = order.mapped('invoice_ids')
+        if not invoices:
+            order.sudo().write({'payment_state':'nopay'})
+        else:
+            invoices_total = 0.0
+            for invoice in invoices:
+                if invoice.state == 'paid':
+                    invoices_total += invoice.amount_total
+            if invoices_total == 0:
+                order.sudo().write({'payment_state':'nopay'})
+            if invoices_total < order.amount_total:
+                order.sudo().write({'payment_state':'partpay'})
+            if invoices_total >= order.amount_total:
+                order.sudo().write({'payment_state':'allpay'})
+        # cr = self.env.cr
+        # invoices = order.invoice_ids
+        # count = len(invoices)
+        # _logger.debug('===========count%s===============',count)
+        # if count > 0:
+        #     if invoices and all([x.state in ['paid'] for x in invoices]):
+        #         if order.payment_state != 'allpay':
+        #             sql = """ UPDATE purchase_order
+        #                     SET payment_state = 'allpay'
+        #                     where id = %s """%(order.id)
+        #             cr.execute(sql)
+        #             _logger.debug('===========11111===============')
+        #     elif invoices and all([x.state in ['draft','teller','open'] for x in invoices]):
+        #         if order.payment_state != 'nopay':
+        #             sql = """ UPDATE purchase_order
+        #                     SET payment_state = 'nopay'
+        #                     where id = %s """%(order.id)
+        #             cr.execute(sql)
+        #             _logger.debug('===========2222===============')
+        #     else:
+        #         if order.payment_state != 'partpay':
+        #             sql = """ UPDATE purchase_order
+        #                     SET payment_state = 'partpay'
+        #                     where id = %s """%(order.id)
+        #             cr.execute(sql)
+        #             _logger.debug('===========33333===============')
+        return True
+
+
     @api.model
     def create(self,vals):
         # if vals.get('order_line'):
@@ -766,15 +812,24 @@ class AccPurchaseLine(models.Model):
             rec.partner_code = self.product_id.product_tmpl_id.partner_code
         return res
 
-    # @api.depends('order_id.forcast_date')
-    # def _compute_date(self):
-    #     for line in self:
-    #         date = line.order_id.forcast_date
-    #         line.update({'forcast_date':date})
+    @api.onchange('forcast_date')
+    def _onchange_line_forcast_date(self):
+        if self.forcast_date and self.order_id.state == 'purchase':
+        # if self.forcast_date:
+            move = self.env['stock.move'].search([('purchase_line_id', '=', self._origin.id)],limit=1)
+            # _logger.debug('===========%s===line_id_state===============', self._origin.order_id.state)
+            # _logger.debug('===========%s===line_id===============', self._origin.order_id)
+            # _logger.debug('===========%s===============', move)
+            # _logger.debug('===========%s===============', self.product_id)
+            # _logger.debug('===========%s===============', self.forcast_date)
+            move.write({'forcast_date':self.forcast_date})
 
-    # @api.one
-    # def _inverse_compute_date(self):
-    #     self.f_date = self.forcast_date
+    @api.multi
+    def _prepare_stock_moves(self, picking):
+        res = super(AccPurchaseLine, self)._prepare_stock_moves(picking)
+        if res:
+            res[0]['forcast_date'] = self.forcast_date
+        return res
 
     def import_purchase_line_data(self, fileName=None, content=None):
         import_tips = ""

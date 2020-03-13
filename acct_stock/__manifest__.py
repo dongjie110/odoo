@@ -21,7 +21,7 @@
     'version': '1.0.0',
 
     # any module necessary for this one to work correctly
-    'depends': ['base','acct_base','web','stock'],
+    'depends': ['base','acct_base','acct_purchase','web','stock'],
 
     # always loaded
     'data': [
@@ -31,7 +31,7 @@
 
         'report/accstock_report_views.xml',
 
-        'wizard/choose_move_view.xml',
+        # 'wizard/choose_move_view.xml',
 
         'views/report_menu.xml',
     ],

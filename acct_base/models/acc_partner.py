@@ -293,3 +293,26 @@ class res_partner_acc(models.Model):
             #     raise ValidationError('请使用正确的模板进行导入操作！')
         else:
             raise ValidationError(import_tips)
+
+
+    @api.multi
+    def action_see_attachments(self):
+        domain = ['&', ('res_model', '=', 'res.partner'), ('res_id', '=', self.id)]
+        attachment_view = self.env.ref('acct_base.view_partner_document_file_kanban_acct')
+        return {
+            'name': _('Attachments'),
+            'domain': domain,
+            'res_model': 'mrp.document',
+            'type': 'ir.actions.act_window',
+            'view_id': attachment_view.id,
+            'views': [(attachment_view.id, 'kanban'), (False, 'form')],
+            'view_mode': 'kanban,tree,form',
+            'view_type': 'form',
+            'help': _('''<p class="o_view_nocontent_smiling_face">
+                        Upload files to your product
+                    </p><p>
+                        Use this feature to store any files, like drawings or specifications.
+                    </p>'''),
+            'limit': 80,
+            'context': "{'default_res_model': '%s','default_res_id': %d}" % ('res.partner', self.id)
+        }

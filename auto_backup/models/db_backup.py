@@ -21,11 +21,11 @@ import socket
 import paramiko
 
 
-# try:
-#     import paramiko
-# except ImportError:
-#     raise ImportError(
-#         'This module needs paramiko to automatically write backups to the FTP through SFTP. Please install paramiko on your system. (sudo pip3 install paramiko)')
+try:
+    import paramiko
+except ImportError:
+    raise ImportError(
+        'This module needs paramiko to automatically write backups to the FTP through SFTP. Please install paramiko on your system. (sudo pip3 install paramiko)')
 
 
 def execute(connector, method, *args):
@@ -38,7 +38,7 @@ def execute(connector, method, *args):
     return res
 
 
-class db_backup(models.Model):
+class DbBackup(models.Model):
     _name = 'db.backup'
     _description = 'Backup configuration record'
 

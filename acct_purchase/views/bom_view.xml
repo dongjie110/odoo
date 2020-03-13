@@ -96,18 +96,26 @@
             <field name="model">mrp.production</field>
             <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
             <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_assign']" position="after">
+                    <button name="update_forcast_date" string="更新到货时间" type="object" class="oe_highlight"/>   
+                </xpath>
                 <xpath expr="//field[@name='date_planned_start']" position="attributes" >
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//field[@name='origin']" position="after">
                     <field name="code"/>
+                    <!-- <button name="update_forcast_date" string="更新到货时间" type="object" class="oe_highlight"/> -->
                     <field name="acc_start_date"/>
                     <field name="plan_send_date"/>
                     <field name="plan_date"/>
                     <field name="date_finished"/>
                 </xpath>
-                <!-- <xpath expr="//field[@name='date_planned_start']" position="attributes">
-                    <attribute name="string">开始生产日期</attribute>
+                <!-- <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='product_id']" position="after">
+                    <field name="product_model"/>
+                    <field name="acc_code"/>
+                    <field name="brand"/>
+                    <field name="forcast_date"/>
+                    <field name="location_id"/>
                 </xpath> -->
             </field>
         </record>

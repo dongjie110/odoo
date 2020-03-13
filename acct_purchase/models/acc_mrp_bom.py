@@ -159,6 +159,14 @@ class AccMrpBom(models.Model):
                                 product_product
                             WHERE
                                 product_product. ID = mrp_bom_line.product_id
+                        ),
+                            number = (
+                            SELECT
+                                product_product.internal_des
+                            FROM
+                                product_product
+                            WHERE
+                                product_product. ID = mrp_bom_line.product_id
                         )
                         where bom_id = %s """%(self.id)
         cr.execute(sql)
@@ -403,7 +411,19 @@ class AccMrpProduction(models.Model):
     #                             reference = %s """
     #         # cr.execute(all_total)
     #         cr.execute(change_sql, (self.location_dest_id.id,tuple(move_ids)))
-
+    @api.multi
+    def update_forcast_date(self):
+        po_orders = self.env['purchase.order'].sudo().search([('title', '=', self.origin)])
+        po_ids = [l.id for l in po_orders]
+        po_line = self.env['purchase.order.line'].sudo().search([('order_id', 'in', po_ids)])
+        for m_line in self.move_raw_ids:
+            for p_line in po_line:
+                if p_line.product_id == m_line.product_id:
+                    m_line.update({'forcast_date':p_line.forcast_date})
+                    break
+                else:
+                    continue
+        return True
 
 
 class AccMrpEco(models.Model):
