@@ -45,26 +45,10 @@ class product_templ_acc(models.Model):
     partner_id = fields.Many2one('res.partner',string='供应商')
     image_code = fields.Char(string='图号')
     part_code = fields.Char(string='编号')
-    # type = fields.Selection([
-    #     ('consu', 'Consumable'),
-    #     ('service', 'Service')], string='Product Type', default='product', required=True,
-    #     help='A storable product is a product for which you manage stock. The Inventory app has to be installed.\n'
-    #          'A consumable product is a product for which stock is not managed.\n'
-    #          'A service is a non-material product you provide.')
+    # standard_price = fields.Float('Cost', company_dependent=False)
 
-    # _sql_constraints = [
-    #     ('products_uniq', 'UNIQUE(product_model,brand)', '产品重复(系统存在该型号品牌的产品)！')
-    # ]
-    
-    # @api.multi
-    # def write(self, vals):
-    #     # if self.purchase_type == 'office':
-    #     #     self.check_office_price(vals)
-    #     if vals.get('name'):
-    #         p_name = vals.get('name')
-    #         print (p_name)  
-    #     res = super(product_templ_acc, self).write(vals)
-    #     return res
+    # def _compute_set_standard_price(self):
+    #      self.standard_price = self.acc_purchase_price
 
     def check_products(self,vals):
         product_model = vals.get('product_model')
@@ -72,7 +56,23 @@ class product_templ_acc(models.Model):
         product_name = vals.get('name')
         pt = self.env['product.template'].search([('product_model', '=', product_model),('brand', '=', brand),('name', '=', product_name),('active', '=', True)])
         if pt:
-            raise ValidationError("产品重复(系统存在该型号品牌的产品)！") 
+            raise ValidationError("产品重复(系统存在该型号品牌的产品)！")
+
+    @api.depends('product_variant_ids', 'product_variant_ids.standard_price')
+    def _compute_standard_price(self):
+        res = super(product_templ_acc, self)._compute_standard_price()
+        # _logger.debug('===========%s222===============', self)
+        for order in self:
+            order.standard_price = order.acc_purchase_price
+        return res
+
+    @api.onchange('acc_purchase_price')
+    def _onchange_acc_purchase_price(self):
+        # if self.forcast_date and self.order_id.state == 'purchase':
+        if self.acc_purchase_price:
+            product = self.env['product.product'].search([('product_tmpl_id', '=', self._origin.id)],limit=1)
+            # _logger.debug('===========%s111===============', product)
+            product.write({'standard_price':self.acc_purchase_price})
 
     @api.multi
     def action_see_attachments(self):
@@ -261,6 +261,7 @@ class product_product_acc(models.Model):
     template_currency_id = fields.Many2one('res.currency',related='product_tmpl_id.template_currency_id',readonly=True, store=True,string='币种')
     image_code = fields.Char(related='product_tmpl_id.image_code',readonly=True, store=True,string='图号')
     part_code = fields.Char(related='product_tmpl_id.part_code',readonly=True, store=True,string='编号')
+    standard_price = fields.Float('Cost', company_dependent=False)
 
     @api.multi
     def action_see_attachments(self):

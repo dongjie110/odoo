@@ -38,6 +38,7 @@
                     <button name="export_purchase_record" string="导出物料信息" type="object" class="oe_highlight" states="draft,confirm,purchase" groups="base.group_user"/>
                     <button name="%(purchase_separate_wizard)d" type="action" states="purchase" string="分批账单" class="oe_highlight" groups="purchase.group_purchase_user"/>
                     <button name="update_newinfo" string="更新产品信息" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
+                    <button name="fresh_merge_line" string="合并重复产品" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <button name="confirm" string="提交审批" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>
                     <button name="pomanager" string="采购经理审批" type="object" states="confirm" class="oe_highlight" groups="acct_base.acc_commerce_manager_group"/>
                     <button name="boss_accept" string="管理部审批" type="object" states="pomanager" class="oe_highlight" groups="acct_base.acc_manage_info_group"/>
@@ -112,7 +113,8 @@
                     <field name="title"/>
                     <field name="product_state"/>
                     <field name="payment_state"/>
-                    <field name="forcast_date"/>   
+                    <field name="forcast_date"/>
+                    <field name="purchase_way" invisible='1'/>   
                 </xpath>
                 <xpath expr="//field[@name='date_planned']" position="attributes" >
                     <attribute name="invisible">1</attribute>

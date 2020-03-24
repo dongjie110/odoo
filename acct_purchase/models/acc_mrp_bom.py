@@ -463,7 +463,7 @@ class AccMrpEco(models.Model):
                 state_args,remove_ids = self.check_eco_products(m)
                 self.sign_so(m)
                 cr = self.env.cr
-                cr.executemany("insert into stock_move(name,date,date_expected,picking_type_id,product_id,product_uom,product_uom_qty,location_id,location_dest_id,company_id,raw_material_production_id,warehouse_id,origin,group_id,propagate,sequence,state,unit_factor,procure_method,priority,create_date,scrapped,additional,reference,is_done,to_refund,product_qty,price_unit,bom_line_id) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"  , state_args)
+                cr.executemany("insert into stock_move(name,date,date_expected,picking_type_id,product_id,product_uom,product_uom_qty,location_id,location_dest_id,company_id,raw_material_production_id,warehouse_id,origin,group_id,propagate,sequence,state,unit_factor,procure_method,priority,create_date,scrapped,additional,reference,is_done,to_refund,product_qty,price_unit,bom_line_id,acc_code,brand,product_model) values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"  , state_args)
                 if remove_ids:
                     self.deal_remove(remove_ids,m)
                 m.write({'bom_id':mrp_bom.id})
@@ -513,23 +513,41 @@ class AccMrpEco(models.Model):
             if old_lines:
                 old_line = old_lines[0]
             # old_line = mos.move_raw_ids[0]  #需处理
-            todo_qty = self.get_todo_qty(mos)  #获取待生产数量
-            if change.change_type == 'add':
-                s_tuple = mos.name,mos.date_planned_start,mos.date_planned_start,old_line.picking_type_id.id,change.product_id.id,change.new_uom_id.id,change.new_product_qty * todo_qty,old_line.location_id.id,old_line.location_dest_id.id,mos.company_id.id,mos.id,old_line.warehouse_id.id,mos.name,mos.procurement_group_id.id,mos.propagate,old_line.sequence,'confirmed',change.new_product_qty,old_line.procure_method,old_line.priority,old_line.create_date,old_line.scrapped,old_line.additional,old_line.reference,old_line.is_done,old_line.to_refund,change.new_product_qty * todo_qty,0,bom_line_id.id
-                state_args.append(s_tuple)
-            if change.change_type == 'remove':
-                remove_ids.append(change.product_id.id)
-            if change.change_type == 'update' and change.upd_product_qty > 0:
-                # add_ids.append(change.product_id.id)
-                qty = change.upd_product_qty * todo_qty
-                unit_qty = change.upd_product_qty
-                product_id = change.product_id.id
-                self.deal_update_add(product_id,mos,qty,unit_qty)
-            if change.change_type == 'update' and change.upd_product_qty < 0:
-                qty = abs(change.upd_product_qty * todo_qty)
-                unit_qty = abs(change.upd_product_qty)
-                product_id = change.product_id.id
-                self.deal_update_minus(product_id,mos,qty,unit_qty)
+                todo_qty = self.get_todo_qty(mos)  #获取待生产数量
+                if change.change_type == 'add':
+                    s_tuple = mos.name,mos.date_planned_start,mos.date_planned_start,old_line.picking_type_id.id,change.product_id.id,change.new_uom_id.id,change.new_product_qty * todo_qty,old_line.location_id.id,old_line.location_dest_id.id,mos.company_id.id,mos.id,old_line.warehouse_id.id,mos.name,mos.procurement_group_id.id,mos.propagate,old_line.sequence,'confirmed',change.new_product_qty,old_line.procure_method,old_line.priority,old_line.create_date,old_line.scrapped,old_line.additional,old_line.reference,old_line.is_done,old_line.to_refund,change.new_product_qty * todo_qty,0,bom_line_id.id,change.product_id.acc_code,change.product_id.brand,change.product_id.product_model
+                    state_args.append(s_tuple)
+                if change.change_type == 'remove':
+                    remove_ids.append(change.product_id.id)
+                if change.change_type == 'update' and change.upd_product_qty > 0:
+                    # add_ids.append(change.product_id.id)
+                    qty = change.upd_product_qty * todo_qty
+                    unit_qty = change.upd_product_qty
+                    product_id = change.product_id.id
+                    self.deal_update_add(product_id,mos,qty,unit_qty)
+                if change.change_type == 'update' and change.upd_product_qty < 0:
+                    qty = abs(change.upd_product_qty * todo_qty)
+                    unit_qty = abs(change.upd_product_qty)
+                    product_id = change.product_id.id
+                    self.deal_update_minus(product_id,mos,qty,unit_qty)
+            else:
+                todo_qty = self.get_todo_qty(mos)  #获取待生产数量
+                if change.change_type == 'add':
+                    s_tuple = mos.name,mos.date_planned_start,mos.date_planned_start,mos.picking_type_id.id,change.product_id.id,change.new_uom_id.id,change.new_product_qty * todo_qty,mos.location_src_id.id,mos.location_dest_id.id,mos.company_id.id,mos.id,mos.picking_type_id.warehouse_id.id,mos.name,mos.procurement_group_id.id,mos.propagate,'1','confirmed',change.new_product_qty,'make_to_stock',1,mos.date_planned_start,False,False,mos.name,False,False,change.new_product_qty * todo_qty,0,bom_line_id.id,change.product_id.acc_code,change.product_id.brand,change.product_id.product_model
+                    state_args.append(s_tuple)
+                if change.change_type == 'remove':
+                    remove_ids.append(change.product_id.id)
+                if change.change_type == 'update' and change.upd_product_qty > 0:
+                    # add_ids.append(change.product_id.id)
+                    qty = change.upd_product_qty * todo_qty
+                    unit_qty = change.upd_product_qty
+                    product_id = change.product_id.id
+                    self.deal_update_add(product_id,mos,qty,unit_qty)
+                if change.change_type == 'update' and change.upd_product_qty < 0:
+                    qty = abs(change.upd_product_qty * todo_qty)
+                    unit_qty = abs(change.upd_product_qty)
+                    product_id = change.product_id.id
+                    self.deal_update_minus(product_id,mos,qty,unit_qty)
         return state_args,remove_ids
 
     @api.multi
