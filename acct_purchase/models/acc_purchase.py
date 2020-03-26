@@ -317,8 +317,6 @@ class CFTemplateCategory(models.Model):
 
     @api.depends('purchase_way')
     def _compute_state(self):
-        _logger.debug('===========11111111111111===============')
-        _logger.debug('==================%s===============',self)
         # cr = self.env.cr
         for order in self:
             count = order.picking_count
@@ -326,132 +324,37 @@ class CFTemplateCategory(models.Model):
                 if order.picking_ids and all([x.state in ['done', 'cancel'] for x in order.picking_ids]):
                     if order.product_state == 'all':
                         pass
-                    # else:
-                    #     sql = """ UPDATE purchase_order
-                    #             SET product_state = 'all'
-                    #             where id = %s """%(order.id)
-                    #     cr.execute(sql)
                     else:
                         order.product_state = 'all'
-                    _logger.debug('===========执行完成全部到货===============')
                 elif order.picking_ids and all([x.state in ['assigned'] for x in order.picking_ids]):
                     if order.product_state == 'new':
                         pass
-                    # else:
-                    #     sql = """ UPDATE purchase_order
-                    #             SET product_state = 'new'
-                    #             where id = %s """%(order.id)
-                    #     cr.execute(sql)
                     else:
                         order.product_state = 'new'
-                    _logger.debug('===========执行完成未到货===============')
                 else:
                     if order.product_state == 'part':
                         pass
-                    # else:
-                    #     sql = """ UPDATE purchase_order
-                    #             SET product_state = 'part'
-                    #             where id = %s """%(order.id)
-                    #     cr.execute(sql)
                     else:
                         order.product_state = 'part'
-                    _logger.debug('===========执行完成部分到货===============')
             order.update_payment_state(order)
-            # order.product_state = 'part'
         return True 
 
 
-    # @api.depends('picking_ids', 'picking_ids.state')
-    # def _compute_is_shipped(self):
-    #     res = super(CFTemplateCategory, self)._compute_is_shipped()
-    #     # order.picking_ids = pickings
-    #     count = self.picking_count
-    #     cr = self.env.cr
-    #     for order in self:
-    #         if count > 0:
-    #             if order.picking_ids and all([x.state in ['done', 'cancel'] for x in order.picking_ids]):
-    #                 if order.product_state == 'all':
-    #                     pass
-    #                 else:
-    #                     sql = """ UPDATE purchase_order
-    #                             SET product_state = 'all'
-    #                             where id = %s """%(order.id)
-    #                     cr.execute(sql)
-    #                 _logger.debug('===========执行完成全部到货===============')
-    #             elif order.picking_ids and all([x.state in ['assigned'] for x in order.picking_ids]):
-    #                 if order.product_state == 'new':
-    #                     pass
-    #                 else:
-    #                     sql = """ UPDATE purchase_order
-    #                             SET product_state = 'new'
-    #                             where id = %s """%(order.id)
-    #                     cr.execute(sql)
-    #                 # _logger.debug('===========执行完成===============')
-    #             else:
-    #                 if order.product_state == 'part':
-    #                     pass
-    #                 else:
-    #                     sql = """ UPDATE purchase_order
-    #                             SET product_state = 'part'
-    #                             where id = %s """%(order.id)
-    #                     cr.execute(sql)
-    #                 # _logger.debug('===========执行完成===============')
-    #         self.update_payment_state(order)
-    #     return res
-
     def update_payment_state(self,order):
-        # _logger.debug('===========sssss===============')
-        # _logger.debug('===========%s===============',order)
         invoices = order.mapped('invoice_ids')
         if not invoices:
-            # order.sudo().write({'payment_state':'nopay'})
             order.payment_state = 'nopay'
-            _logger.debug('===========未付款===============')
         else:
             invoices_total = 0.0
             for invoice in invoices:
                 if invoice.state == 'paid':
                     invoices_total += invoice.amount_total
-            # _logger.debug('===========%s===invoices_total11111============',invoices_total)
             if invoices_total == 0:
-                # order.sudo().write({'payment_state':'nopay'})
                 order.payment_state = 'nopay'
-                _logger.debug('===========未付款===============')
             if invoices_total < order.amount_total and invoices_total != 0:
-                # _logger.debug('===========%s===invoices_total22222============',invoices_total)
-                # order.sudo().write({'payment_state':'partpay'})
                 order.payment_state = 'partpay'
-                _logger.debug('==========部分付款===============')
             if invoices_total >= order.amount_total:
-                # order.sudo().write({'payment_state':'allpay'})
                 order.payment_state = 'allpay'
-                _logger.debug('===========全部付款===============')
-        # cr = self.env.cr
-        # invoices = order.invoice_ids
-        # count = len(invoices)
-        # _logger.debug('===========count%s===============',count)
-        # if count > 0:
-        #     if invoices and all([x.state in ['paid'] for x in invoices]):
-        #         if order.payment_state != 'allpay':
-        #             sql = """ UPDATE purchase_order
-        #                     SET payment_state = 'allpay'
-        #                     where id = %s """%(order.id)
-        #             cr.execute(sql)
-        #             _logger.debug('===========11111===============')
-        #     elif invoices and all([x.state in ['draft','teller','open'] for x in invoices]):
-        #         if order.payment_state != 'nopay':
-        #             sql = """ UPDATE purchase_order
-        #                     SET payment_state = 'nopay'
-        #                     where id = %s """%(order.id)
-        #             cr.execute(sql)
-        #             _logger.debug('===========2222===============')
-        #     else:
-        #         if order.payment_state != 'partpay':
-        #             sql = """ UPDATE purchase_order
-        #                     SET payment_state = 'partpay'
-        #                     where id = %s """%(order.id)
-        #             cr.execute(sql)
-        #             _logger.debug('===========33333===============')
         return True
 
 

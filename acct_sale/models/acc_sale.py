@@ -79,7 +79,7 @@ class AccSaleOrder(models.Model):
     send_date = fields.Datetime(string='发货时间',readonly=True)
     is_pay = fields.Boolean(string='是否收款',readonly=True)
     wait_change = fields.Selection([('no', '需变更'), ('yes', '无需变更')],default='yes', string='物料变更',readonly=True)
-    send_status = fields.Selection([('no', '未发货'), ('yes', '已发货'), ('part', '部分发货')], '发货情况')
+    send_status = fields.Selection([('no', '未发货'), ('yes', '已发货'), ('part', '部分发货')], '发货情况',compute='_compute_sale_state')
     transaction_mode = fields.Many2one('transaction.rule',string='交易方式')
     transaction_rule = fields.Char(string='交易条款')
     delivery_address = fields.Many2one('delivery.address',string='采购交货地址')
@@ -148,6 +148,48 @@ class AccSaleOrder(models.Model):
                 }) 
         res = super(AccSaleOrder, self).write(vals)
         return res
+
+    @api.depends('send_status')
+    def _compute_sale_state(self):
+        for order in self:
+            count = len(order.picking_ids)
+            if count > 0:
+                if order.picking_ids and all([x.state in ['done', 'cancel'] for x in order.picking_ids]):
+                    if order.send_status == 'yes':
+                        pass
+                    else:
+                        order.send_status = 'yes'
+                elif order.picking_ids and all([x.state in ['assigned'] for x in order.picking_ids]):
+                    if order.send_status == 'no':
+                        pass
+                    else:
+                        order.send_status = 'no'
+                else:
+                    if order.send_status == 'part':
+                        pass
+                    else:
+                        order.send_status = 'part'
+            else:
+                order.send_status = 'no'
+            order.update_isinvoice_state(order)
+        return True
+
+    def update_isinvoice_state(self,order):
+        invoices = order.mapped('invoice_ids')
+        if not invoices:
+            # order.write({'is_invoice':'noinvoice'})
+            order.is_invoice = 'noinvoice'
+        else:
+            invoices_total = 0.0
+            for invoice in invoices:
+                invoices_total += invoice.invoice_acc_total
+            if invoices_total == 0:
+                order.is_invoice = 'noinvoice'
+            if invoices_total < order.amount_total and invoices_total != 0:
+                order.is_invoice = 'part'
+            if invoices_total == order.amount_total:
+                order.is_invoice = 'all'
+        return True
 
     @api.multi
     def _fresh_so_state(self):
@@ -511,6 +553,9 @@ class AccSaleLine(models.Model):
     """
     _inherit = "sale.order.line"
 
+    # acc_code = fields.Char(string='产品编码')
+    # brand = fields.Char(string='品牌')
+
     @api.onchange('product_uom_qty', 'product_uom')
     def product_uom_change(self):
         res = super(AccSaleLine, self).product_uom_change()
@@ -518,6 +563,8 @@ class AccSaleLine(models.Model):
         for rec in self:
             # rec.price_unit = self.product_id.product_tmpl_id.acc_purchase_price
             rec.name = self.product_id.product_tmpl_id.product_model
+            # rec.acc_code = self.product_id.product_tmpl_id.acc_code
+            # rec.brand = self.product_id.product_tmpl_id.brand
 
         return res
 
