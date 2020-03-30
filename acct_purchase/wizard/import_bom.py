@@ -9,11 +9,12 @@ class ImportBomWizard(models.TransientModel):
     data = fields.Binary(u'导入文件')
     selected = fields.Integer(u'当前已选')
     exported = fields.Integer(u'之前导出')
+    # by_code = fields.Boolean(string='根据编码导入')
 
     def import_data_all(self):
         context = self.env.context or {}
         type = context.get('type',None)
-        data = self.data
+        data = self.data 
         if data:
             data = base64.b64decode(data)
             if data:

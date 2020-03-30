@@ -553,8 +553,8 @@ class AccSaleLine(models.Model):
     """
     _inherit = "sale.order.line"
 
-    # acc_code = fields.Char(string='产品编码')
-    # brand = fields.Char(string='品牌')
+    acc_code = fields.Char(related='product_id.acc_code',readonly=True, store=True,string='产品编码')
+    brand = fields.Char(related='product_id.brand',readonly=True, store=True,string='品牌')
 
     @api.onchange('product_uom_qty', 'product_uom')
     def product_uom_change(self):
@@ -581,6 +581,7 @@ class QuotationLine(models.Model):
     product_id = fields.Many2one('product.product',u'物料名称',required=True)
     product_model = fields.Char(string='规格型号')
     acc_code = fields.Char(string='产品编码')
+    brand = fields.Char(related='product_id.brand',readonly=True, store=True,string='品牌')
     description = fields.Char(string='产品描述')
     # 'default_code': fields.char(u'参考编号'),
     product_uom = fields.Many2one('uom.uom', string='单位')
@@ -834,6 +835,7 @@ class AccquotationLine(models.Model):
     product_id = fields.Many2one('product.product',u'物料名称',required=True)
     product_model = fields.Char(string='规格型号')
     acc_code = fields.Char(string='产品编码')
+    brand = fields.Char(related='product_id.brand',readonly=True, store=True,string='品牌')
     description = fields.Char(string='产品描述')
     # 'default_code': fields.char(u'参考编号'),
     product_uom = fields.Many2one('uom.uom', string='单位')

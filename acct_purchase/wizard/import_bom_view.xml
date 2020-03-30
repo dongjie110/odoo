@@ -20,7 +20,7 @@
                         <group>
                             <!-- <field name='file_name'/> -->
                             <field name='data' string="选择文件"/>
-                            <!--<field name='selected'/>-->
+                            <!-- <field name='by_code'/> -->
                             <!--<field name='exported'/>-->
                         </group>
                         <footer name="codes" >

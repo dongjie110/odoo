@@ -92,7 +92,6 @@ class AccMrpBom(models.Model):
             # all_data,repeat_name = self.check_repeat(all_data)
             for import_line in all_data:
                 # res_partner = self.env['res.partner'].search([('name', '=', str(import_line[4]))])
-                
                 uom = self.env['uom.uom'].search([('name', '=', str(import_line[6]))])
                 if uom:
                     uom_id = uom.id
@@ -121,15 +120,16 @@ class AccMrpBom(models.Model):
                     self.env['mrp.bom.line'].create(vals)
                     cr.commit()
                     success_num += 1
-                    # print (import_line[0],import_line[1])
-                    _logger.debug('===========%s===============%s', import_line[0], import_line[1])
+                    # _logger.debug('===========%s===============%s', new_product_template.name, new_product_template.acc_code)
                 except Exception as e:
                     logging.error(e)
                     error_product_name.append(import_line[0])
-            import_tips = "一共导入 {} 条数据，导入成功条数为{} 导入失败名称{},如果明细行未显示请关闭该窗口，刷新页面即可".format(len(all_data), success_num,error_product_name)
+            import_tips = "一共导入 {} 条数据，导入成功条数为{} 导入失败名称{},如果明细行未显示请关闭该窗口，刷新页面即可".format(len(all_data),success_num,error_product_name)
+            # _logger.debug('===========完成1111111===============')
         except Exception as e:
             logging.error(e)
         else:
+            _logger.debug('===========完成===============')
             raise ValidationError(import_tips)
 
     def update_newinfo(self):
@@ -188,17 +188,20 @@ class AccMrpBom(models.Model):
     def check_product(self,import_line,uom_id):
         brand = import_line[4]
         product_model = import_line[2]
+        product_code = import_line[1]
         product_name = import_line[0]
-        pt = self.env['product.template'].search([('product_model', '=', product_model),('brand', '=', brand),('name', '=', product_name),('active', '=', True)])
-        if pt:
-            if len(pt) == 1:
+        if product_code:
+            pt = self.env['product.template'].search([('acc_code', '=', product_code),('active', '=', True)])
+            if pt:
+                _logger.debug('===========%sexcel有编码通过编码找到===============%s',pt.name, pt.acc_code)
                 return pt
-            if len(pt) > 1:
-                for i in pt[1:]:
-                    i.write({'active': False})
-                return pt[0]
-        if not pt:
-            p_vals = {
+            else:
+                pt = self.env['product.template'].search([('product_model', '=', product_model),('brand', '=', brand),('name', '=', product_name),('active', '=', True)])
+                if pt:
+                    _logger.debug('===========%s无编码通过名称型号找到===============%s', pt[0].name, pt[0].acc_code)
+                    return pt[0]
+                else:
+                    p_vals = {
                         "type":'product',
                         "name":import_line[0],
                         # "acc_code":import_line[1],
@@ -217,8 +220,68 @@ class AccMrpBom(models.Model):
                         "partner_code":import_line[13],
                         "description":import_line[9]
                     }
-            new_product = self.env['product.template'].create(p_vals)
-            return new_product
+                    new_product = self.env['product.template'].create(p_vals)
+                    _logger.debug('===========%sexcel有编码通新建===============%s',new_product.name, new_product.acc_code)
+                    return new_product
+        else:
+            pt = self.env['product.template'].search([('product_model', '=', product_model),('brand', '=', brand),('name', '=', product_name),('active', '=', True)])
+            if pt:
+                _logger.debug('===========%s无编码通过名称型号找到===============%s', pt[0].name, pt[0].acc_code)
+                return pt[0]
+            else:
+                p_vals = {
+                    "type":'product',
+                    "name":import_line[0],
+                    # "acc_code":import_line[1],
+                    "product_model":import_line[2],
+                    "brand":import_line[4],
+                    "list_price":float(import_line[5]),
+                    "acc_purchase_price":float(import_line[5]),
+                    "sale_ok":True,
+                    "purchase_ok":True,
+                    'uom_id':uom_id,
+                    'uom_po_id':uom_id,#采购计量单位
+                    "product_describe_cn":import_line[7],
+                    "product_describe_en":import_line[8],
+                    "internal_des":import_line[11],
+                    "en_name":import_line[12],
+                    "partner_code":import_line[13],
+                    "description":import_line[9]
+                }
+                new_product = self.env['product.template'].create(p_vals)
+                _logger.debug('===========%s无编码未找到新建===============%s', import_line[0], import_line[1])
+                return new_product
+
+        # pt = self.env['product.template'].search([('product_model', '=', product_model),('brand', '=', brand),('name', '=', product_name),('active', '=', True)])
+        # if pt:
+        #     if len(pt) == 1:
+        #         return pt
+        #     if len(pt) > 1:
+        #         for i in pt[1:]:
+        #             i.write({'active': False})
+        #         return pt[0]
+        # if not pt:
+        #     p_vals = {
+        #                 "type":'product',
+        #                 "name":import_line[0],
+        #                 # "acc_code":import_line[1],
+        #                 "product_model":import_line[2],
+        #                 "brand":import_line[4],
+        #                 "list_price":float(import_line[5]),
+        #                 "acc_purchase_price":float(import_line[5]),
+        #                 "sale_ok":True,
+        #                 "purchase_ok":True,
+        #                 'uom_id':uom_id,
+        #                 'uom_po_id':uom_id,#采购计量单位
+        #                 "product_describe_cn":import_line[7],
+        #                 "product_describe_en":import_line[8],
+        #                 "internal_des":import_line[11],
+        #                 "en_name":import_line[12],
+        #                 "partner_code":import_line[13],
+        #                 "description":import_line[9]
+        #             }
+        #     new_product = self.env['product.template'].create(p_vals)
+        #     return new_product
 
     def save_exel(self, header, body, file_name):
         wbk = xlwt.Workbook(encoding='utf-8', style_compression=0)

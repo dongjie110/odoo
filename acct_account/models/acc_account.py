@@ -109,18 +109,34 @@ class AccAccountInvoice(models.Model):
             self.env['account.invoice.line'].create(discount_data)
         return True
 
-    # @api.multi
-    # def teller_accept(self):
-    #     self.filtered(lambda r: r.state == 'open').write({'state': 'teller'})
-    #     return True
-    #     
-    # @api.model
-    # def create(self,vals):
-    #     if vals.get('pay_rate'):
-    #         po_obj = self.env['purchase.order'].search([('name', '=', vals.get('origin'))])
-    #         paid_rate = po_obj.paid_rate + vals.get('pay_rate')
-    #     result = super(AccAccountInvoice,self).create(vals)
-    #     return result
+    @api.multi
+    def add_sale_discount_line(self):
+        sale_obj = self.env['sale.order'].search([('name', '=', self.origin)])
+        minus_amount = sale_obj.discount
+        if minus_amount == 0.0:
+            raise ValidationError("此账单无折扣金额")
+        else:
+            discount_product_tmpl = self.env['product.template'].search([('name', '=', '折扣调节')])
+            discount_product_id = self.env['product.product'].search([('product_tmpl_id', '=', discount_product_tmpl.id)])
+            discount_data = {
+            'name': self.origin + ': ' + discount_product_tmpl.name,
+            'origin': self.origin,
+            'uom_id': discount_product_tmpl.uom_id.id,
+            'product_id': discount_product_id.id,
+            # 'account_id': invoice_line.with_context({'journal_id': self.journal_id.id, 'type': 'in_invoice'})._default_account(),
+            'account_id': self.journal_id.default_debit_account_id.id,
+            # 'price_unit': line.order_id.currency_id._convert(
+            #     line.price_unit, self.currency_id, line.company_id, date or fields.Date.today(), round=False),
+            'price_unit': -minus_amount,
+            'quantity': 1,
+            'discount': 0.0,
+            'invoice_id':self.id
+            # 'account_analytic_id': line.account_analytic_id.id,
+            # 'analytic_tag_ids': line.analytic_tag_ids.ids,
+            # 'invoice_line_tax_ids': invoice_line_tax_ids.ids
+            }
+            self.env['account.invoice.line'].create(discount_data)
+        return True
 
     @api.multi
     def boss_accept(self):

@@ -83,8 +83,9 @@
                 <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="attributes">
                     <attribute name="string">规格型号</attribute>
                 </xpath>
-                <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="attributes">
-                    <attribute name="string">规格型号</attribute>
+                <xpath expr="/form/sheet/notebook/page/field/tree/field[@name='name']" position="after">
+                    <field name="acc_code"/>
+                    <field name="brand"/>
                 </xpath>
 
                 <xpath expr="/form/sheet/notebook/page[@name='order_lines']" position="after">
@@ -93,7 +94,8 @@
                             <tree string="报价单明细" editable="bottom">
                                 <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="acc_code"/>
-                                <field name="product_model"/>                           
+                                <field name="product_model"/>
+                                <field name="brand"/>                           
                                 <field name="product_qty"/>
                                 <field name="description"/>
                                 <field name="price_unit"/>
@@ -349,7 +351,8 @@
                                     <tree string="挚锦报价单明细" editable="bottom">
                                         <field name="product_id" options="{'no_create': True, 'no_open': True}"/>
                                         <field name="acc_code"/>
-                                        <field name="product_model"/>                           
+                                        <field name="product_model"/>
+                                        <field name="brand"/>
                                         <field name="product_qty"/>
                                         <field name="description"/>
                                         <field name="price_unit"/>
@@ -409,6 +412,7 @@
                     <field name="name"/>
                     <field name="partner_id"/>
                     <field name="title" />
+                    <field name="user_id"/>
                     <field name="gen_date"/>
                     <field name="sale_order"/>
                     <field name="customer_state"/>

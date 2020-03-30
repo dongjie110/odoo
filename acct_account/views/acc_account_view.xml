@@ -60,6 +60,9 @@
                 <xpath expr="//button[@name='action_invoice_open']" position="before">
                     <button name="boss_accept" string="财务审核" type="object" states="teller" class="oe_highlight" groups="acct_base.acc_account_user_group"/>   
                 </xpath>
+                <xpath expr="//button[@name='action_invoice_open']" position="after">
+                    <button name="add_sale_discount_line" string="添加折扣" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>   
+                </xpath>
                 <!-- <xpath expr="//button[@name='action_invoice_open']" position="after">
                     <button name="get_poqty" string="获取订购数量" type="object" states="draft" class="oe_highlight" groups="base.group_user"/>   
                 </xpath> -->
