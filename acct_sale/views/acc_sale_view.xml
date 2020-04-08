@@ -104,7 +104,7 @@
                                 <field name="price_subtotal"/>
                             </tree>
                         </field>
-                        <group class="oe_subtotal_footer oe_right" groups="purchase.group_purchase_user">
+                        <group class="oe_subtotal_footer oe_right">
                             <field name="quo_amount_untaxed" />
                             <field name="quo_amount_tax" />
                             <field name="discount"/>
